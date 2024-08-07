@@ -1,0 +1,110 @@
+! Navigator
+
+  script Navigator
+
+  import div Container
+    and variable CurrentPage
+    and variable ArticleCount
+
+  div Navigator
+  label PageLabel
+  label PageNumber
+  label Plus1
+  label Plus10
+  label Plus100
+  label Minus1
+  label Minus10
+  label Minus100
+  label Stats
+  a PageLink
+  a Plus1Link
+  a Minus1Link
+  variable NPages
+  variable P
+  variable N
+  variable Message
+
+  create Navigator in Container
+  set the style of Navigator to `margin:0.5em;text-align:center`
+
+  on message go to DoContent
+  set ready
+  stop
+
+DoContent:
+  divide ArticleCount by 10 giving NPages
+  if ArticleCount modulo 10 is not 0 add 1 to NPages
+
+  set the content of Navigator to ``
+
+  if CurrentPage is greater than 0
+  begin
+    create Minus1Link in Navigator
+    create Minus1 in Minus1Link
+    set the style of Minus1 to `padding:0 0.5em;font-weight:bold`
+    set the content of Minus1 to `(-1)`
+    on click Minus1
+    begin
+      put `` into Message
+      set property `source` of Message to `Navigator`
+      set property `action` of Message to `minus`
+      set property `amount` of Message to 1
+      send Message to parent
+    end
+  end
+
+  create PageLabel in Navigator
+  set the text of PageLabel to `Page`
+
+  set the elements of PageLink to NPages
+  set the elements of PageNumber to NPages
+  take 5 from CurrentPage giving P
+  if P is less than 0 put 0 into P
+  take 10 from NPages giving N
+  if N is less than 0 put 0 into P
+  add 1 to P
+  put 0 into N
+  while N is less than NPages
+  begin
+    index PageLink to N
+    index PageNumber to N
+    if N is CurrentPage
+    begin
+      create PageNumber in Navigator
+      set the style of PageNumber to `padding:0 0.25em;color:#800`
+    end else begin
+      create PageLink in Navigator
+      create PageNumber in PageLink
+      set the style of PageNumber to `padding:0 0.25em;font-weight:bold`
+    end
+    set the content of PageNumber to P
+    on click PageNumber
+    begin
+      put `` into Message
+      set property `source` of Message to `Navigator`
+      set property `action` of Message to `page`
+      set property `page` of Message to the index of PageNumber
+      send Message to parent
+    end
+    add 1 to P
+    add 1 to N
+  end
+  take CurrentPage from NPages giving N
+  if N is greater than 1
+  begin
+    create Plus1Link in Navigator
+    create Plus1 in Plus1Link
+    set the style of Plus1 to `padding:0 0.5em;font-weight:bold`
+    set the content of Plus1 to `(+1)`
+    on click Plus1
+    begin
+      put `` into Message
+      set property `source` of Message to `Navigator`
+      set property `action` of Message to `plus`
+      set property `amount` of Message to 1
+      send Message to parent
+    end
+  end
+  create Stats in Navigator
+  set the content of Stats to ` ` cat ArticleCount cat ` articles`
+  stop

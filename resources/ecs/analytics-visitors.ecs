@@ -1,0 +1,157 @@
+!	Analytics Visitors
+
+	script AnalyticsVisitors
+
+    import div Container
+        and variable List
+
+    div Legend
+    div Visitor
+    div Results
+    div Progress
+    div Div
+    span Span
+    a VisitorLink
+    a MapLink
+    variable Record
+    variable NVisitors
+    variable N
+    variable VID
+    variable IP
+    variable HostName
+    variable City
+    variable Region
+    variable County
+    variable Location
+    variable Postcode
+    variable Organisation
+    variable VisitorData
+    variable Message
+
+    on message go to Run
+    set ready
+    stop
+
+  Run:
+    clear Container
+    create Legend in Container
+    set the style of Legend to
+        `position:relative;top:-1em;margin-left:1em;display:inline;` cat
+        `background-color:white;padding:0.5em;border:1px solid black;background:#eff` 
+    create Span in Legend
+    set the content of Span to `Visitors`
+    create Progress in Container
+    set the content of Progress to `Loading visitor data`
+    create Results in Container
+    set the style of Results to `display:none;height:calc(100% - 2em);overflow-y:auto`
+
+    put the json count of List into NVisitors
+    set the elements of Visitor to NVisitors
+    set the elements of VisitorLink to NVisitors
+    set the elements of MapLink to NVisitors
+    set the elements of VID to NVisitors
+    set the elements of Location to NVisitors
+    clear Results
+    put 0 into N
+    while N is less than NVisitors
+    begin
+        create Span in Progress
+        set the content of Span to `.`
+
+        index Visitor to N
+        index VisitorLink to N
+        index MapLink to N
+        index VID to N
+        index Location to N
+
+        create Visitor in Results
+        set the style of Visitor to `margin-bottom:1em`
+        put element N of List into Record
+        put property `vid` of Record into VID
+        put property `ip` of Record into IP
+        put property `hostname` of Record into HostName
+        put property `city` of Record into City
+        put property `region` of Record into Region
+        put property `county` of Record into County
+        put property `loc` of Record into Location
+        put property `postal` of Record into Postcode
+        put property `org` of Record into Organisation
+
+        create Div in Visitor
+        set the style of Div to
+			`display:inline-block;font-weight:bold;margin:0.5em;border:1px solid black`
+        create VisitorLink in Div
+        set the style of VisitorLink to `display:block;padding:0.5em;background:#eee`
+        set the content of VisitorLink to `Visitor ` cat VID
+        on click VisitorLink
+        begin
+			index VID to the index of VisitorLink
+			put element N of List into Record
+			put empty into Message
+			set property `action` of Message to `visitor`
+			set property `visitor` of Message to VID
+			send Message to parent
+		end
+
+		rest get VisitorData from `_/ec_visitors/visitor/` cat VID cat `?v=` cat now
+		create Div in Visitor
+		set the content of Div to `Agent: ` cat property `agent` of VisitorData
+
+        if IP
+        begin
+            create Div in Visitor
+            set the content of Div to `IP: ` cat IP
+        end
+        if HostName
+        begin
+            create Div in Visitor
+            set the content of Div to `HostName: ` cat HostName
+        end
+        if City
+        begin
+            create Div in Visitor
+            set the content of Div to `City: ` cat City
+        end
+        if Region
+        begin
+            create Div in Visitor
+            set the content of Div to `Region: ` cat Region
+        end
+        if County
+        begin
+            create Div in Visitor
+            set the content of Div to `County: ` cat County
+        end
+        if Location
+        begin
+            create Div in Visitor
+            set the content of Div to `Location: ` cat Location cat `&nbsp&nbsp&nbsp&nbsp;`
+            create MapLink in Div
+            set the style of MapLink to `border:1px solid black;padding:0.2em;background:#eee`
+            set the content of MapLink to `Show`
+            on click MapLink
+            begin
+            	index VID to the index of MapLink
+            	index Location to the index of MapLink
+            	put empty into Message
+                set property `action` of Message to `map`
+                set property `vid` of Message to VID
+                set property `location` of Message to Location
+                send Message to parent
+            end
+        end
+        if Postcode
+        begin
+            create Div in Visitor
+            set the content of Div to `Postcode: ` cat Postcode
+        end
+        if Organisation
+        begin
+            create Div in Visitor
+            set the content of Div to `Organisation: ` cat Organisation
+        end
+        add 1 to N
+    end
+    set style `display` of Results to `block`
+    set style `display` of Progress to `none`
+    stop

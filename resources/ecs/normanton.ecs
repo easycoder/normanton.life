@@ -1,0 +1,854 @@
+! 	Normanton Life
+
+  	script NormantonLife
+
+  	div Block
+    div TitleGroup
+  	div SynopsisText
+  	div SynopsisGroup
+  	div DateGroup
+  	div Body
+  	div Header
+  	div BannerDiv
+  	div Buttons
+  	div ContentDiv
+  	div NavigatorDiv
+  	div CopyrightDiv
+  	div Columns
+  	div LeftColumn
+  	div CenterColumn
+  	div RightColumn
+  	div Blocks
+  	div Div
+  	span Span
+  	a TitleLink
+  	a SectionLink
+  	h5 SectionText
+  	h5 SelectorDiv
+  	img EditButton
+  	img NewButton
+  	img ToolsButton
+  	img BannerImage
+  	module LeftPanel
+  	module RightPanel
+  	module Menu
+  	module Navigator
+  	module ArticleViewer
+  	module ArticleEditor
+  	variable Mobile
+    variable UserName
+  	variable Visitor
+  	variable Valid
+  	variable Password
+  	variable HostName
+  	variable Articles
+  	variable Article
+  	variable DisplayCount
+  	variable ArticleCount
+  	variable CurrentPage
+  	variable ArticleViewerRunning
+  	variable ArticleEditorRunning
+  	variable MenuRunning
+  	variable Record
+  	variable Script
+  	variable LeftScript
+  	variable RightScript
+  	variable NavigatorScript
+  	variable Location
+  	variable Content
+  	variable Args
+  	variable Item
+  	variable Name
+  	variable Slug
+  	variable Published
+  	variable HistoryState
+  	variable Index
+  	variable N
+  	variable Message
+  	variable ViewerMessage
+  	variable ButtonMessage
+  	variable TrackingMessage
+  	variable All
+  	variable Action
+  	variable Selector
+  	variable Tag
+  	variable Author
+  	variable Section
+  	variable DateFormat
+  	variable CopyrightFormat
+  	variable ScrollPosition
+
+!  debug step
+
+	clear Mobile
+    get UserName from storage as `user.name`
+  
+   	put `https://` cat the hostname into HostName
+
+!  	Parse the URL
+   	json parse url the location as Args
+   	print `Args: ` cat Args
+   	put property `arg` of Args into Slug
+  	if Slug is empty put `` into Slug
+
+! 	Basic information & set up
+!  	put empty into storage as `visitor`
+  	get Visitor from storage as `visitor`
+!  	rest post to `/rest.php/_/ec_visits/log/` cat Visitor giving Visitor
+!  		or print `No visitor id`
+!  	put Visitor into storage as `visitor`
+
+ 	put `` into Selector
+  	put 0 into CurrentPage
+
+  	put empty into DateFormat
+  	set property `mode` of DateFormat to `date`
+  	set property `locale` of DateFormat to `en-EN`
+  	put empty into Content
+  	set property `weekday` of Content to `long`
+  	set property `year` of Content to `numeric`
+  	set property `month` of Content to `long`
+  	set property `day` of Content to `numeric`
+  	set property `options` of DateFormat to Content
+
+ 	 put empty into CopyrightFormat
+  	set property `mode` of CopyrightFormat to `date`
+  	set property `locale` of CopyrightFormat to `en-EN`
+ 	 put empty into Content
+  	set property `year` of Content to `numeric`
+  	set property `options` of CopyrightFormat to Content
+
+  	create Body in body
+  	gosub to SetupScreen
+
+  	if Slug
+  	begin
+    	gosub to ViewSlug
+    	gosub to DoFooter
+  	end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Handle clicks on the document
+  on click document
+  begin
+    put the parent name into Name
+    if Name is `SynopsisText`
+    begin
+      put the parent index into Index
+      put element Index of Articles into Article
+      gosub to ViewArticle
+    end
+  end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Process an incoming message
+  on message
+  begin
+    put the message into Message
+    print `Message: ` cat Message
+    if Message is `editleft`
+    begin
+      put `left` into Slug
+      go to EditSlug
+    end
+    if Message is `editright`
+    begin
+      put `right` into Slug
+      go to EditSlug
+    end
+    else if Message is `homebutton`
+    begin
+      if Location is not `home`
+      begin
+        gosub to DisableHomeButton
+        history back
+      end
+      else if Selector
+      begin
+        put `` into Selector
+        gosub to DisableHomeButton
+        put 0 into CurrentPage
+        gosub to RedrawBlocks
+      end
+      else if CurrentPage is not 0
+      begin
+        gosub to DisableHomeButton
+        put 0 into CurrentPage
+        gosub to RedrawBlocks
+      end
+    end
+    else if Message is `menubutton`
+    begin
+      if Location is `edit` stop
+      if Location is `show` history back
+    end
+    else
+    begin
+      put property `source` of Message into Item
+      if Item is `Navigator`
+      begin
+        put property `action` of Message into Action
+        if Action is `page`
+        begin
+          put property `page` of Message into CurrentPage
+        end
+        else if Action is `plus`
+        begin
+          add property `amount` of Message to CurrentPage
+        end
+        else if Action is `minus`
+        begin
+          take property `amount` of Message from CurrentPage
+        end
+        if CurrentPage is not 0 gosub to EnableHomeButton
+        gosub to RedrawBlocks
+        send to Navigator
+      end
+      else if Item is `Menu'
+      begin
+        put property `selector` of Message into Selector
+        if Selector is `section`
+        begin
+        	put property `section` of Message into Section
+            if Section is empty put empty into Selector
+        end
+        else if Selector is `author`
+        begin
+        	put property `author` of Message into Author
+            if Author is empty put empty into Selector
+        end
+      end
+      put 0 into CurrentPage
+      gosub to RedrawBlocks
+      gosub to EnableHomeButton
+    end
+  end
+  on leave
+  begin
+    put `` into TrackingMessage
+    set property `event` of TrackingMessage to `leave`
+    gosub to Tracking
+  end
+
+  wait 10 ticks
+  rest get LeftScript from `/resources/ecs/left.ecs?v=` cat now
+  or alert `Unable to load the left panel script - please restart.`
+  run LeftScript with LeftColumn and Message as LeftPanel
+  rest get RightScript from `/resources/ecs/right.ecs?v=` cat now
+  or alert `Unable to load the right panel script - please restart.`
+  run RightScript with RightColumn as RightPanel
+  rest get NavigatorScript from `/resources/ecs/navigator.ecs?v=` cat now
+  or alert `Unable to load the navigator script - please restart.`
+  run NavigatorScript with NavigatorDiv and CurrentPage and ArticleCount as Navigator
+  send to LeftPanel
+  send to RightPanel
+  send to Navigator
+  stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Show the admin controls
+ShowAdminControls:
+  gosub to RedrawBlocks
+  set style `display` of NewButton to `inline-block`
+  set attribute `title` of NewButton to `New article`
+  set style `display` of ToolsButton to `inline-block`
+  set attribute `title` of ToolsButton to `Admin tools`
+  put 0 into N
+  while N is less than DisplayCount
+  begin
+    index EditButton to N
+    set style `display` of EditButton to `inline-block`
+    set attribute `title` of EditButton to `Edit this article`
+    add 1 to N
+  end
+  send to LeftPanel
+  send to RightPanel
+  stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Set up the screen
+SetupScreen:
+  put `home` into Location
+  put `` into Message
+  if portrait
+  begin
+    if mobile
+    begin
+    	set Mobile
+      	set the style of Body to
+      		`position:absolute;margin:0;width:calc(100% - 1em);height:100vh;font-size:85%`
+    end
+    else set the style of Body to `width:100%`
+  end
+  else
+  begin
+    if mobile
+      set the style of Body to `position:absolute;margin:0;width:100%;height:100vh`
+    else set the style of Body to `width:1200px;margin:0 auto`
+  end
+
+  clear Body
+  create Header in Body
+  set the style of Header to `width:100%; height:auto; text-align:center`
+
+  create BannerDiv in Header
+  set the style of BannerDiv to
+    `width:100%;position:relative;padding-bottom:1em;border-bottom:1px solid #ccc`
+
+  create Buttons in BannerDiv
+  set the style of Buttons to `position:absolute;right:0`
+  create NewButton in Buttons
+  set the style of NewButton to `display:none;width:25px;margin-top:0.5em;`
+  set attribute `src` of NewButton to `resources/system/new.png`
+  set attribute `title` of NewButton to `New article`
+  on click NewButton
+  begin
+    put `` into Record
+    set property `published` of Record to now
+    set property `slug` of Record to ``
+    set property `edition` of Record to ``
+    set property `title` of Record to `Title`
+    set property `section` of Record to ``
+    set property `author` of Record to ``
+    set property `tags` of Record to ``
+    set property `synopsis` of Record to `Synopsis text`
+    set property `article` of Record to `Main article text`
+    rest post Record to `/resources/php/rest.php/_/nl_articles/new/`
+    or alert `Unable to create new record - please try again.`
+    gosub to RedrawBlocks
+  end
+  create ToolsButton in Buttons
+  set the style of ToolsButton to `display:none;width:25px;margin-top:0.5em;`
+  set attribute `src` of ToolsButton to `resources/system/gear.png`
+  set attribute `title` of ToolsButton to `Admin tools`
+  on click ToolsButton location new HostName cat `/admin.html`
+
+  create BannerImage in BannerDiv
+  if portrait
+  begin
+    set the style of BannerImage to `width:100%;height:auto; margin-top:10px`
+    set attribute `src` of BannerImage to `resources/system/banner.jpg`
+  end else begin
+    if mobile set the style of BannerImage to `width:60%;margin-top:10px`
+    else set the style of BannerImage to `width:800px;height:auto; margin-top:10px`
+    set attribute `src` of BannerImage to `resources/system/banner.jpg`
+  end
+
+  if not MenuRunning
+  begin
+    rest get Script from `/resources/ecs/menu.ecs?v=` cat now
+    or begin
+      alert `Unable to get the menu script - please try again.`
+      stop
+    end
+    run Script with Header and Mobile as Menu
+    set MenuRunning
+  end
+
+!  if Mode is `admin`
+!  begin
+!    set style `display` of NewButton to `inline-block`
+!    set style `display` of ToolsButton to `inline-block`
+!  end
+
+  create ContentDiv in Body
+  set style `position` of ContentDiv to `relative`
+  create Columns in ContentDiv
+  if portrait set the style of Columns to `width:100%`
+  else set the style of Columns to `display:flex`
+
+  create LeftColumn in Columns
+  create CenterColumn in Columns
+  create RightColumn in Columns
+  if portrait
+  begin
+    set the style of LeftColumn to `display:none`
+    set the style of CenterColumn to
+      `height:100%;margin:0 0.5em;overflow:scroll` 
+    set the style of RightColumn to `display:none`
+  end
+  else
+  begin
+    set the style of LeftColumn to `flex:200`
+    set the style of CenterColumn to `flex:800;margin:0 20px`
+    set the style of RightColumn to `flex:200`
+  end
+!  if mobile
+!  begin
+!    if Mode is `admin`
+!    begin
+!      create Div in CenterColumn
+!      set the style of Div to `height:1em`
+!    end
+!  end
+  create Blocks in CenterColumn
+
+  create NavigatorDiv in CenterColumn
+  create CopyrightDiv in ContentDiv
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Redraw all the current blocks
+RedrawBlocks:
+!  if Mode is `admin` put `All` into All
+!  else 
+  put empty into All
+  put empty into TrackingMessage
+  if TrackingMessage put `home` into Item else put `enter` into Item
+  set property `event` of TrackingMessage to Item
+
+  if Selector set property `filter` of TrackingMessage to Selector
+  if Selector is `section`
+  begin
+    set property `section` of TrackingMessage to Section
+    rest get ArticleCount from `/resources/php/rest.php/_/nl_sections/count/` cat Section cat `?v=` cat now
+      or go to DataReadFail
+  end
+  else if Selector is `author`
+  begin
+    set property `author` of TrackingMessage to Author
+    rest get ArticleCount from `/resources/php/rest.php/_/nl_authors/count/` cat Author cat `?v=` cat now
+      or go to DataReadFail
+  end
+  else if Selector is `tag`
+  begin
+    set property `tag` of TrackingMessage to Tag
+    rest get ArticleCount from `/resources/php/rest.php/_/nl_tags/count/` cat Tag cat `?v=` cat now
+      or go to DataReadFail
+  end
+  else
+  begin
+    rest get ArticleCount from `/resources/php/rest.php/_/nl_articles/count` cat All cat `?v=` cat now
+      or go to DataReadFail
+  end
+  gosub to Tracking
+  put the value of ArticleCount into ArticleCount
+
+  if ArticleCount is greater than 10
+  begin
+    set style `display` of NavigatorDiv to `block`
+  end else begin
+    set style `display` of NavigatorDiv to `none`
+  end
+
+  if Selector is `section`
+    rest get Articles from `/resources/php/rest.php/_/nl_articles/get/section/` cat Section cat `?v=` cat now
+      or go to DataReadFail
+  else if Selector is `author`
+    rest get Articles from `/resources/php/rest.php/_/nl_articles/get/author/` cat Author cat `?v=` cat now
+      or go to DataReadFail
+  else if Selector is `tag`
+    rest get Articles from `/resources/php/rest.php/_/nl_articles/get/tag/` cat Tag cat `?v=` cat now
+      or go to DataReadFail
+  else
+  begin
+    multiply CurrentPage by 10 giving N
+    rest get Articles from `/resources/php/rest.php/_/nl_articles/get` cat All cat `/` cat N cat `?v=` cat now
+      or go to DataReadFail
+  end
+
+  put the json count of Articles into N
+  put 10 into DisplayCount
+  if N is less than DisplayCount put N into DisplayCount
+
+  set the elements of Block to DisplayCount
+  set the elements of SectionText to DisplayCount
+  set the elements of TitleGroup to DisplayCount
+  set the elements of TitleLink to DisplayCount
+  set the elements of SynopsisText to DisplayCount
+  set the elements of SynopsisGroup to DisplayCount
+  set the elements of EditButton to DisplayCount
+  set the elements of SectionLink to DisplayCount
+
+  set the content of Blocks to ``
+  if Selector is `author`
+  begin
+    create SelectorDiv in Blocks
+    set the style of SelectorDiv to `font-weight:bold;color:green;margin-bottom:0.5em`
+    replace `%20` with ` ` in Author
+    set the content of SelectorDiv to `Articles by ` cat Author
+  end
+  else if Selector is `tag`
+  begin
+    create SelectorDiv in Blocks
+    set the style of SelectorDiv to `font-weight:bold;color:green;margin-bottom:0.5em`
+    set the content of SelectorDiv to `Articles with tag '` cat Tag cat `'`
+  end
+
+  ! Show the edit buttons
+  put 0 into Index
+  while Index is less than DisplayCount
+  begin
+    index Block to Index
+    index SectionText to Index
+    index TitleGroup to Index
+    index TitleLink to Index
+    index SynopsisGroup to Index
+    index SynopsisText to Index
+    index EditButton to Index
+    create Block in Blocks
+    set the style of Block to `position:relative`
+!    create EditButton in Block
+!    set the style of EditButton to
+!      `position:absolute;top:0.25em;right:0.25em;width:25px;display:none`
+!    set attribute `src` of EditButton to `resources/system/edit.png`
+!    set attribute `title` of EditButton to `Edit this article`
+    create SectionText in Block
+    set the style of SectionText to `font-size:110%;font-weight:bold;color:#f08;margin:0.5em 0`
+    create TitleGroup in Block
+    create TitleLink in TitleGroup
+    set the style of TitleLink to `font-size:1.2em;font-weight:bold;margin-bottom:1em`
+    create EditButton in TitleGroup
+    set the style of EditButton to
+      `position:absolute;top:0.25em;right:0.25em;width:25px;display:none`
+    set attribute `src` of EditButton to `resources/system/edit.png`
+    set attribute `title` of EditButton to `Edit this article`
+    create SynopsisGroup in Block
+    create SynopsisText in SynopsisGroup
+
+    on click EditButton
+    begin
+      put the index of EditButton into Index
+      put element Index of Articles into Article
+      go to Editor
+    end
+    add 1 to Index
+  end
+
+  gosub to ShowSynopses
+!  if Mode is `admin` return
+  if CurrentPage is not 0 gosub to EnableHomeButton
+  else if Selector is empty gosub to DisableHomeButton
+  else gosub to EnableHomeButton
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Display the footer
+DoFooter:
+  if not mobile
+  begin
+    set the style of CopyrightDiv to
+      `clear:both;border-top:1px solid gray;text-align:center;font-size:80%`
+    put now into Content
+    put Content format CopyrightFormat into Content
+    set the content of CopyrightDiv to `&copy;` cat Content cat ` Normanton Life`
+  end
+  return
+
+DataReadFail:
+  alert `Unable to read data - you may have to restart.`
+  stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Show the synopses of the selected articles
+ShowSynopses:
+  put 0 into Index
+  while Index is less than DisplayCount
+  begin
+    index Block to Index
+    index EditButton to Index
+    index SectionText to Index
+    index TitleLink to Index
+    index EditButton to Index
+    index SynopsisGroup to Index
+    index SynopsisText to Index
+    index SectionLink to Index
+    gosub to ShowSynopsis
+    add 1 to Index
+  end
+  return
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Show the synopsis of a selected article
+ShowSynopsis:
+!  if Mode is `admin` set style `display` of EditButton to `inline-block`
+  put element Index of Articles into Article
+print `Author: ` cat property `author` of Article
+  if property `author` of Article is UserName set style `display` of EditButton to `inline-block`
+  set style `display` of Block to `block`
+  if property `public` of Article set style `background` of Block to ``
+  else
+  begin
+!    if Mode is `admin` set style `background` of Block to `#fee`
+!    else set style `display` of Block to `none`
+  end
+  put decode property `section` of Article into Section
+  set the content of SectionText to Section
+  put decode property `title` of Article into Content
+  set the content of TitleLink to Content
+  set attribute `href` of TitleLink to HostName cat `/` cat property `slug` of Article
+  on click TitleLink
+  begin
+    put the index of TitleLink into Index
+    put element Index of Articles into Article
+    gosub to ViewArticle
+  end
+  set the content of SynopsisText to decode property `synopsis` of Article
+  create DateGroup in SynopsisGroup
+  if mobile
+  begin
+    set the style of DateGroup to `font-size:85%`
+  end
+  else
+  begin
+    set the style of DateGroup to
+      `padding-bottom:0.5em;border-bottom:1px solid lightgray;font-size:85%`
+  end
+  put property `published` of Article into Published
+  set the content of DateGroup to Published format DateFormat
+  if Section
+  begin
+    if mobile
+    begin
+  		create DateGroup in SynopsisGroup
+        set the style of DateGroup to
+          `padding-bottom:0.5em;border-bottom:1px solid lightgray;font-size:85%`
+    end
+    create Span in DateGroup
+    if not mobile set the style of Span to `padding-left:3em`
+    set the content of Span to `Section: `
+    create SectionLink in DateGroup
+    set the content of SectionLink to Section
+    on click SectionLink
+    begin
+      put `section` into Selector
+      put the content of SectionLink into Section
+      put 0 into CurrentPage
+      scroll to 0
+      gosub to RedrawBlocks
+      gosub to EnableHomeButton
+    end
+  end
+  return
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! View an article given its slug
+ViewSlug:
+  rest get Article from `_/nl_articles/slug/` cat Slug cat `?v=` cat now
+  or begin
+!    alert `Unable to read article - please try again.`
+    put empty into Slug
+    return
+  end
+  put `` into TrackingMessage
+  set property `event` of TrackingMessage to `slug`
+  go to TA2
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! View an article
+ViewArticle:
+  put `` into TrackingMessage
+  set property `event` of TrackingMessage to `article`
+TA2:
+  set property `article` of TrackingMessage to property `id` of Article
+  gosub to Tracking
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Show the selected article
+Viewer:
+  put the scroll position into ScrollPosition
+  scroll to 0
+  put `` into ViewerMessage
+  if not ArticleViewerRunning
+  begin
+    rest get Script from `/resources/ecs/viewer.ecs?v=` cat now
+    or begin
+      alert `Unable to get the viewer script - please try again.`
+      stop
+    end
+    run Script with CenterColumn and Article  and ViewerMessage
+      as ArticleViewer
+    set ArticleViewerRunning
+  end
+  gosub to DisableButtons
+  put `` into HistoryState
+  set property `script` of HistoryState to `NormantonLife`
+  set property `url` of HistoryState to
+    property `protocol` of Args cat property `domain` of Args
+  history set state HistoryState
+  on restore
+  begin
+    gosub to EnableButtons
+    if CurrentPage is 0 gosub to DisableHomeButton
+    if Location is not `home`
+    begin 
+      close ArticleViewer
+      put the history state into HistoryState
+      if HistoryState is not empty
+      begin
+        history set url property `url` of HistoryState
+      end
+      put `home` into Location
+      if ViewerMessage is `show` go to ViewSlug
+      if ViewerMessage is `edit`
+      begin
+!         if Mode is `admin` go to Editor
+         stop
+      end
+      if property `action` of ViewerMessage is `section`
+      begin
+        put property `name` of ViewerMessage into Section
+        put `section` into Selector
+        gosub to EnableHomeButton
+        gosub to RedrawBlocks
+      end
+      else if property `action` of ViewerMessage is `author`
+      begin
+        put property `name` of ViewerMessage into Author
+        put `author` into Selector
+        gosub to EnableHomeButton
+        gosub to RedrawBlocks
+      end
+      else if property `action` of ViewerMessage is `tag`
+      begin
+        put property `tag` of ViewerMessage into Tag
+        put `tag` into Selector
+        gosub to EnableHomeButton
+        gosub to RedrawBlocks
+      end
+      else
+      begin
+        put `` into TrackingMessage
+        set property `event` of TrackingMessage to `home`
+        set property `filter` of TrackingMessage to ``
+        gosub to Tracking
+      end
+    end
+    set style `display` of Buttons to `block`
+    set style `display` of Blocks to `block`
+    if ArticleCount is greater than 10 set style `display` of NavigatorDiv to `block`
+!    if Mode is `admin`
+!    begin
+!      set style `display` of NewButton to `block`
+!      set style `display` of ToolsButton to `block`
+!    end
+    wait 10 ticks
+    scroll to ScrollPosition
+  end
+
+  put `show` into Location
+  if Selector is not `section` put `` into Section
+  send to ArticleViewer
+  set style `display` of Buttons to `none`
+  set style `display` of Blocks to `none`
+  set style `display` of NavigatorDiv to `none`
+  gosub to EnableHomeButton
+  return
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Edit an article given its slug
+EditSlug:
+  rest get Article from `_/nl_articles/slug/` cat Slug cat `?v=` cat now
+  or begin
+    alert `Unable to get the article - please try again.`
+    stop
+  end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Edit an article
+Editor:
+  put `` into Message
+  if not ArticleEditorRunning
+  begin
+    require js `https://easycoder.github.io/dist/plugins/ui.js?ver=2.6.0`
+    require js `https://easycoder.github.io/dist/plugins/ckeditor.js?ver=2.6.0`
+    rest get Script from `/resources/ecs/editor.ecs?v=` cat now
+    or begin
+      alert `Unable to get the editor script - please try again.`
+      stop
+    end
+    run Script with Body and CenterColumn and Article and Message as ArticleEditor
+    set ArticleEditorRunning
+  end
+  history set
+  on restore
+  begin
+    if CurrentPage is 0 gosub to DisableHomeButton
+  	gosub to EnableButtons
+    put Article into Record
+    close ArticleEditor
+    gosub to RedrawBlocks
+    put `home` into Location
+    if Message is `show`
+    begin
+      put Record into Article
+      gosub to Viewer
+      stop
+    end
+    set style `display` of NewButton to `inline-block`
+    set style `display` of ToolsButton to `inline-block`
+    set style `display` of Blocks to `block`
+    if ArticleCount is greater than 10 set style `display` of NavigatorDiv to `block`
+  end
+
+  gosub to EnableHomeButton
+  gosub to DisableButtons
+  put `edit` into Location
+  send to ArticleEditor
+  set style `display` of NewButton to `none`
+  set style `display` of ToolsButton to `none`
+  set style `display` of Blocks to `none`
+  set style `display` of NavigatorDiv to `none`
+  stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Track an article
+Tracking:
+!  if Mode is not `admin`
+!  begin
+!    rest post TrackingMessage to `/rest.php/_/ec_visits/log/` cat Visitor or
+!    begin
+!      print `Tracking request failed. Message was ` cat TrackingMessage
+!    end
+!  end
+  return
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Control button visibility
+EnableButtons:
+	gosub to EnableSectionsButton
+    go to EnableAuthorsButton
+
+DisableButtons:
+	gosub to DisableSectionsButton
+    go to DisableAuthorsButton
+
+EnableHomeButton:
+   put `` into ButtonMessage
+   set property `button` of ButtonMessage to `home`
+   set property `action` of ButtonMessage to `enable`
+   send ButtonMessage to Menu
+   return
+
+DisableHomeButton:
+   put `` into ButtonMessage
+   set property `button` of ButtonMessage to `home`
+   set property `action` of ButtonMessage to `disable`
+   send ButtonMessage to Menu
+   return
+
+EnableSectionsButton:
+   put `` into ButtonMessage
+   set property `button` of ButtonMessage to `sections`
+   set property `action` of ButtonMessage to `enable`
+   send ButtonMessage to Menu
+   return
+
+DisableSectionsButton:
+   put `` into ButtonMessage
+   set property `button` of ButtonMessage to `sections`
+   set property `action` of ButtonMessage to `disable`
+   send ButtonMessage to Menu
+   return
+
+EnableAuthorsButton:
+   put `` into ButtonMessage
+   set property `button` of ButtonMessage to `authors`
+   set property `action` of ButtonMessage to `enable`
+   send ButtonMessage to Menu
+   return
+
+DisableAuthorsButton:
+   put `` into ButtonMessage
+   set property `button` of ButtonMessage to `authors`
+   set property `action` of ButtonMessage to `disable`
+   send ButtonMessage to Menu
+   return

@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <title>Normanton Life Admin</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style></style>
+	<script type='text/javascript' src='/easycoder/easycoder.js?ver=3.0.0'></script>
+  </head>
+  <body>
+<h1 style="text-align: center;width:800px;margin:0 auto 1em auto">Normanton Life Developer Notes</h1>
+<div style="width:800px;margin:0 auto">
+This website - normanton.life - is controlled entirely by <a href="http://easycoder.github.io"><em><strong>EasyCoder</strong></em></a> scripts running in the browser. These scripts request data from the site's REST server and build the pages seen by users and by the editor. The scripts used are the following:
+
+<p>The home page just contains a boot script that loads the main script from the REST server. The <em><strong>EasyCoder</strong></em> JavaScript module detects the loading of the page, looks for the script, compiles it and runs it. Progress information, written to the browser console, includes timing information to help choose the best optimization strategy.</p>
+
+<p>The main script does as little as possible, aiming to get a usable page up within a couple of seconds. It builds the title bar and a main content area with 3 panels, then asks the REST server how many articles there are in the current selection (initially all). It then asks for the first 10 articles and displays synopses for them in the center panel. Once this is done and while any associated images are loading it requests 2 other scripts, for the left and right panels, and starts these up. Finally, if more than 10 articles are available it calls for a script to create the navigator at the bottom of each page. All scripts are plain text files in a folder on the server where they can be accessed by any other script.</p>
+
+</div>
+</body>
+</html>

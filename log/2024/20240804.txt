@@ -1,0 +1,651 @@
+2024/08/04 11:14: _verify/I_am_admin
+2024/08/04 12:33: _list/ecs
+2024/08/04 12:50: _save/resources/ecs/normanton.ecs
+2024/08/04 12:55: _verify/I_am_admin
+2024/08/04 12:55: _list/ecs
+2024/08/04 12:55: _save/resources/ecs/normanton.ecs
+2024/08/04 12:56: _save/resources/ecs/normanton.ecs
+2024/08/04 12:59: _save/resources/ecs/normanton.ecs
+2024/08/04 13:10: _save/resources/ecs/normanton.ecs
+2024/08/04 13:11: _/nl_articles/count
+2024/08/04 13:18: _/nl_articles/count
+2024/08/04 13:18: _/nl_articles/count
+2024/08/04 13:19: _/nl_articles/count
+2024/08/04 13:19: _/nl_articles/count
+2024/08/04 13:19: _/nl_articles/count
+2024/08/04 13:21: _/nl_articles/count
+2024/08/04 13:21: _/nl_articles/count
+2024/08/04 13:22: _/nl_articles/count
+2024/08/04 13:23: _/nl_articles/count
+2024/08/04 13:23: _/nl_articles/count
+2024/08/04 13:23: _/nl_articles/count
+2024/08/04 13:39: _/nl_articles/count
+2024/08/04 13:41: _/nl_articles/count
+2024/08/04 13:43: _/nl_articles/count
+2024/08/04 14:20: _/nl_articles/count
+2024/08/04 14:25: _/nl_articles/count
+2024/08/04 14:26: _/nl_articles/count
+2024/08/04 14:29: _/nl_articles/count
+2024/08/04 14:30: _/nl_articles/count
+2024/08/04 14:31: _/nl_articles/count
+2024/08/04 14:32: _/nl_articles/count
+2024/08/04 14:35: _/nl_articles/count
+2024/08/04 14:35: _/nl_articles/count
+2024/08/04 14:36: _/nl_articles/count
+2024/08/04 14:37: _/nl_articles/count
+2024/08/04 14:37: _/nl_articles/count
+2024/08/04 14:38: _save/resources/test
+2024/08/04 15:54: _save/resources/test
+2024/08/04 15:54: _/nl_articles/count
+2024/08/04 15:56: _/nl_articles/count
+2024/08/04 15:58: _/nl_articles/count
+2024/08/04 15:59: _/nl_articles/count
+2024/08/04 15:59: _/nl_articles/count
+2024/08/04 15:59: _/nl_articles/count
+2024/08/04 16:00: _/nl_articles/count
+2024/08/04 16:01: _/nl_articles/count
+2024/08/04 16:02: _/nl_articles/count
+2024/08/04 16:02: _/nl_articles/count
+2024/08/04 16:03: _/nl_articles/count
+2024/08/04 16:04: _/nl_articles/count
+2024/08/04 16:04: _/nl_articles/count
+2024/08/04 16:05: _/nl_articles/count
+2024/08/04 16:05: _/nl_articles/count
+2024/08/04 16:06: _/nl_articles/count
+2024/08/04 16:07: _/nl_articles/count
+2024/08/04 16:07: _/nl_articles/count
+2024/08/04 16:10: _/nl_articles/count
+2024/08/04 16:10: default: Array
+2024/08/04 16:11: _/nl_articles/count
+2024/08/04 16:12: _/nl_articles/count
+2024/08/04 16:13: _/nl_articles/count
+2024/08/04 16:13: _/nl_articles/count
+2024/08/04 16:14: _/nl_articles/count
+2024/08/04 16:14: _/nl_articles/get/0
+2024/08/04 16:29: _/nl_articles/count
+2024/08/04 16:29: _/nl_articles/get/0
+2024/08/04 16:29: _/yw_articles/slug/right
+2024/08/04 16:29: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:29: _/yw_articles/slug/left
+2024/08/04 16:29: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:30: _/nl_articles/count
+2024/08/04 16:30: _/nl_articles/get/0
+2024/08/04 16:30: _/yw_articles/slug/left
+2024/08/04 16:30: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:30: _/yw_articles/slug/right
+2024/08/04 16:30: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:36: _save/resources/ecs/normanton.ecs
+2024/08/04 16:36: _/nl_articles/count
+2024/08/04 16:36: _/nl_articles/get/0
+2024/08/04 16:36: _/yw_articles/slug/right
+2024/08/04 16:36: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:36: _/yw_articles/slug/left
+2024/08/04 16:36: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:38: _save/resources/ecs/normanton.ecs
+2024/08/04 16:38: _/nl_articles/count
+2024/08/04 16:38: _/nl_articles/get/0
+2024/08/04 16:38: _/yw_articles/slug/left
+2024/08/04 16:38: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:38: _/yw_articles/slug/right
+2024/08/04 16:38: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:39: _save/resources/ecs/normanton.ecs
+2024/08/04 16:40: _/nl_articles/count
+2024/08/04 16:40: _/nl_articles/get/0
+2024/08/04 16:40: _/yw_articles/slug/left
+2024/08/04 16:40: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:40: _/yw_articles/slug/right
+2024/08/04 16:40: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:42: _/nl_articles/slug/about
+2024/08/04 16:43: _verify/I_am_admin
+2024/08/04 16:43: _/nl_articles/count
+2024/08/04 16:43: _/nl_articles/get/0
+2024/08/04 16:43: _/yw_articles/slug/left
+2024/08/04 16:43: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:43: _/yw_articles/slug/right
+2024/08/04 16:43: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:46: _/nl_articles/count
+2024/08/04 16:46: _/nl_articles/get/0
+2024/08/04 16:46: _/yw_articles/slug/left
+2024/08/04 16:46: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:46: _/yw_articles/slug/right
+2024/08/04 16:46: {"message":"REST: Unknown table 'yw_articles'."}
+2024/08/04 16:50: _/nl_articles/slug/about
+2024/08/04 16:50: _/nl_articles/slug/left
+2024/08/04 16:51: _list/ecs
+2024/08/04 16:51: _save/resources/ecs/left.ecs
+2024/08/04 16:51: _list/ecs
+2024/08/04 16:52: _save/resources/ecs/right.ecs
+2024/08/04 16:52: _list/ecs
+2024/08/04 16:52: _list/ecs
+2024/08/04 16:53: _/nl_articles/count
+2024/08/04 16:53: _/nl_articles/get/0
+2024/08/04 16:53: _/nl_articles/slug/left
+2024/08/04 16:53: _load/html~facebook
+2024/08/04 16:53: _/nl_articles/slug/right
+2024/08/04 16:54: _verify/I_am_admin
+2024/08/04 16:54: _/nl_articles/countAll
+2024/08/04 16:54: _/nl_articles/getAll/0
+2024/08/04 16:54: _/nl_articles/slug/right
+2024/08/04 16:54: _/nl_articles/slug/left
+2024/08/04 16:54: _load/html~facebook
+2024/08/04 16:54: _/nl_articles/slug/right
+2024/08/04 16:54: _/nl_articles/countAll
+2024/08/04 16:54: _/nl_articles/getAll/0
+2024/08/04 16:54: _/nl_articles/slug/right
+2024/08/04 16:55: _/yw_articles/update/14
+2024/08/04 16:55: _list/ecs
+2024/08/04 16:56: _save/resources/ecs/editor.ecs
+2024/08/04 16:56: _/nl_articles/countAll
+2024/08/04 16:56: _/nl_articles/getAll/0
+2024/08/04 16:56: _/nl_articles/slug/right
+2024/08/04 16:56: _/nl_articles/slug/left
+2024/08/04 16:56: _load/html~facebook
+2024/08/04 16:56: _/nl_articles/slug/right
+2024/08/04 16:57: _/nl_articles/update/14
+2024/08/04 16:57: _/nl_articles/countAll
+2024/08/04 16:57: _/nl_articles/getAll/0
+2024/08/04 16:57: _/nl_articles/slug/left
+2024/08/04 16:57: _load/html~facebook
+2024/08/04 16:57: _/nl_articles/slug/right
+2024/08/04 16:57: _/nl_articles/slug/left
+2024/08/04 16:58: _/nl_articles/update/1
+2024/08/04 17:00: _save/resources/ecs/editor.ecs
+2024/08/04 17:00: _list/ecs
+2024/08/04 17:01: _save/resources/ecs/normanton.ecs
+2024/08/04 17:01: _/nl_articles/countAll
+2024/08/04 17:01: _/nl_articles/getAll/0
+2024/08/04 17:01: _/nl_articles/slug/right
+2024/08/04 17:01: _/nl_articles/slug/left
+2024/08/04 17:01: _load/html~facebook
+2024/08/04 17:01: _/nl_articles/slug/left
+2024/08/04 17:01: _/nl_articles/update/1
+2024/08/04 17:02: _/nl_articles/countAll
+2024/08/04 17:02: _/nl_articles/getAll/0
+2024/08/04 17:02: _/nl_articles/slug/left
+2024/08/04 17:02: _load/html~facebook
+2024/08/04 17:02: _/nl_articles/slug/right
+2024/08/04 17:02: _/nl_articles/slug/left
+2024/08/04 17:02: _/nl_articles/update/1
+2024/08/04 17:02: SELECT id FROM nl_articles WHERE id=1
+2024/08/04 17:02: Save to /home/normantonlife/normanton.life/resources/articles/0001
+2024/08/04 17:02: Success
+2024/08/04 17:02: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='left'
+2024/08/04 17:02: Slug 'left'
+2024/08/04 17:02: UPDATE nl_articles SET value=(value),slug='left',published=1514764800,public='',ts=1722787349 WHERE id=1
+2024/08/04 17:02: ec_process_section(1)
+2024/08/04 17:02: ec_process_author(1)
+2024/08/04 17:02: ec_process_tags(1)
+2024/08/04 17:02: ec_process_words(1)
+2024/08/04 17:02: _/nl_articles/countAll
+2024/08/04 17:02: _/nl_articles/getAll/0
+2024/08/04 17:02: _/nl_articles/slug/right
+2024/08/04 17:02: _/nl_articles/slug/left
+2024/08/04 17:02: _load/html~facebook
+2024/08/04 17:02: _/nl_articles/slug/left
+2024/08/04 17:03: _/nl_articles/update/1
+2024/08/04 17:03: SELECT id FROM nl_articles WHERE id=1
+2024/08/04 17:03: Save to /home/normantonlife/normanton.life/resources/articles/0001
+2024/08/04 17:03: Success
+2024/08/04 17:03: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='left'
+2024/08/04 17:03: Slug 'left'
+2024/08/04 17:03: UPDATE nl_articles SET value=(value),slug='left',published=1514764800,public='',ts=1722787388 WHERE id=1
+2024/08/04 17:03: ec_process_section(1)
+2024/08/04 17:03: ec_process_author(1)
+2024/08/04 17:03: ec_process_tags(1)
+2024/08/04 17:03: ec_process_words(1)
+2024/08/04 17:03: _/nl_articles/slug/right
+2024/08/04 17:03: _/nl_articles/update/14
+2024/08/04 17:03: SELECT id FROM nl_articles WHERE id=14
+2024/08/04 17:03: Save to /home/normantonlife/normanton.life/resources/articles/0014
+2024/08/04 17:03: Success
+2024/08/04 17:03: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='right'
+2024/08/04 17:03: Slug 'right'
+2024/08/04 17:03: UPDATE nl_articles SET value=(value),slug='right',published=1514764800,public='',ts=1722787400 WHERE id=14
+2024/08/04 17:03: ec_process_section(14)
+2024/08/04 17:03: ec_process_author(14)
+2024/08/04 17:03: ec_process_tags(14)
+2024/08/04 17:03: ec_process_words(14)
+2024/08/04 17:03: _/nl_articles/countAll
+2024/08/04 17:03: _/nl_articles/getAll/0
+2024/08/04 17:03: _/nl_articles/slug/right
+2024/08/04 17:03: _/nl_articles/slug/left
+2024/08/04 17:03: _load/html~facebook
+2024/08/04 17:04: resources/php/rest.php/_/nl_articles/new/
+2024/08/04 17:04: {"message":"Unrecognised action 'php' requested."}
+2024/08/04 17:04: _/nl_articles/countAll
+2024/08/04 17:04: _/nl_articles/getAll/0
+2024/08/04 17:04: _/nl_articles/slug/left
+2024/08/04 17:04: _load/html~facebook
+2024/08/04 17:04: _/nl_articles/slug/right
+2024/08/04 17:04: resources/php/rest.php/_/nl_articles/new/
+2024/08/04 17:04: {"message":"Unrecognised action 'php' requested."}
+2024/08/04 17:04: _save/resources/ecs/normanton.ecs
+2024/08/04 17:04: _list/ecs
+2024/08/04 17:05: _save/resources/ecs/admin.ecs
+2024/08/04 17:05: _list/ecs
+2024/08/04 17:06: _list/ecs
+2024/08/04 17:06: _list/ecs
+2024/08/04 17:06: _save/resources/ecs/viewer.ecs
+2024/08/04 17:06: _list/ecs
+2024/08/04 17:09: _/nl_articles/countAll
+2024/08/04 17:09: _/nl_articles/getAll/0
+2024/08/04 17:09: _/nl_articles/slug/left
+2024/08/04 17:09: _load/html~facebook
+2024/08/04 17:09: _/nl_articles/slug/right
+2024/08/04 17:12: _list/ecs
+2024/08/04 17:12: _list/ecs
+2024/08/04 17:13: _list/ecs
+2024/08/04 17:13: _verify/I_am_admin
+2024/08/04 17:13: _list/ecs
+2024/08/04 17:14: _/nl_articles/countAll
+2024/08/04 17:14: _/nl_articles/getAll/0
+2024/08/04 17:14: _/nl_articles/slug/left
+2024/08/04 17:14: _load/html~facebook
+2024/08/04 17:14: _/nl_articles/slug/right
+2024/08/04 17:14: _/nl_articles/countAll
+2024/08/04 17:14: _/nl_articles/getAll/0
+2024/08/04 17:14: _/nl_articles/slug/left
+2024/08/04 17:14: _load/html~facebook
+2024/08/04 17:14: _/nl_articles/slug/right
+2024/08/04 17:14: _list/ecs
+2024/08/04 17:16: _/nl_articles/count
+2024/08/04 17:16: _/nl_articles/get/0
+2024/08/04 17:16: _/nl_articles/slug/left
+2024/08/04 17:16: _load/html~facebook
+2024/08/04 17:16: _/nl_articles/slug/right
+2024/08/04 17:16: _/nl_articles/count
+2024/08/04 17:16: _/nl_articles/get/0
+2024/08/04 17:16: _/nl_articles/slug/right
+2024/08/04 17:16: _/nl_articles/slug/left
+2024/08/04 17:16: _load/html~facebook
+2024/08/04 17:16: _/nl_articles/count
+2024/08/04 17:16: _/nl_articles/get/0
+2024/08/04 17:16: _/nl_articles/slug/left
+2024/08/04 17:16: _/nl_articles/slug/right
+2024/08/04 17:16: _load/html~facebook
+2024/08/04 17:17: _list/ecs
+2024/08/04 17:21: _save/resources/ecs/normanton.ecs
+2024/08/04 17:21: _/nl_articles/count
+2024/08/04 17:21: _/nl_articles/get/0
+2024/08/04 17:21: _/nl_articles/slug/left
+2024/08/04 17:21: _load/html~facebook
+2024/08/04 17:21: _/nl_articles/slug/right
+2024/08/04 17:27: _list/ecs
+2024/08/04 17:28: _list/ecs
+2024/08/04 17:29: _save/resources/ecs/normanton.ecs
+2024/08/04 17:29: _list/ecs
+2024/08/04 17:29: _save/resources/ecs/viewer.ecs
+2024/08/04 17:29: _/nl_articles/count
+2024/08/04 17:29: _/nl_articles/get/0
+2024/08/04 17:29: _/nl_articles/slug/right
+2024/08/04 17:29: _/nl_articles/slug/left
+2024/08/04 17:29: _load/html~facebook
+2024/08/04 17:29: _/nl_articles/count
+2024/08/04 17:29: _/nl_articles/get/0
+2024/08/04 17:29: _/nl_articles/slug/right
+2024/08/04 17:29: _/nl_articles/slug/left
+2024/08/04 17:29: _load/html~facebook
+2024/08/04 17:30: _/nl_articles/count
+2024/08/04 17:30: _/nl_articles/get/0
+2024/08/04 17:30: _/nl_articles/slug/right
+2024/08/04 17:30: _/nl_articles/slug/left
+2024/08/04 17:30: _load/html~facebook
+2024/08/04 17:30: _verify/I_am_admin
+2024/08/04 17:30: _/nl_articles/countAll
+2024/08/04 17:30: _/nl_articles/getAll/0
+2024/08/04 17:30: _/nl_articles/slug/right
+2024/08/04 17:30: _/nl_articles/slug/left
+2024/08/04 17:30: _load/html~facebook
+2024/08/04 17:32: _/nl_articles/update/31
+2024/08/04 17:32: SELECT id FROM nl_articles WHERE id=31
+2024/08/04 17:32: Save to /home/normantonlife/normanton.life/resources/articles/0031
+2024/08/04 17:32: Success
+2024/08/04 17:32: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='chickpea-fritters-tasty-number'
+2024/08/04 17:32: Slug 'chickpea-fritters-tasty-number'
+2024/08/04 17:32: UPDATE nl_articles SET value=(value),slug='chickpea-fritters-tasty-number',published=1583280000,public='1',ts=1722789136 WHERE id=31
+2024/08/04 17:32: ec_process_section(31)
+2024/08/04 17:32: ec_process_author(31)
+2024/08/04 17:32: ec_process_tags(31)
+2024/08/04 17:32: ec_process_words(31)
+2024/08/04 17:32: _/nl_articles/countAll
+2024/08/04 17:32: _/nl_articles/getAll/0
+2024/08/04 17:32: _/nl_tags/tags/31
+2024/08/04 17:32: _/nl_articles/countAll
+2024/08/04 17:32: _/nl_articles/getAll/0
+2024/08/04 17:32: _/nl_articles/slug/left
+2024/08/04 17:32: _load/html~facebook
+2024/08/04 17:32: _/nl_articles/slug/right
+2024/08/04 17:33: _/nl_tags/tags/31
+2024/08/04 17:33: _/yw_sections/enum
+2024/08/04 17:33: {"message":"REST: Unknown table 'yw_sections'."}
+2024/08/04 17:33: _/nl_articles/countAll
+2024/08/04 17:33: _/nl_articles/getAll/0
+2024/08/04 17:33: _/nl_articles/slug/right
+2024/08/04 17:33: _/nl_articles/slug/left
+2024/08/04 17:33: _load/html~facebook
+2024/08/04 17:33: _/nl_articles/count
+2024/08/04 17:33: _/nl_articles/count
+2024/08/04 17:33: _/nl_articles/get/0
+2024/08/04 17:33: _/nl_articles/slug/right
+2024/08/04 17:33: _/nl_articles/slug/left
+2024/08/04 17:33: _load/html~facebook
+2024/08/04 17:38: _/nl_articles/count
+2024/08/04 17:38: _/nl_articles/get/0
+2024/08/04 17:38: _/nl_articles/slug/left
+2024/08/04 17:38: {"message":"REST: Slug 'left' not found."}
+2024/08/04 17:38: _/nl_articles/slug/right
+2024/08/04 17:38: {"message":"REST: Slug 'right' not found."}
+2024/08/04 17:39: _/nl_articles/countAll
+2024/08/04 17:39: _/nl_articles/getAll/0
+2024/08/04 17:39: _/nl_articles/slug/left
+2024/08/04 17:39: {"message":"REST: Slug 'left' not found."}
+2024/08/04 17:39: _/nl_articles/slug/right
+2024/08/04 17:39: {"message":"REST: Slug 'right' not found."}
+2024/08/04 17:39: resources/php/rest.php/_/nl_articles/new/
+2024/08/04 17:39: {"message":"Unrecognised action 'php' requested."}
+2024/08/04 17:39: _save/resources/ecs/viewer.ecs
+2024/08/04 17:39: _list/ecs
+2024/08/04 17:40: _save/resources/ecs/normanton.ecs
+2024/08/04 17:40: _/nl_articles/countAll
+2024/08/04 17:40: _/nl_articles/getAll/0
+2024/08/04 17:40: _/nl_articles/slug/right
+2024/08/04 17:40: {"message":"REST: Slug 'right' not found."}
+2024/08/04 17:41: _/nl_articles/slug/left
+2024/08/04 17:41: {"message":"REST: Slug 'left' not found."}
+2024/08/04 17:41: resources/php/rest.php/_/nl_articles/new/
+2024/08/04 17:41: {"message":"Unrecognised action 'php' requested."}
+2024/08/04 17:50: _list/ecs
+2024/08/04 17:51: _save/resources/ecs/editor.ecs
+2024/08/04 17:51: _list/ecs
+2024/08/04 17:52: _save/resources/ecs/normanton.ecs
+2024/08/04 17:52: _/nl_articles/countAll
+2024/08/04 17:52: _/nl_articles/getAll/0
+2024/08/04 17:52: _/nl_articles/slug/left
+2024/08/04 17:52: {"message":"REST: Slug 'left' not found."}
+2024/08/04 17:52: _/nl_articles/slug/right
+2024/08/04 17:52: {"message":"REST: Slug 'right' not found."}
+2024/08/04 17:52: _/nl_articles/new/
+2024/08/04 17:52: _/nl_articles/countAll
+2024/08/04 17:52: _/nl_articles/getAll/0
+2024/08/04 19:56: _/nl_articles/slug/left
+2024/08/04 19:56: {"message":"REST: Slug 'left' not found."}
+2024/08/04 19:57: _/nl_articles/update/1
+2024/08/04 19:57: SELECT id FROM nl_articles WHERE id=1
+2024/08/04 19:57: Save to /home/normantonlife/normanton.life/resources/articles/0001
+2024/08/04 19:57: Success
+2024/08/04 19:57: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='welcome'
+2024/08/04 19:57: Slug 'welcome'
+2024/08/04 19:57: UPDATE nl_articles SET value=(value),slug='welcome',published=1722726000,public='',ts=1722797854 WHERE id=1
+2024/08/04 19:57: ec_process_section(1)
+2024/08/04 19:57: ec_process_author(1)
+2024/08/04 19:57: ec_process_tags(1)
+2024/08/04 19:57: ec_process_words(1)
+2024/08/04 19:57: _/nl_articles/countAll
+2024/08/04 19:57: _/nl_articles/getAll/0
+2024/08/04 19:58: _verify/I_am_admin
+2024/08/04 19:59: _/nl_articles/countAll
+2024/08/04 19:59: _/nl_articles/getAll/0
+2024/08/04 19:59: _/nl_articles/slug/left
+2024/08/04 19:59: {"message":"REST: Slug 'left' not found."}
+2024/08/04 19:59: _/nl_articles/slug/right
+2024/08/04 19:59: {"message":"REST: Slug 'right' not found."}
+2024/08/04 19:59: _list/
+2024/08/04 19:59: _list/articles
+2024/08/04 19:59: _list/
+2024/08/04 19:59: _list/img
+2024/08/04 20:00: _list/img
+2024/08/04 20:00: _list/img
+2024/08/04 20:00: _list/img
+2024/08/04 20:00: _list/img
+2024/08/04 20:01: _list/
+2024/08/04 20:01: _list/articles
+2024/08/04 20:02: _list/articles
+2024/08/04 20:02: _mkdir/articles/new
+2024/08/04 20:02: Create directory /home/normantonlife/normanton.life/resources/php/resources/articles/new
+2024/08/04 20:02: _list/articles
+2024/08/04 20:02: _list/articles/new
+2024/08/04 20:03: _list/articles/new
+2024/08/04 20:03: _list/articles/new
+2024/08/04 20:03: _upload/articles/new
+2024/08/04 20:03: path: resources/articles/new
+2024/08/04 20:03: File IMG-20190826-WA0000.jpg uploaded successfully to resources/articles/new/IMG-20190826-WA0000.jpg
+2024/08/04 20:03: resources/articles/new/IMG-20190826-WA0000.jpg: width:1484, height:1600
+2024/08/04 20:03: mogrify -resize 1024x1024 resources/articles/new/IMG-20190826-WA0000.jpg
+2024/08/04 20:03: _list/articles/new
+2024/08/04 20:04: _list/articles/new
+2024/08/04 20:04: _list/articles
+2024/08/04 20:04: _list/articles/new
+2024/08/04 20:04: _list/articles/new
+2024/08/04 20:05: _/nl_articles/update/1
+2024/08/04 20:05: SELECT id FROM nl_articles WHERE id=1
+2024/08/04 20:05: Save to /home/normantonlife/normanton.life/resources/articles/0001
+2024/08/04 20:05: Success
+2024/08/04 20:05: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='welcome'
+2024/08/04 20:05: Slug 'welcome'
+2024/08/04 20:05: UPDATE nl_articles SET value=(value),slug='welcome',published=1722726000,public='',ts=1722798336 WHERE id=1
+2024/08/04 20:05: ec_process_section(1)
+2024/08/04 20:05: ec_process_author(1)
+2024/08/04 20:05: ec_process_tags(1)
+2024/08/04 20:05: ec_process_words(1)
+2024/08/04 20:05: _/nl_articles/countAll
+2024/08/04 20:05: _/nl_articles/getAll/0
+2024/08/04 20:06: _/nl_articles/countAll
+2024/08/04 20:06: _/nl_articles/getAll/0
+2024/08/04 20:06: _/nl_articles/slug/left
+2024/08/04 20:06: {"message":"REST: Slug 'left' not found."}
+2024/08/04 20:06: _/nl_articles/slug/right
+2024/08/04 20:06: {"message":"REST: Slug 'right' not found."}
+2024/08/04 20:07: _/nl_articles/countAll
+2024/08/04 20:07: _/nl_articles/getAll/0
+2024/08/04 20:07: _/nl_articles/slug/right
+2024/08/04 20:07: {"message":"REST: Slug 'right' not found."}
+2024/08/04 20:07: _/nl_articles/slug/left
+2024/08/04 20:07: {"message":"REST: Slug 'left' not found."}
+2024/08/04 20:07: _/nl_articles/update/1
+2024/08/04 20:07: SELECT id FROM nl_articles WHERE id=1
+2024/08/04 20:07: Save to /home/normantonlife/normanton.life/resources/articles/0001
+2024/08/04 20:07: Success
+2024/08/04 20:07: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='welcome'
+2024/08/04 20:07: Slug 'welcome'
+2024/08/04 20:07: UPDATE nl_articles SET value=(value),slug='welcome',published=1722726000,public='',ts=1722798457 WHERE id=1
+2024/08/04 20:07: ec_process_section(1)
+2024/08/04 20:07: ec_process_author(1)
+2024/08/04 20:07: ec_process_tags(1)
+2024/08/04 20:07: ec_process_words(1)
+2024/08/04 20:07: _/nl_articles/countAll
+2024/08/04 20:07: _/nl_articles/getAll/0
+2024/08/04 20:11: _/nl_articles/countAll
+2024/08/04 20:11: _/nl_articles/getAll/0
+2024/08/04 20:11: _/nl_articles/slug/right
+2024/08/04 20:11: {"message":"REST: Slug 'right' not found."}
+2024/08/04 20:11: _/nl_articles/new/
+2024/08/04 20:11: _/nl_articles/slug/left
+2024/08/04 20:11: {"message":"REST: Slug 'left' not found."}
+2024/08/04 20:12: _/nl_articles/countAll
+2024/08/04 20:12: _/nl_articles/getAll/0
+2024/08/04 20:15: _/nl_articles/countAll
+2024/08/04 20:15: _/nl_articles/getAll/0
+2024/08/04 20:15: _/nl_articles/slug/left
+2024/08/04 20:15: _load/html~facebook
+2024/08/04 20:15: _/nl_articles/slug/right
+2024/08/04 20:15: {"message":"REST: Slug 'right' not found."}
+2024/08/04 22:00: _/nl_articles/new/
+2024/08/04 22:00: _/nl_articles/countAll
+2024/08/04 22:00: _/nl_articles/getAll/0
+2024/08/04 22:00: _/nl_articles/countAll
+2024/08/04 22:00: _/nl_articles/getAll/0
+2024/08/04 22:01: _/nl_articles/countAll
+2024/08/04 22:01: _/nl_articles/getAll/0
+2024/08/04 22:01: _/nl_articles/slug/right
+2024/08/04 22:01: {"message":"REST: Slug 'right' not found."}
+2024/08/04 22:01: _/nl_articles/slug/left
+2024/08/04 22:01: _load/html~facebook
+2024/08/04 22:01: _/nl_articles/countAll
+2024/08/04 22:01: _/nl_articles/getAll/0
+2024/08/04 22:03: _/nl_articles/countAll
+2024/08/04 22:03: _/nl_articles/getAll/0
+2024/08/04 22:04: _/nl_articles/countAll
+2024/08/04 22:04: _/nl_articles/getAll/0
+2024/08/04 22:04: _/nl_articles/slug/right
+2024/08/04 22:04: {"message":"REST: Slug 'right' not found."}
+2024/08/04 22:04: _/nl_articles/slug/left
+2024/08/04 22:04: _load/html~facebook
+2024/08/04 22:04: _/nl_articles/update/2
+2024/08/04 22:04: SELECT id FROM nl_articles WHERE id=2
+2024/08/04 22:04: Save to /home/normantonlife/normanton.life/resources/articles/0002
+2024/08/04 22:04: Success
+2024/08/04 22:04: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='right'
+2024/08/04 22:04: Slug 'right'
+2024/08/04 22:04: UPDATE nl_articles SET value=(value),slug='right',published=1722726000,public='',ts=1722805475 WHERE id=2
+2024/08/04 22:04: ec_process_section(2)
+2024/08/04 22:04: ec_process_author(2)
+2024/08/04 22:04: ec_process_tags(2)
+2024/08/04 22:04: ec_process_words(2)
+2024/08/04 22:04: _/nl_articles/countAll
+2024/08/04 22:04: _/nl_articles/getAll/0
+2024/08/04 22:04: _/nl_articles/slug/right
+2024/08/04 22:05: _/nl_articles/update/2
+2024/08/04 22:05: SELECT id FROM nl_articles WHERE id=2
+2024/08/04 22:05: Save to /home/normantonlife/normanton.life/resources/articles/0002
+2024/08/04 22:05: Success
+2024/08/04 22:05: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='right'
+2024/08/04 22:05: Slug 'right'
+2024/08/04 22:05: UPDATE nl_articles SET value=(value),slug='right',published=1722726000,public='',ts=1722805522 WHERE id=2
+2024/08/04 22:05: ec_process_section(2)
+2024/08/04 22:05: ec_process_author(2)
+2024/08/04 22:05: ec_process_tags(2)
+2024/08/04 22:05: ec_process_words(2)
+2024/08/04 22:05: _/nl_articles/countAll
+2024/08/04 22:05: _/nl_articles/getAll/0
+2024/08/04 22:05: _/nl_articles/update/2
+2024/08/04 22:05: SELECT id FROM nl_articles WHERE id=2
+2024/08/04 22:05: Save to /home/normantonlife/normanton.life/resources/articles/0002
+2024/08/04 22:05: Success
+2024/08/04 22:05: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='right'
+2024/08/04 22:05: Slug 'right'
+2024/08/04 22:05: UPDATE nl_articles SET value=(value),slug='right',published=1722726000,public='',ts=1722805543 WHERE id=2
+2024/08/04 22:05: ec_process_section(2)
+2024/08/04 22:05: ec_process_author(2)
+2024/08/04 22:05: ec_process_tags(2)
+2024/08/04 22:05: ec_process_words(2)
+2024/08/04 22:05: _/nl_articles/countAll
+2024/08/04 22:05: _/nl_articles/getAll/0
+2024/08/04 22:06: _/nl_articles/update/1
+2024/08/04 22:06: SELECT id FROM nl_articles WHERE id=1
+2024/08/04 22:06: Save to /home/normantonlife/normanton.life/resources/articles/0001
+2024/08/04 22:06: Success
+2024/08/04 22:06: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='left'
+2024/08/04 22:06: Slug 'left'
+2024/08/04 22:06: UPDATE nl_articles SET value=(value),slug='left',published=1514764800,public='',ts=1722805573 WHERE id=1
+2024/08/04 22:06: ec_process_section(1)
+2024/08/04 22:06: ec_process_author(1)
+2024/08/04 22:06: ec_process_tags(1)
+2024/08/04 22:06: ec_process_words(1)
+2024/08/04 22:06: _/nl_articles/countAll
+2024/08/04 22:06: _/nl_articles/getAll/0
+2024/08/04 22:06: _/nl_articles/slug/right
+2024/08/04 22:06: _/nl_articles/slug/left
+2024/08/04 22:06: _load/html~facebook
+2024/08/04 22:06: _/nl_articles/update/1
+2024/08/04 22:06: SELECT id FROM nl_articles WHERE id=1
+2024/08/04 22:06: Save to /home/normantonlife/normanton.life/resources/articles/0001
+2024/08/04 22:06: Success
+2024/08/04 22:06: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='left'
+2024/08/04 22:06: Slug 'left'
+2024/08/04 22:06: UPDATE nl_articles SET value=(value),slug='left',published=1514764800,public='',ts=1722805614 WHERE id=1
+2024/08/04 22:06: ec_process_section(1)
+2024/08/04 22:06: ec_process_author(1)
+2024/08/04 22:06: ec_process_tags(1)
+2024/08/04 22:06: ec_process_words(1)
+2024/08/04 22:06: _/nl_articles/countAll
+2024/08/04 22:06: _/nl_articles/getAll/0
+2024/08/04 22:07: _/nl_articles/slug/left
+2024/08/04 22:07: _load/html~facebook
+2024/08/04 22:07: _/nl_articles/slug/right
+2024/08/04 22:08: _/nl_articles/count
+2024/08/04 22:08: _/nl_articles/get/0
+2024/08/04 22:08: _/nl_articles/slug/left
+2024/08/04 22:08: _load/html~facebook
+2024/08/04 22:08: _/nl_articles/slug/right
+2024/08/04 22:08: _/nl_articles/slug/left
+2024/08/04 22:08: _/nl_articles/slug/right
+2024/08/04 22:08: _load/html~facebook
+2024/08/04 22:08: _/nl_articles/count
+2024/08/04 22:08: _/nl_articles/get/0
+2024/08/04 22:08: _/nl_articles/slug/right
+2024/08/04 22:08: _/nl_articles/slug/left
+2024/08/04 22:08: _load/html~facebook
+2024/08/04 22:09: _verify/I_am_admin
+2024/08/04 22:09: _/nl_articles/countAll
+2024/08/04 22:09: _/nl_articles/getAll/0
+2024/08/04 22:09: _/nl_articles/slug/left
+2024/08/04 22:09: _/nl_articles/slug/right
+2024/08/04 22:09: _load/html~facebook
+2024/08/04 22:10: _/nl_articles/update/2
+2024/08/04 22:10: SELECT id FROM nl_articles WHERE id=2
+2024/08/04 22:10: Save to /home/normantonlife/normanton.life/resources/articles/0002
+2024/08/04 22:10: Success
+2024/08/04 22:10: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='right'
+2024/08/04 22:10: Slug 'right'
+2024/08/04 22:10: UPDATE nl_articles SET value=(value),slug='right',published=1722726000,public='',ts=1722805819 WHERE id=2
+2024/08/04 22:10: ec_process_section(2)
+2024/08/04 22:10: ec_process_author(2)
+2024/08/04 22:10: ec_process_tags(2)
+2024/08/04 22:10: ec_process_words(2)
+2024/08/04 22:10: _/nl_articles/countAll
+2024/08/04 22:10: _/nl_articles/getAll/0
+2024/08/04 22:13: _list/ecs
+2024/08/04 22:14: _list/ecs
+2024/08/04 22:15: _save/resources/ecs/analytics.ecs
+2024/08/04 22:17: _save/resources/ecs/analytics.ecs
+2024/08/04 22:23: _save/resources/ecs/analytics.ecs
+2024/08/04 22:23: _list/ecs
+2024/08/04 22:24: _save/resources/ecs/admin.ecs
+2024/08/04 22:25: _save/resources/ecs/admin.ecs
+2024/08/04 22:27: _/nl_articles/count
+2024/08/04 22:27: _/nl_articles/get/0
+2024/08/04 22:27: _/nl_articles/slug/left
+2024/08/04 22:27: _load/html~facebook
+2024/08/04 22:27: _/nl_articles/slug/right
+2024/08/04 22:28: _verify/I_am_admin
+2024/08/04 22:28: _verify/I_am_admin
+2024/08/04 22:28: _save/resources/ecs/admin.ecs
+2024/08/04 22:29: _verify/I_am_admin
+2024/08/04 22:29: _save/resources/ecs/admin.ecs
+2024/08/04 22:29: _verify/I_am_admin
+2024/08/04 22:30: _/nl_articles/new/
+2024/08/04 22:30: _/nl_articles/countAll
+2024/08/04 22:30: _/nl_articles/getAll/0
+2024/08/04 22:31: _/nl_articles/update/3
+2024/08/04 22:31: SELECT id FROM nl_articles WHERE id=3
+2024/08/04 22:31: Save to /home/normantonlife/normanton.life/resources/articles/0003
+2024/08/04 22:31: Success
+2024/08/04 22:31: ec_getUniqueSlug: SELECT id from nl_articles WHERE slug='welcome'
+2024/08/04 22:31: Slug 'welcome'
+2024/08/04 22:31: UPDATE nl_articles SET value=(value),slug='welcome',published=1722726000,public='1',ts=1722807079 WHERE id=3
+2024/08/04 22:31: ec_process_section(3)
+2024/08/04 22:31: ec_process_author(3)
+2024/08/04 22:31: ec_process_tags(3)
+2024/08/04 22:31: ec_process_words(3)
+2024/08/04 22:31: _/nl_articles/countAll
+2024/08/04 22:31: _/nl_articles/getAll/0
+2024/08/04 22:31: _/nl_articles/count
+2024/08/04 22:31: _/nl_articles/get/0
+2024/08/04 22:31: _/nl_articles/slug/left
+2024/08/04 22:31: _load/html~facebook
+2024/08/04 22:31: _/nl_articles/slug/right
+2024/08/04 22:31: _/nl_articles/count
+2024/08/04 22:31: _/nl_articles/get/0
+2024/08/04 22:31: _/nl_articles/slug/left
+2024/08/04 22:31: _load/html~facebook
+2024/08/04 22:31: _/nl_articles/slug/right
+2024/08/04 22:31: _/nl_articles/count
+2024/08/04 22:31: _/nl_articles/get/0
+2024/08/04 22:31: _/nl_articles/slug/left
+2024/08/04 22:31: _load/html~facebook
+2024/08/04 22:31: _/nl_articles/slug/right
+2024/08/04 22:32: _/nl_articles/count
+2024/08/04 22:32: _/nl_articles/get/0
+2024/08/04 22:32: _/nl_articles/slug/left
+2024/08/04 22:32: _load/html~facebook
+2024/08/04 22:32: _/nl_articles/slug/right

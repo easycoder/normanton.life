@@ -1,0 +1,347 @@
+! Article editor
+
+  script ArticleEditor
+
+  import
+    div Body
+    and div Container
+    and variable Record
+    and variable Message
+
+  div EditorDiv
+  div DateHolder
+  div SelectorButtons
+  div PublishedDiv
+  div IDDiv
+  div SlugDiv
+  div EditionDiv
+  div SectionDiv
+  div AuthorDiv
+  div TitleDiv
+  div TagsDiv
+  div SynopsisDiv
+  div ArticleDiv
+  div Buttons
+  div Block1
+  span Status
+  label PublishedLabel
+  label IDLabel
+  label IDText
+  label SlugLabel
+  label EditionLabel
+  label SectionLabel
+  label AuthorLabel
+  label TitleLabel
+  label TagsLabel
+  button SynopsisButton
+  button ArticleButton
+  img FolderIcon
+  img SaveIcon
+  img ViewIcon
+  module FileManager
+  input PublicCheckbox
+  input SlugInput
+  input EditionInput
+  input SectionInput
+  input AuthorInput
+  input TitleInput
+  input TagsInput
+  date Date
+  variable ID
+  variable Slug
+  variable Published
+  variable Public
+  variable Edition
+  variable Section
+  variable Author
+  variable Title
+  variable Tags
+  variable Synopsis
+  variable Article
+  variable OriginalSynopsis
+  variable OriginalArticle
+  variable FileManagerScript
+  variable TextBoxWidth
+  variable Content
+  
+!  debug step
+  
+  create EditorDiv in Container
+  set the style of EditorDiv to `display:none;width:100%`
+
+  create Buttons in EditorDiv
+  set the style of Buttons to `float:right;text-align:right`
+
+  create Status in Buttons
+  set the style of Status to `color:green;padding-right:1em;margin-bottom:1em`
+  create FolderIcon in Buttons
+  set the style of FolderIcon to `width:25px;margin-right:10px`
+  set attribute `src` of FolderIcon to `https://normanton.life/resources/system/media.png`
+  set attribute `title` of FolderIcon to `Media manager`
+  on click FolderIcon go to FileMan
+  create SaveIcon in Buttons
+  set the style of SaveIcon to `width:25px;margin-right:10px`
+  set attribute `src` of SaveIcon to `https://normanton.life/resources/system/save.png`
+  set attribute `title` of SaveIcon to `Save changes`
+  on click SaveIcon go to Save
+  create ViewIcon in Buttons
+  set the style of ViewIcon to `width:25px;margin-right:10px`
+  set attribute `src` of ViewIcon to `https://normanton.life/resources/system/binoculars.png`
+  set attribute `title` of ViewIcon to `View article without saving`
+  on click ViewIcon go to View
+
+  create Block1 in EditorDiv
+
+  create PublishedDiv in Block1
+  set style `display` of PublishedDiv to `flex`
+  create PublishedLabel in PublishedDiv
+  set the style of PublishedLabel to `width:7em`
+  set the content of PublishedLabel to `Published:`
+  create DateHolder in PublishedDiv
+  set style `margin-bottom` of DateHolder to `0.5em`
+  create Date in DateHolder
+  create PublicCheckbox in DateHolder
+  set style `margin-left` of PublicCheckbox to `3em`
+  set attribute `type` of PublicCheckbox to `checkbox`
+  put 40 into TextBoxWidth
+
+  create IDDiv in Block1
+  set style `display` of IDDiv to `flex`
+  create IDLabel in IDDiv
+  set the style of IDLabel to `width:7em`
+  set the content of IDLabel to `ID:`
+  create IDText in IDDiv
+
+  create SlugDiv in Block1
+  set style `display` of SlugDiv to `flex`
+  create SlugLabel in SlugDiv
+  set the style of SlugLabel to `width:7em`
+  set the content of SlugLabel to `SEO&nbsp;Slug:`
+  create SlugInput in SlugDiv
+  set the size of SlugInput to TextBoxWidth
+
+  create EditionDiv in Block1
+  set style `display` of EditionDiv to `flex`
+  create EditionLabel in EditionDiv
+  set the style of EditionLabel to `width:7em`
+  set the content of EditionLabel to `Edition:`
+  create EditionInput in EditionDiv
+  set the size of EditionInput to TextBoxWidth
+
+  create SectionDiv in Block1
+  set style `display` of SectionDiv to `flex`
+  create SectionLabel in SectionDiv
+  set the style of SectionLabel to `width:7em`
+  set the content of SectionLabel to `Section:`
+  create SectionInput in SectionDiv
+  set the size of SectionInput to TextBoxWidth
+
+  create AuthorDiv in Block1
+  set style `display` of AuthorDiv to `flex`
+  create AuthorLabel in AuthorDiv
+  set the style of AuthorLabel to `width:7em`
+  set the content of AuthorLabel to `Author:`
+  create AuthorInput in AuthorDiv
+  set the size of AuthorInput to TextBoxWidth
+
+  create TitleDiv in Block1
+  set style `display` of TitleDiv to `flex`
+  create TitleLabel in TitleDiv
+  set the style of TitleLabel to `width:7em`
+  set the content of TitleLabel to `Title:`
+  create TitleInput in TitleDiv
+  set the size of TitleInput to TextBoxWidth
+
+  create TagsDiv in Block1
+  set style `display` of TagsDiv to `flex`
+  create TagsLabel in TagsDiv
+  set the style of TagsLabel to `width:7em`
+  set the content of TagsLabel to `Tags:`
+  create TagsInput in TagsDiv
+  set the size of TagsInput to TextBoxWidth
+
+  create SelectorButtons in EditorDiv
+  set the style of SelectorButtons to `width:100%;text-align:center`
+  create SynopsisButton in SelectorButtons
+  set the style of SynopsisButton to `width:50%;padding:0.5em;background:darkgray`
+  set the text of SynopsisButton to `Synopsis`
+  create ArticleButton in SelectorButtons
+  set the style of ArticleButton to `width:50%;padding:0.5em`
+  set the text of ArticleButton to `Article`
+  on click SynopsisButton
+  begin
+    set style `display` of SynopsisDiv to `block`
+    set style `display` of ArticleDiv to `none`
+    set style `background` of SynopsisButton to `darkgray`
+    set style `background` of ArticleButton to ``
+  end
+  on click ArticleButton
+  begin
+    set style `display` of SynopsisDiv to `none`
+    set style `display` of ArticleDiv to `block`
+    set style `background` of SynopsisButton to ``
+    set style `background` of ArticleButton to `darkgray`
+  end
+
+  create SynopsisDiv in EditorDiv
+  set the style of SynopsisDiv to `width:100%`
+  ckeditor attach to SynopsisDiv
+
+  create ArticleDiv in EditorDiv
+  set the style of ArticleDiv to `width:100%;margin-bottom:500px`
+  ckeditor attach to ArticleDiv
+
+  rest get FileManagerScript from `/resources/ecs/fileman.ecs?v=` cat now
+  or set the content of Status to `Failed to load file manager`
+
+  on message go to Editor
+  set ready
+  stop
+
+Editor:
+  set style `display` of EditorDiv to `block`
+  set style `display` of ArticleDiv to `none`
+
+  history push
+  put property `published` of Record into Published
+  put property `public` of Record into Public
+  put property `id` of Record into ID
+  put property `slug` of Record into Slug
+  put property `edition` of Record into Edition
+  put property `section` of Record into Section
+  put property `author` of Record into Author
+  put decode property `title` of Record into Title
+  put property `tags` of Record into Tags
+  put decode property `synopsis` of Record into Synopsis
+  put decode property `article` of Record into Article
+  put Synopsis into OriginalSynopsis
+  put Article into OriginalArticle
+  on close
+  begin
+    set style `display` of EditorDiv to `none`
+  end
+
+  if Synopsis is empty
+  begin
+    alert `Synopsis is empty - cancelling this edit`
+    history back
+    stop
+  end
+  if Article is empty
+  begin
+    alert `Article is empty - cancelling this edit`
+    history back
+    stop
+  end
+
+  set the date of Date to Published
+  if Public set attribute `checked` of PublicCheckbox
+  else remove attribute `checked` of PublicCheckbox
+  set the content of IDText to ID
+  set the content of SlugInput to Slug
+  set the content of EditionInput to Edition
+  set the content of SectionInput to Section
+  set the content of AuthorInput to Author
+  set the content of TitleInput to Title
+  set the content of TagsInput to Tags
+  wait 50 ticks
+  ckeditor set SynopsisDiv to Synopsis
+  wait 50 ticks
+  ckeditor set ArticleDiv to Article
+
+! Check the editors set up properly
+  wait 50 ticks
+  ckeditor get Content from SynopsisDiv
+  if Content is empty
+  begin
+    alert `Synopsis editor did not initialise correctly - please try again`
+    history back
+    stop
+  end
+  ckeditor get Content from ArticleDiv
+  if Content is empty
+  begin
+    alert `Article editor did not initialise correctly - please try again`
+    history back
+    stop
+  end
+  scroll to 0
+  stop
+
+Save:
+  put Date into Published
+  put attribute `checked` of PublicCheckbox into Public
+  put the text of EditionInput into Edition
+  put the text of SectionInput into Section
+  put the text of AuthorInput into Author
+  put the text of TitleInput into Title
+  put the text of TagsInput into Tags
+  ckeditor get Synopsis from SynopsisDiv
+  ckeditor get Article from ArticleDiv
+  put lowercase the text of SlugInput into Slug
+  if Slug is empty put lowercase Title into Slug
+  replace ` ` with `-` in Slug
+  replace `'` with `` in Slug
+  replace `"` with `` in Slug
+  replace `?` with `` in Slug
+  replace `'` with `` in Tags
+  replace `"` with `` in Tags
+
+  if Synopsis is empty
+  begin
+    if OriginalSynopsis is not empty
+    begin
+      alert `Synopsis must not be empty`
+      stop
+    end
+  end
+  if Article is empty
+  begin
+    if OriginalArticle is not empty
+    begin
+      alert `Article must not be empty`
+      stop
+    end
+  end
+  if Slug is numeric
+  begin
+    alert `SEO Slug must not be numeric`
+    stop
+  end
+
+  put `{}` into Record
+  set property `id` of Record to ID
+  set property `published` of Record to Published
+  set property `public` of Record to Public
+  set property `slug` of Record to Slug
+  set property `edition` of Record to Edition
+  set property `section` of Record to Section
+  set property `author` of Record to Author
+  set property `title` of Record to encode Title
+  set property `tags` of Record to lowercase Tags
+  set property `synopsis` of Record to encode Synopsis
+  set property `article` of Record to encode Article
+  rest post Record to `/resources/php/rest.php/_/nl_articles/update/` cat ID
+  or begin
+    set the content of Status to `Failed to save article`
+    stop
+  end
+
+  set the content of Status to `Article saved`
+  wait 3
+  set the content of Status to ``
+  stop
+
+View:
+  put `show` into Message
+  history back
+  stop
+
+FileMan:
+  print `Run the file manager`
+  run FileManagerScript with Body as FileManager
+  history set
+  on restore close FileManager
+
+  send to FileManager
+  stop

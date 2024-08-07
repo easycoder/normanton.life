@@ -1,0 +1,189 @@
+! Article viewer
+
+  script ArticleViewer
+
+  import
+    div Parent
+    and variable Record
+    and variable Message
+
+  div Container
+  div ArticleDiv
+  div FooterDiv
+  div SectionDiv
+  div AuthorDiv
+  div TagsDiv
+  div CopyrightDiv
+  h2 TitleHeader
+  h5 SectionHeader
+  img EditButton
+  a SectionLink
+  a AuthorLink
+  a TagLink
+  span Span
+  variable Password
+  variable Title
+  variable Section
+  variable Author
+  variable Valid
+  variable ID
+  variable Tags
+  variable Count
+  variable N
+  variable Tag
+  variable CopyrightFormat
+  variable Content
+  variable User
+  
+!  debug step
+
+  create Container in Parent
+
+  on message go to ShowArticle
+  set ready
+  stop
+
+ShowArticle:
+print `ShowArticle ` cat decode property `title` of Record
+  set the content of Container to ``
+!  if Mode is `admin`
+!  begin
+!    create EditButton in Container
+!    set the style of EditButton to `float:right;width:25px;margin-top:0.25em`
+!    set attribute `src` of EditButton to `https://` cat the hostname cat `/resources/system/edit.png`
+!    on click EditButton
+!    begin
+!      put `edit` into Message
+!      history back
+!    end
+!  end
+
+  put property `section` of Record into Section
+  put property `author` of Record into Author
+  put property `tags` of Record into Tags
+
+  create SectionHeader in Container
+  set the style of SectionHeader to `color:#f08`
+  set the content of SectionHeader to property `section` of Record
+
+  put decode property `title` of Record into Title
+  create TitleHeader in Container
+  set the style of TitleHeader to `color:#428bca;margin-bottom:1em`
+
+  set the content of TitleHeader to Title
+
+  create ArticleDiv in Container
+  set style `margin-top` of ArticleDiv to `0.5em`
+  put decode property `article` of Record into Content
+  set the content of ArticleDiv to Content
+
+  create FooterDiv in Container
+  set style of FooterDiv to
+    `margin:0.5em 0;border-top:1px solid gray`
+  if Section
+  begin
+    create SectionDiv in FooterDiv
+    set style of SectionDiv to
+      `margin:0.5em 0;font-size:85%;font-weight:bold;color:red`
+  end
+  if Author
+  begin
+    create AuthorDiv in FooterDiv
+    set style of AuthorDiv to
+      `margin:0.5em 0;font-size:85%;font-weight:bold;color:blue`
+  end
+  if Tags
+  begin
+    create TagsDiv in FooterDiv
+    set style of TagsDiv to
+      `margin:0.5em 0;font-size:85%;font-weight:bold;color:green`
+  end
+
+  put property `id` of Record into ID
+
+  if Section
+  begin
+    create Span in SectionDiv
+    set the content of Span to `Section: `
+    create SectionLink in SectionDiv
+    set style `margin` of SectionLink to `0 0.25em`
+    set the content of SectionLink to Section
+    on click SectionLink
+    begin
+      put `{}` into Message
+      set property `source` of Message to `Viewer`
+      set property `action` of Message to `section`
+      replace ` ` with `%20` in Section
+      set property `name` of Message to Section
+      history back
+    end
+  end
+
+  if Author
+  begin
+    create Span in AuthorDiv
+    set the content of Span to `Author: `
+    create AuthorLink in AuthorDiv
+    set style `margin` of AuthorLink to `0 0.25em`
+    set the content of AuthorLink to Author
+    on click AuthorLink
+    begin
+      put `{}` into Message
+      set property `source` of Message to `Viewer`
+      set property `action` of Message to `author`
+      replace ` ` with `%20` in Author
+      set property `name` of Message to Author
+      history back
+    end
+  end
+
+  if Tags
+  begin
+    create Span in TagsDiv
+    set the content of Span to `Tags: `
+    rest get Tags from `/resources/php/rest.php/_/nl_tags/tags/` cat ID cat `?v=` cat now
+    or begin
+      alert `Failed to read the article tags.`
+      stop
+    end
+    put the json count of Tags into Count
+    set the elements of TagLink to Count
+    put 0 into N
+    while N is less than Count
+    begin
+      index TagLink to N
+      create TagLink in TagsDiv
+      set style `margin` of TagLink to `0 0.25em`
+      set the content of TagLink to element N of Tags
+      on click TagLink
+      begin
+        put the content of TagLink into Tag
+        put `{}` into Message
+        set property `source` of Message to `Viewer`
+        set property `action` of Message to `tag`
+        set property `tag` of Message to Tag
+        history back
+      end
+      add 1 to N
+    end
+  end
+
+  history push url `?` cat property `slug` of Record
+
+!  put empty into Content
+!  set property `action` of Content to `view`
+!  set property `slug` of Content to property `slug` of Record
+!  get User from storage as `user`
+!  rest post Content to `_/ec-tracking/tracking/` cat User or stop
+
+  on close
+  begin
+	! print `Close Article Viewer`
+  	clear Container
+  	set style `display` of Container to `none`
+  end
+
+  set style `display` of Container to `block`
+  if mobile scroll to 1
+
+  stop

@@ -1,0 +1,244 @@
+! Menu
+
+  script Menu
+
+  import div Header and variable Mobile
+
+  div MenuDiv
+  div Mask
+  div SectionDiv
+  div AuthorDiv
+  div HomeButton
+  div SectionsButton
+  div AuthorsButton
+  div UserButton
+  div UserPanel
+  div AddButton
+  select SectionSelect
+  select AuthorSelect
+  img UserIcon
+  img AddIcon
+  module UserModule
+  variable Script
+  variable Style
+  variable Style2
+  variable Message
+  variable UserName
+  variable List
+  variable Sections
+  variable Section
+  variable Authors
+  variable Author
+  variable Name
+  variable Count
+  variable SelectedSection
+  variable SelectedAuthor
+  variable Action
+  variable Value
+  variable N
+  
+!  debug step
+
+  create MenuDiv in Header
+  if mobile set the style of MenuDiv to
+    `display:flex;width:100%;margin:0 auto auto;text-align:center`
+  else set the style of MenuDiv to
+    `display:flex;width:800px;margin:0 auto;padding:0.5em 0;background:#444;color:white;font-weight:bold;text-align:center`
+
+  put `flex:33;background:#444;color:white;font-weight:bold` into Style
+  put `width:100%;height:100%;background:#444;color:white;font-weight:bold` into Style2
+  create HomeButton in MenuDiv
+  set the style of HomeButton to Style
+  set style `color` of HomeButton to `gray`
+  set the content of HomeButton to `Home`
+  on click HomeButton send `homebutton` to parent
+
+  create SectionDiv in MenuDiv
+  set the style of SectionDiv to Style
+  create SectionsButton in SectionDiv
+  set the style of SectionsButton to Style2
+  set style `cursor` of SectionsButton to `pointer`
+  set the content of SectionsButton to `Sections`
+  on click SectionsButton go to DoSections
+  create SectionSelect in SectionDiv
+  set the style of SectionSelect to Style
+  set style `display` of SectionSelect to `none`
+  put empty into SelectedSection
+
+  create AuthorDiv in MenuDiv
+  set the style of AuthorDiv to Style
+  create AuthorsButton in AuthorDiv
+  set the style of AuthorsButton to Style2
+  set style `cursor` of AuthorsButton to `pointer`
+  set the content of AuthorsButton to `Authors`
+  on click AuthorsButton go to DoAuthors
+  create AuthorSelect in AuthorDiv
+  set the style of AuthorSelect to Style
+  set style `display` of AuthorSelect to `none`
+  put empty into SelectedAuthor
+  
+  if not Mobile
+  begin
+    create AddButton in MenuDiv
+    set the style of AddButton to `width:1.5em;background:#444;text-align:left`
+    create AddIcon in AddButton
+    set style `width` of AddIcon to `1em`
+    set style `height` of AddIcon to `1em`
+    set attribute `src` of AddIcon to `/resources/icon/plus.png`
+    if UserName is empty set style `display` of AddButton to `none`
+    
+    create UserButton in MenuDiv
+    set the style of UserButton to `width:1.5em;background:#444;text-align:left`
+    create UserIcon in UserButton
+    set style `width` of UserIcon to `1em`
+    set style `height` of UserIcon to `1em`
+    get UserName from storage as `user.name`
+    if UserName is empty set attribute `src` of UserIcon to `/resources/icon/user.png`
+    else set attribute `src` of UserIcon to `/resources/icon/user-loggedin.png`
+    set style `cursor` of UserIcon to `pointer`
+    on click UserIcon go to ManageUsers
+  end
+
+  on message
+  begin
+    put the message into Message
+!    print `Menu message: ` cat Message
+	put property `action` of Message into Action
+	if Action is `enable`
+    begin
+      if property `button` of Message is `home`
+      begin
+      	set style `cursor` of HomeButton to `pointer`
+        set style `color` of HomeButton to `white`
+      end
+      else if property `button` of Message is `sections`
+      begin
+      	set style `cursor` of SectionsButton to `pointer`
+        set style `color` of SectionsButton to `white`
+      end
+      else if property `button` of Message is `authors`
+      begin
+      	set style `cursor` of AuthorsButton to `pointer`
+        set style `color` of AuthorsButton to `white`
+      end
+    end
+    else if Action is `disable`
+    begin
+      if property `button` of Message is `home`
+      begin
+      	set style `cursor` of HomeButton to `none`
+        set style `color` of HomeButton to `gray`
+      end
+      else if property `button` of Message is `sections`
+      begin
+      	set style `cursor` of SectionsButton to `none`
+        set style `color` of SectionsButton to `gray`
+      end
+      else if property `button` of Message is `authors`
+      begin
+      	set style `cursor` of AuthorsButton to `none`
+        set style `color` of AuthorsButton to `gray`
+      end
+    end
+  end
+
+  create Mask
+  set the style of Mask to `display:none;position:absolute;top:0;left:0;right:0;bottom:0;`
+    cat `width:100%;height:100%;z-index:5;background-color:rgba(0,0,0,0.0);text-align:center`
+
+  set ready
+  stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Manage users
+ManageUsers:
+	create UserPanel in Header
+	rest get Script from `/resources/ecs/user.ecs?v=` cat now
+    run Script with UserPanel as UserModule
+    remove element UserPanel
+    get UserName from storage as `user.name`
+    if UserName is empty
+    begin
+    	set attribute `src` of UserIcon to `/resources/icon/user.png`
+        set style `display` of AddButton to `none`
+    end
+    else
+    begin
+    	set attribute `src` of UserIcon to `/resources/icon/user-loggedin.png`
+        set style `display` of AddButton to `inline-block`
+    end
+    stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Show the list of sections
+DoSections:
+  set style `display` of SectionsButton to `none`
+  set style `display` of SectionSelect to `inline-block`
+  rest get Sections from `/resources/php/rest.php/_/nl_sections/enum?v=` cat now
+  put the json count of Sections into Count
+  set the elements of Section to Count
+  put `[]` into List
+  json add `all` to List
+  put 0 into N
+  while N is less than Count
+  begin
+    index Section to N
+    put element N of Sections into Section
+    put Section into Name
+    replace `%20` with ` ` in Name
+   	json add Name to List
+    add 1 to N
+  end
+  put SelectedSection into Value
+  if Value is empty put `all` into Value
+  set SectionSelect from List as Value
+  on change SectionSelect
+  begin
+   	put attribute `value` of SectionSelect into SelectedSection
+    if SelectedSection is `all` put empty into SelectedSection
+   	put `` into Message
+   	set property `source` of Message to `Menu`
+   	set property `selector` of Message to `author`
+   	set property `section` of Message to SelectedSection
+  	set style `display` of SectionsButton to `inline-block`
+  	set style `display` of SectionSelect to `none`
+   	send Message to parent
+  end
+  stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Show the list of authors
+DoAuthors:
+  set style `display` of AuthorsButton to `none`
+  set style `display` of AuthorSelect to `inline-block`
+  rest get Authors from `/resources/php/rest.php/_/nl_authors/enum?v=` cat now
+  put the json count of Authors into Count
+  set the elements of Author to Count
+  put `[]` into List
+  json add `all` to List
+  put 0 into N
+  while N is less than Count
+  begin
+    index Author to N
+    put element N of Authors into Author
+    put Author into Name
+    replace `%20` with ` ` in Name
+   	json add Name to List
+    add 1 to N
+  end
+  put SelectedAuthor into Value
+  if Value is empty put `all` into Value
+  set AuthorSelect from List as Value
+  on change AuthorSelect
+  begin
+   	put attribute `value` of AuthorSelect into SelectedAuthor
+    if SelectedAuthor is `all` put empty into SelectedAuthor
+   	put `` into Message
+   	set property `source` of Message to `Menu`
+   	set property `selector` of Message to `author`
+   	set property `author` of Message to SelectedAuthor
+  	set style `display` of AuthorsButton to `inline-block`
+  	set style `display` of AuthorSelect to `none`
+   	send Message to parent
+  end
+  stop

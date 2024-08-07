@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <title>Yorkshirewoman Analytics</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style></style>
+	<script src='https://easycoder.github.io/dist/easycoder.js?v=240731'></script>
+  </head>
+  <body>
+	<pre id="easycoder-rest" style="display:none">/rest.php</pre>
+    <pre id="easycoder-script" style="display: none;">
+    script AnalyticsBoot
+    variable Script
+    require js `https://easycoder.github.io/dist/plugins/ui.js?ver=240731`
+    rest get Script from `/resources/ecs/analytics.ecs?v=` cat now
+    run Script
+    </pre>
+</div>
+</body>
+</html>
