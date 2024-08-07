@@ -5,7 +5,6 @@
   import div Header and variable Mobile
 
   div MenuDiv
-  div Mask
   div SectionDiv
   div AuthorDiv
   div HomeButton
@@ -33,11 +32,18 @@
   variable Count
   variable SelectedSection
   variable SelectedAuthor
+  variable HomeEnable
+  variable SectionEnable
+  variable AuthorEnable
   variable Action
   variable Value
   variable N
   
 !  debug step
+
+  get UserName from storage as `user.name`
+  set SectionEnable
+  set AuthorEnable
 
   create MenuDiv in Header
   if mobile set the style of MenuDiv to
@@ -49,9 +55,9 @@
   put `width:100%;height:100%;background:#444;color:white;font-weight:bold` into Style2
   create HomeButton in MenuDiv
   set the style of HomeButton to Style
-  set style `color` of HomeButton to `gray`
+  gosub to DisableHome
   set the content of HomeButton to `Home`
-  on click HomeButton send `homebutton` to parent
+  on click HomeButton go to DoHome
 
   create SectionDiv in MenuDiv
   set the style of SectionDiv to Style
@@ -86,13 +92,13 @@
     set style `height` of AddIcon to `1em`
     set attribute `src` of AddIcon to `/resources/icon/plus.png`
     if UserName is empty set style `display` of AddButton to `none`
+    on click AddIcon go to AddArticle
     
     create UserButton in MenuDiv
     set the style of UserButton to `width:1.5em;background:#444;text-align:left`
     create UserIcon in UserButton
     set style `width` of UserIcon to `1em`
     set style `height` of UserIcon to `1em`
-    get UserName from storage as `user.name`
     if UserName is empty set attribute `src` of UserIcon to `/resources/icon/user.png`
     else set attribute `src` of UserIcon to `/resources/icon/user-loggedin.png`
     set style `cursor` of UserIcon to `pointer`
@@ -106,48 +112,64 @@
 	put property `action` of Message into Action
 	if Action is `enable`
     begin
-      if property `button` of Message is `home`
-      begin
-      	set style `cursor` of HomeButton to `pointer`
-        set style `color` of HomeButton to `white`
-      end
-      else if property `button` of Message is `sections`
-      begin
-      	set style `cursor` of SectionsButton to `pointer`
-        set style `color` of SectionsButton to `white`
-      end
-      else if property `button` of Message is `authors`
-      begin
-      	set style `cursor` of AuthorsButton to `pointer`
-        set style `color` of AuthorsButton to `white`
-      end
+      if property `button` of Message is `home` gosub to EnableHome
+      else if property `button` of Message is `sections` gosub to EnableSection
+      else if property `button` of Message is `authors` gosub to EnableAuthor
     end
     else if Action is `disable`
     begin
-      if property `button` of Message is `home`
-      begin
-      	set style `cursor` of HomeButton to `none`
-        set style `color` of HomeButton to `gray`
-      end
-      else if property `button` of Message is `sections`
-      begin
-      	set style `cursor` of SectionsButton to `none`
-        set style `color` of SectionsButton to `gray`
-      end
-      else if property `button` of Message is `authors`
-      begin
-      	set style `cursor` of AuthorsButton to `none`
-        set style `color` of AuthorsButton to `gray`
-      end
+      if property `button` of Message is `home` gosub to DisableHome
+      else if property `button` of Message is `sections` gosub to DisableSection
+      else if property `button` of Message is `authors` gosub to DisableAuthor
     end
   end
 
-  create Mask
-  set the style of Mask to `display:none;position:absolute;top:0;left:0;right:0;bottom:0;`
-    cat `width:100%;height:100%;z-index:5;background-color:rgba(0,0,0,0.0);text-align:center`
-
   set ready
   stop
+
+EnableHome:
+    set style `cursor` of HomeButton to `pointer`
+    set style `color` of HomeButton to `white`
+	return
+
+DisableHome:
+    set style `cursor` of HomeButton to `none`
+    set style `color` of HomeButton to `gray`
+	return
+
+EnableSection:
+    set style `cursor` of SectionsButton to `pointer`
+    set style `color` of SectionsButton to `white`
+    set SectionEnable
+	return
+
+DisableSection:
+    set style `cursor` of SectionsButton to `none`
+    set style `color` of SectionsButton to `gray`
+    clear SectionEnable
+	return
+
+EnableAuthor:
+    set style `cursor` of AuthorsButton to `pointer`
+    set style `color` of AuthorsButton to `white`
+    set AuthorEnable
+	return
+
+DisableAuthor:
+    set style `cursor` of AuthorsButton to `none`
+    set style `color` of AuthorsButton to `gray`
+    clear AuthorEnable
+	return
+
+EnableFilters:
+	gosub to EnableSection
+    gosub to EnableAuthor
+    go to EnableHome
+
+DisableFilters:
+	gosub to DisableSection
+    gosub to DisableAuthor
+    goto DisableHome
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Manage users
@@ -170,8 +192,20 @@ ManageUsers:
     stop
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Add a new article
+AddArticle:
+	stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Here when the Home button is clicked
+DoHome:
+	send `homebutton` to parent
+    stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Show the list of sections
 DoSections:
+  if not SectionEnable stop
   set style `display` of SectionsButton to `none`
   set style `display` of SectionSelect to `inline-block`
   rest get Sections from `/resources/php/rest.php/_/nl_sections/enum?v=` cat now
@@ -202,6 +236,9 @@ DoSections:
    	set property `section` of Message to SelectedSection
   	set style `display` of SectionsButton to `inline-block`
   	set style `display` of SectionSelect to `none`
+!    if SelectedSection is empty gosub to EnableFilters
+!    else gosub to DisableFilters
+	gosub to EnableHome
    	send Message to parent
   end
   stop
@@ -209,6 +246,7 @@ DoSections:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Show the list of authors
 DoAuthors:
+  if not AuthorEnable stop
   set style `display` of AuthorsButton to `none`
   set style `display` of AuthorSelect to `inline-block`
   rest get Authors from `/resources/php/rest.php/_/nl_authors/enum?v=` cat now
@@ -239,6 +277,9 @@ DoAuthors:
    	set property `author` of Message to SelectedAuthor
   	set style `display` of AuthorsButton to `inline-block`
   	set style `display` of AuthorSelect to `none`
+!    if SelectedAuthor is empty gosub to EnableFilters
+!    else gosub to DisableFilters
+	gosub to EnableHome
    	send Message to parent
   end
   stop

@@ -19,7 +19,6 @@
   	div CenterColumn
   	div RightColumn
   	div Blocks
-  	div Div
   	span Span
   	a TitleLink
   	a SectionLink
@@ -38,8 +37,6 @@
   	variable Mobile
     variable UserName
   	variable Visitor
-  	variable Valid
-  	variable Password
   	variable HostName
   	variable Articles
   	variable Article
@@ -54,6 +51,7 @@
   	variable LeftScript
   	variable RightScript
   	variable NavigatorScript
+    variable Source
   	variable Location
   	variable Content
   	variable Args
@@ -72,6 +70,7 @@
   	variable Action
   	variable Selector
   	variable Tag
+    variable Flag
   	variable Author
   	variable Section
   	variable DateFormat
@@ -98,7 +97,7 @@
 !  		or print `No visitor id`
 !  	put Visitor into storage as `visitor`
 
- 	put `` into Selector
+ 	put empty into Selector
   	put 0 into CurrentPage
 
   	put empty into DateFormat
@@ -144,7 +143,7 @@
 ! Process an incoming message
   on message
   begin
-    put the message into Message
+	put the message into Message
     print `Message: ` cat Message
     if Message is `editleft`
     begin
@@ -158,34 +157,48 @@
     end
     else if Message is `homebutton`
     begin
-      if Location is not `home`
+    print `Location: ` cat Location
+    debug step
+      if Location is `home`
       begin
+      	put empty into Section
+        put empty into Author
+ 	    put empty into Selector
         gosub to DisableHomeButton
+      else
+      begin
+      clear Flag
+        if Section is not empty set Flag
+        if Author is not empty set Flag
+        if Flag gosub to EnableHomeButton
         history back
+        print `Gone back`
       end
-      else if Selector
-      begin
-        put `` into Selector
-        gosub to DisableHomeButton
-        put 0 into CurrentPage
-        gosub to RedrawBlocks
-      end
-      else if CurrentPage is not 0
-      begin
-        gosub to DisableHomeButton
-        put 0 into CurrentPage
-        gosub to RedrawBlocks
-      end
+    debug stop
+      gosub to RedrawBlocks
+!      else if Selector
+!      begin
+!        put `` into Selector
+!        gosub to DisableHomeButton
+!        put 0 into CurrentPage
+!        gosub to RedrawBlocks
+!      end
+!      else if CurrentPage is not 0
+!      begin
+!        gosub to DisableHomeButton
+!        put 0 into CurrentPage
+!        gosub to RedrawBlocks
+!      end
     end
-    else if Message is `menubutton`
-    begin
-      if Location is `edit` stop
-      if Location is `show` history back
-    end
-    else
-    begin
-      put property `source` of Message into Item
-      if Item is `Navigator`
+!    else if Message is `menubutton`
+!    begin
+!      if Location is `edit` stop
+!      if Location is `show` history back
+!    end
+!    else
+!    begin
+      put property `source` of Message into Source
+      if Source is `Navigator`
       begin
         put property `action` of Message into Action
         if Action is `page`
@@ -200,11 +213,11 @@
         begin
           take property `amount` of Message from CurrentPage
         end
-        if CurrentPage is not 0 gosub to EnableHomeButton
+!        if CurrentPage is not 0 gosub to EnableHomeButton
         gosub to RedrawBlocks
         send to Navigator
       end
-      else if Item is `Menu'
+      else if Source is `Menu'
       begin
         put property `selector` of Message into Selector
         if Selector is `section`
@@ -220,8 +233,8 @@
       end
       put 0 into CurrentPage
       gosub to RedrawBlocks
-      gosub to EnableHomeButton
-    end
+!      gosub to EnableHomeButton
+!    end
   end
   on leave
   begin
@@ -516,9 +529,9 @@ RedrawBlocks:
 
   gosub to ShowSynopses
 !  if Mode is `admin` return
-  if CurrentPage is not 0 gosub to EnableHomeButton
-  else if Selector is empty gosub to DisableHomeButton
-  else gosub to EnableHomeButton
+!  if CurrentPage is not 0 gosub to EnableHomeButton
+!  else if Selector is empty gosub to DisableHomeButton
+!  else gosub to EnableHomeButton
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Display the footer
@@ -561,7 +574,6 @@ ShowSynopses:
 ShowSynopsis:
 !  if Mode is `admin` set style `display` of EditButton to `inline-block`
   put element Index of Articles into Article
-print `Author: ` cat property `author` of Article
   if property `author` of Article is UserName set style `display` of EditButton to `inline-block`
   set style `display` of Block to `block`
   if property `public` of Article set style `background` of Block to ``
@@ -614,7 +626,7 @@ print `Author: ` cat property `author` of Article
       put 0 into CurrentPage
       scroll to 0
       gosub to RedrawBlocks
-      gosub to EnableHomeButton
+!      gosub to EnableHomeButton
     end
   end
   return
@@ -667,7 +679,7 @@ Viewer:
   on restore
   begin
     gosub to EnableButtons
-    if CurrentPage is 0 gosub to DisableHomeButton
+!    if CurrentPage is 0 gosub to DisableHomeButton
     if Location is not `home`
     begin 
       close ArticleViewer
@@ -812,6 +824,7 @@ DisableButtons:
     go to DisableAuthorsButton
 
 EnableHomeButton:
+print `Main: EnableHomeButton`
    put `` into ButtonMessage
    set property `button` of ButtonMessage to `home`
    set property `action` of ButtonMessage to `enable`
@@ -819,6 +832,7 @@ EnableHomeButton:
    return
 
 DisableHomeButton:
+print `Main: DisableHomeButton`
    put `` into ButtonMessage
    set property `button` of ButtonMessage to `home`
    set property `action` of ButtonMessage to `disable`
