@@ -12,24 +12,24 @@
         $action = $request[0];
         array_shift($request);
         switch ($table) {
-            case 'nl_articles':
+            case 'articles':
                 switch ($action) {
                     case 'count':
-                        // Endpoint: {site root}/rest.php/_/nl_articles/count
+                        // Endpoint: {site root}/rest.php/_/articles/count
                         // Return the number of public items in the table
-                        $result = $conn->query("SELECT id from $table WHERE public=1");
+                        $result = $conn->query("SELECT id from articles WHERE public=1");
                         //print "{\"count\":".mysqli_num_rows($result)."}";
                         print mysqli_num_rows($result);
                         break;
                     case 'countAll':
-                        // Endpoint: {site root}/rest.php/_/nl_articles/countAll
+                        // Endpoint: {site root}/rest.php/_/articles/countAll
                         // Return the total number of items in the table
-                        $result = $conn->query("SELECT id from $table");
+                        $result = $conn->query("SELECT id from articles");
                         //print "{\"count\":".mysqli_num_rows($result)."}";
                         print mysqli_num_rows($result);
                         break;
                     case 'list':
-                        // Endpoint: {site root}/rest.php/_/nl_articles/list/{offset}/{count}
+                        // Endpoint: {site root}/rest.php/_/articles/list/{offset}/{count}
                         // List the ids of all public items in the range specified
                         switch (count($request)) {
                             case 1:
@@ -45,7 +45,7 @@
                                 $count = 10;
                                 break;
                         }
-                        $result = $conn->query("SELECT id FROM $table WHERE public=1 ORDER BY published DESC LIMIT $offset, $count");
+                        $result = $conn->query("SELECT id FROM articles WHERE public=1 ORDER BY published DESC LIMIT $offset, $count");
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
                             if ($response != '[') {
@@ -57,8 +57,8 @@
                         print $response;
                         break;
                     case 'listAll':
-                        // Endpoint: {site root}/rest.php/_/nl_articles/listAll/{offset}/{count}
-                        // List the ids of all items in the range specified
+                        // Endpoint: {site root}/rest.php/_/articles/listAll/{offset}/{count}
+                        // List the ids of all articles in the range specified
                         switch (count($request)) {
                             case 1:
                                 $offset = $request[0];
@@ -73,7 +73,7 @@
                                 $count = 10;
                                 break;
                         }
-                        $result = $conn->query("SELECT id FROM $table ORDER BY published DESC LIMIT $offset, $count");
+                        $result = $conn->query("SELECT id FROM articles ORDER BY published DESC LIMIT $offset, $count");
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
                             if ($response != '[') {
@@ -85,10 +85,10 @@
                         print $response;
                         break;
                     case 'id':
-                        // Endpoint: {site root}/rest.php/_/nl_articles/id/{id}
+                        // Endpoint: {site root}/rest.php/_/articles/id/{id}
                         // Get a record given its id
                         $id = $request[0];
-                        $result = $conn->query("SELECT value FROM $table WHERE id='$id'");
+                        $result = $conn->query("SELECT value FROM articles WHERE id='$id'");
                         if ($row = mysqli_fetch_object($result)) {
                             $value = $row->value;
                             $json = json_decode($value);
@@ -98,10 +98,10 @@
                         }
                         break;
                     case 'slug':
-                        // Endpoint: {site root}/rest.php/_/nl_articles/slug/{slug}
+                        // Endpoint: {site root}/rest.php/_/articles/slug/{slug}
                         // Get a record given its slug
                         $slug = $request[0];
-                        $result = $conn->query("SELECT id,value FROM $table WHERE slug='$slug'");
+                        $result = $conn->query("SELECT id,value FROM articles WHERE slug='$slug'");
                         if ($row = mysqli_fetch_object($result)) {
                             $value = $row->value;
                             $json = json_decode($value);
@@ -115,12 +115,20 @@
                          }
                         break;
                     case 'get':
-                        // Endpoint: {site root}/rest.php/_/nl_articles/get/[{filter}/][{offset}/][{count}]
+                        // Endpoint: {site root}/rest.php/_/articles/get/{user}/[{filter}/{name}][{offset}/][{count}]
                         // Get all the public articles in the range specified
+                        // First see if the user is admin
+                        $user = $request[0];
+                        $result = $conn->query("SELECT admin FROM ec_user WHERE name='$user'");
+                        $row = mysqli_fetch_object($result);
+                        $where = $row->admin ? "" : "WHERE public=1";
+                        mysqli_free_result($result);
+                        array_shift($request);
+
                         $filter = '';
                         if (count($request) > 0) {
                             $filter = $request[0];
-                            if (in_array($request[0], array('section', 'author', 'tag'))) {
+                            if (in_array($request[0], array('section', 'author', 'tag', 'all'))) {
                                 $filter = $request[0];
                                 array_shift($request);
                                 if (count($request) > 0) {
@@ -146,29 +154,24 @@
                         switch ($filter)
                         {
                             case 'section':
-                                $filter = 'nl_'.$filter.'s';
-                                $result = $conn->query("SELECT $table.value from $table
-                                    INNER JOIN $filter ON $filter.page = $table.id
-                                    WHERE name='" . str_replace(' ', '%20', $name)
-                                        ."'ORDER BY $table.published DESC LIMIT $offset, $count");
+                                $where = $where ? "$where AND" : "WHERE";
+                                $where = "$where section='$name'";
+                                $result = $conn->query("SELECT value FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                             case 'author':
-                                $filter = 'nl_'.$filter.'s';
-                                $result = $conn->query("SELECT $table.value from $table
-                                    INNER JOIN $filter ON $filter.page = $table.id
-                                    WHERE name='" . str_replace(' ', '%20', $name)
-                                        ."'ORDER BY $table.published DESC LIMIT $offset, $count");
+                                $where = $where ? "$where AND" : "WHERE";
+                                $where = "$where author='$name'";
+                                $result = $conn->query("SELECT value FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                             case 'tag':
-                                $filter = 'nl_'.$filter.'s';
-                                $result = $conn->query("SELECT $table.value from $table
-                                    INNER JOIN $filter ON $filter.page = $table.id
-                                    WHERE tag='" . str_replace(' ', '%20', $name)
-                                        ."'ORDER BY $table.published DESC LIMIT $offset, $count");
+                                // $filter = 'tags';
+                                // $result = $conn->query("SELECT articles.value from articles
+                                //     INNER JOIN $filter ON $filter.page = articles.id
+                                //     WHERE  public=1 AND tag='" . str_replace(' ', '%20', $name)
+                                //         ."'ORDER BY articles.published DESC LIMIT $offset, $count");
                                 break;
-                            default:
-                                $result = $conn->query("SELECT value FROM $table WHERE public=1
-                                    ORDER BY published DESC LIMIT $offset, $count");
+                            case 'all':
+                                $result = $conn->query("SELECT value FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                         }
 
@@ -180,80 +183,55 @@
                             $response .= $row->value;
                         }
                         $response .= ']';
-                        print $response;
-                        break;
-                    case 'getAll':
-                        // Endpoint: {site root}/rest.php/_/nl_articles/getAll/{offset}/{count}
-                        // Get all the articles in the range specified
-                        switch (count($request)) {
-                            case 1:
-                                $offset = $request[0];
-                                $count = 10;
-                                break;
-                            case 2:
-                                $offset = $request[0];
-                                $count = $request[1];
-                                break;
-                            default:
-                                $offset = 0;
-                                $count = 10;
-                                break;
-                        }
-                        $result = $conn->query("SELECT value FROM $table ORDER BY published DESC LIMIT $offset, $count");
-                        $response = '[';
-                        while ($row = mysqli_fetch_object($result)) {
-                            if ($response != '[') {
-                                $response .= ',';
-                            }
-                            $response .= $row->value;
-                        }
-                        $response .= ']';
+                        mysqli_free_result($result);
                         print $response;
                         break;
                     default:
                         http_response_code(404);
-                        log_error("{\"message\":\"REST: Unknown action '$action' in '$table'.\"}");
+                        log_error("{\"message\":\"REST: Unknown action '$action' in 'articles'.\"}");
                         break;
                     }
                 break;
-            case 'nl_sections':
+            case 'sections':
                 switch ($action) {
                     case 'count':
-                        // Endpoint: {site root}/rest.php/_/nl_sections/count/{section}
-                        // Return the number of articles from this author
+                        // Endpoint: {site root}/rest.php/_/sections/count/{section}
+                        // Return the number of articles in this section
                         $name = $request[0];
-                        $result = $conn->query("SELECT page from $table
-                            WHERE name='" . str_replace(' ', '%20', $name) ."'");
+                        $result = $conn->query("SELECT id from articles
+                            WHERE section='" . str_replace(' ', '%20', $name) ."'");
                         print mysqli_num_rows($result);
                         mysqli_free_result($result);
                         break;
                     case 'list':
-                        // Endpoint: {site root}/rest.php/_/nl_sections/list/{section}
+                        // Endpoint: {site root}/rest.php/_/sections/list/{section}
+                        // List the article IDs from this section
                         $name = $request[0];
-                        $result = $conn->query("SELECT page from $table
-                            WHERE name='" . str_replace(' ', '%20', $name) ."'");
+                        $result = $conn->query("SELECT id from articles
+                            WHERE section='" . str_replace(' ', '%20', $name) ."'");
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
                             if ($response != '[') {
                                 $response .= ',';
                             }
-                            $response .= $row->page;
+                            $response .= $row->id;
                         }
                         $response .= ']';
                         print $response;
                         mysqli_free_result($result);
                         break;
                     case 'enum':
-                        // Endpoint: {site root}/rest.php/_/nl_sections/enum
-                        $result = $conn->query("SELECT DISTINCT name from $table");
+                        // Endpoint: {site root}/rest.php/_/sections/enum
+                        // Enumerate sections
+                        $result = $conn->query("SELECT DISTINCT section from articles");
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
-                            $name = $row->name;
-                            if ($name) {
+                            $section = $row->section;
+                            if ($section) {
                                 if ($response != '[') {
                                     $response .= ',';
                                 }
-                                $response .= "\"$name\"";
+                                $response .= "\"$section\"";
                             }
                         }
                         $response .= ']';
@@ -262,48 +240,50 @@
                         break;
                     default:
                         http_response_code(404);
-                        log_error("{\"message\":\"REST: Unknown action '$action' in '$table'.\"}");
+                        log_error("{\"message\":\"REST: Unknown action '$action' in 'sections'.\"}");
                         break;
                 }
                 break;
-            case 'nl_authors':
+            case 'authors':
                 switch ($action) {
                     case 'count':
-                        // Endpoint: {site root}/rest.php/_/nl_authors/count/{author}
+                        // Endpoint: {site root}/rest.php/_/authors/count/{author}
                         // Return the number of articles from this author
                         $name = $request[0];
-                        $result = $conn->query("SELECT page from $table
-                            WHERE name='" . str_replace(' ', '%20', $name) ."'");
+                        $result = $conn->query("SELECT id from articles
+                            WHERE author='" . str_replace(' ', '%20', $name) ."'");
                         print mysqli_num_rows($result);
                         mysqli_free_result($result);
                         break;
                     case 'list':
-                        // Endpoint: {site root}/rest.php/_/nl_authors/list/{author}
+                        // Endpoint: {site root}/rest.php/_/authors/list/{author}
+                        // List the article IDs from this author
                         $name = $request[0];
-                        $result = $conn->query("SELECT page from $table
-                            WHERE name='" . str_replace(' ', '%20', $name) ."'");
+                        $result = $conn->query("SELECT id from articles
+                            WHERE author='" . str_replace(' ', '%20', $name) ."'");
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
                             if ($response != '[') {
                                 $response .= ',';
                             }
-                            $response .= $row->page;
+                            $response .= $row->id;
                         }
                         $response .= ']';
                         print $response;
                         mysqli_free_result($result);
                         break;
                     case 'enum':
-                        // Endpoint: {site root}/rest.php/_/nl_authors/enum
-                        $result = $conn->query("SELECT DISTINCT name from $table");
+                        // Endpoint: {site root}/rest.php/_/authors/enum
+                        // Enumerate authors
+                        $result = $conn->query("SELECT DISTINCT author from articles");
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
-                            $name = $row->name;
-                            if ($name) {
+                            $author = $row->author;
+                            if ($author) {
                                 if ($response != '[') {
                                     $response .= ',';
                                 }
-                                $response .= "\"$name\"";
+                                $response .= "\"$author\"";
                             }
                         }
                         $response .= ']';
@@ -312,27 +292,27 @@
                         break;
                     default:
                         http_response_code(404);
-                        log_error("{\"message\":\"REST: Unknown action '$action' in '$table'.\"}");
+                        log_error("{\"message\":\"REST: Unknown action '$action' in 'authors'.\"}");
                         break;
                 }
                 break;
-            case 'nl_tags':
+            case 'tags':
                 switch ($action) {
                     case 'count':
-                        // Endpoint: {site root}/rest.php/_/nl_tags/count/{tag}
+                        // Endpoint: {site root}/rest.php/_/tags/count/{tag}
                         // Return the number of items with this tag
                         $tag = $request[0];
                         $result = $conn->query(
-                            "SELECT nl_articles.id from $table INNER JOIN nl_articles
-                              ON $table.page = nl_articles.id WHERE tag='$tag'");
+                            "SELECT articles.id from tags INNER JOIN articles
+                              ON tags.page = articles.id WHERE tag='$tag'");
                         print mysqli_num_rows($result);
                         break;
                     case 'list':
-                        // Endpoint: {site root}/rest.php/_/nl_tags/list/{tag}
+                        // Endpoint: {site root}/rest.php/_/tags/list/{tag}
                         $tag = $request[0];
                         $result = $conn->query(
-                            "SELECT nl_articles.id from $table INNER JOIN nl_articles
-                              ON $table.page = nl_articles.id WHERE tag='$tag'");
+                            "SELECT articles.id from tags INNER JOIN articles
+                              ON tags.page = articles.id WHERE tag='$tag'");
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
                             if ($response != '[') {
@@ -344,9 +324,9 @@
                         print $response;
                         break;
                     case 'tags':
-                        // Endpoint: {site root}/rest.php/_/nl_tags/tags
+                        // Endpoint: {site root}/rest.php/_/tags/tags
                         $id = $request[0];
-                        $result = $conn->query("SELECT tag FROM $table WHERE page=$id");
+                        $result = $conn->query("SELECT tag FROM tags WHERE page=$id");
                         $json = '[';
                         $flag = false;
                         while ($row = mysqli_fetch_object($result)) {
@@ -366,7 +346,7 @@
                         break;
                     default:
                         http_response_code(404);
-                        log_error("{\"message\":\"REST: Unknown action '$action' in '$table'.\"}");
+                        log_error("{\"message\":\"REST: Unknown action '$action' in 'tags'.\"}");
                         break;
                 }
                 break;
@@ -515,27 +495,30 @@
         $action = $request[0];
         array_shift($request);
         switch ($table) {
-           case 'nl_articles':
+           case 'articles':
                  switch ($action) {
                     case 'update':
-                        // Endpoint: {site root}/rest.php/_/nl_articles/update/{id}
-                        // Update an existing record
+                        // Endpoint: {site root}/rest.php/_/articles/update/{id}
+                        // Update an article record
                         $id = $request[0];
                         header("Content-Type: application/json");
                         $value = stripslashes(file_get_contents("php://input"));
                         $json = json_decode($value);
                         $slug = $json->slug;
                         $public = $json->public;
+                        $section = $json->section;
+                        $author = $json->author;
                         $published = $json->published;
                         // See if there's an item with this id;
                         if (is_numeric($id)) {
-                            logger("SELECT id FROM $table WHERE id=$id");
-                            $result = $conn->query("SELECT id FROM $table WHERE id=$id");
+                            logger("SELECT id FROM articles WHERE id=$id");
+                            $result = $conn->query("SELECT id FROM articles WHERE id=$id");
                         } else {
-                            logger("SELECT id FROM $table WHERE slug='$id'");
-                            $result = $conn->query("SELECT id FROM $table WHERE slug='$id'");
+                            logger("SELECT id FROM articles WHERE slug='$id'");
+                            $result = $conn->query("SELECT id FROM articles WHERE slug='$id'");
                         }
                         $json->id = $id;
+
                         // Write to a backup file on the server
                         $articles = 'resources/articles';
                         if (!file_exists($articles)) {
@@ -557,40 +540,41 @@
                             http_response_code(400);
                             log_error("{\"message\":\"REST: Can't open file '$file'.\"}");
                         }
-                        if ($row = mysqli_fetch_object($result)) {
-                            // It exists, so update it
+
+                        // Update the article record
+                       if ($row = mysqli_fetch_object($result)) {
+                             // It exists, so update it
                             $id = $row->id;
-                            $slug = ec_getUniqueSlug($conn, $table, $id, $slug);
+                            $slug = ec_getUniqueSlug($conn, $id, $slug);
                             $json->slug = $slug;
                             $value = json_encode($json);
-                            logger("UPDATE $table SET value=(value),slug='$slug',published=$published,public='$public',ts=$ts WHERE id=$id");
-                            $conn->query("UPDATE $table SET value='$value',slug='$slug',published=$published,public='$public',ts=$ts WHERE id=$id");
-                            ec_process_section($conn, $id, $json->section);
-                            ec_process_author($conn, $id, $json->author);
+                            logger("UPDATE articles SET value=(value),slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
+                            $conn->query("UPDATE articles SET value='$value',slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
                             ec_process_tags($conn, $id, $json->tags);
                             ec_process_words($conn, $id, $json);
                             print 'OK';
                         } else {
                             // Not found
                             http_response_code(404);
-                            log_error("{\"code\":\"404\",\"message\":\"Cannot update record $id of $table.\"}");
+                            log_error("{\"code\":\"404\",\"message\":\"Cannot update record $id of articles.\"}");
                         }
                         break;
                     case 'new':
-                        // Endpoint: {site root}/rest.php/_/nl_articles/new
+                        // Endpoint: {site root}/rest.php/_/articles/new
                         // Add a new record
                         $name = $request[0];
                         header("Content-Type: application/json");
                         $value = stripslashes(file_get_contents("php://input"));
                         $json = json_decode($value);
+                        $author = $json->author;
                         $published = $json->published;
-                        $conn->query("INSERT INTO $table (value,published,ts) VALUES ('$value','$published','$ts')");
+                        $conn->query("INSERT INTO articles (value,author,published,ts) VALUES ('$value','$author','$published','$ts')");
                         $id = mysqli_insert_id($conn);
                         $json->id = $id;
                         $json->title = "Record $id";
                         $json->slug = "record-$id";
                         $value = json_encode($json);
-                        $conn->query("UPDATE $table SET slug='record-$id',value='$value' WHERE id=$id");
+                        $conn->query("UPDATE articles SET slug='record-$id',value='$value' WHERE id=$id");
                         http_response_code(201);
                         print 'OK';
                         break;
@@ -600,7 +584,7 @@
                         break;
                 }
                 break;
-            case 'nl_tags':
+            case 'tags':
                 switch ($action) {
                     case 'set':
                         ec_process_tags($conn, $request[0], $request[1]);
@@ -608,7 +592,7 @@
                         break;
                     default:
                         http_response_code(400);
-                        log_error("{\"message\":\"REST: Unknown action '$action' in '$table'.\"}");
+                        log_error("{\"message\":\"REST: Unknown action '$action' in 'articles'.\"}");
                         break;
                 }
                 break;
@@ -695,23 +679,23 @@
                         break;
                     default:
                         http_response_code(404);
-                        log_error("{\"message\":\"REST: Unknown action '$action' in '$table'.\"}");
+                        log_error("{\"message\":\"REST: Unknown action '$action' in 'articles'.\"}");
                         break;
                     }
                 break;
             default:
                 http_response_code(404);
-                log_error("{\"message\":\"REST: Unknown table '$table'.\"}");
+                log_error("{\"message\":\"REST: Unknown identifier '$table'.\"}");
                 break;
         }
     }
     
-    function ec_getUniqueSlug($conn, $table, $id, $slug) {
+    function ec_getUniqueSlug($conn, $id, $slug) {
         $original = $slug;
         $n = 0;
         while (true) {
-            logger("ec_getUniqueSlug: SELECT id from $table WHERE slug='$slug'");
-            $result = $conn->query("SELECT id FROM $table WHERE id!=$id AND slug='$slug'");
+            logger("ec_getUniqueSlug: SELECT id from articles WHERE slug='$slug'");
+            $result = $conn->query("SELECT id FROM articles WHERE id!=$id AND slug='$slug'");
             if (!mysqli_num_rows($result)) {
                 logger("Slug '$slug'");
                 return $slug;
@@ -720,42 +704,18 @@
         }
     }
     
-    function ec_process_section($conn, $page, $name) {
-        logger("ec_process_section($page)");
-        $name = str_replace(' ', '%20', $name);
-        $result = $conn->query("SELECT id FROM nl_sections WHERE page=$page");
-        if (mysqli_num_rows($result)) {
-            $conn->query("UPDATE nl_sections SET name='$name' WHERE page=$page");
-        } else {
-            $conn->query("INSERT INTO nl_sections (page,name) VALUES ($page,'$name')");
-        }
-        mysqli_free_result($result);
-    }
-    
-    function ec_process_author($conn, $page, $name) {
-        logger("ec_process_author($page)");
-        $name = str_replace(' ', '%20', $name);
-        $result = $conn->query("SELECT id FROM nl_authors WHERE page=$page");
-        if (mysqli_num_rows($result)) {
-            $conn->query("UPDATE nl_authors SET name='$name' WHERE page=$page");
-        } else {
-            $conn->query("INSERT INTO nl_authors (page,name) VALUES ($page,'$name')");
-        }
-        mysqli_free_result($result);
-    }
-    
     function ec_process_tags($conn, $page, $tags) {
         logger("ec_process_tags($page)");
-        $result = $conn->query("UPDATE nl_tags SET tag='' WHERE page='$page'");
+        $result = $conn->query("UPDATE tags SET tag='' WHERE page='$page'");
         $tags = explode(',', $tags);
         foreach ($tags as $tag) {
             $tag = trim($tag);
-            $result = $conn->query("SELECT id FROM nl_tags WHERE tag=''");
+            $result = $conn->query("SELECT id FROM tags WHERE tag=''");
             if ($row = mysqli_fetch_object($result)) {
                 $id = $row->id;
-                $conn->query("UPDATE nl_tags SET page=$page,tag='$tag' WHERE id=$id");
+                $conn->query("UPDATE tags SET page=$page,tag='$tag' WHERE id=$id");
             } else {
-                $conn->query("INSERT INTO nl_tags (page,tag) VALUES ($page,'$tag')");
+                $conn->query("INSERT INTO tags (page,tag) VALUES ($page,'$tag')");
             }
             mysqli_free_result($result);
         }
@@ -763,7 +723,7 @@
     
     function ec_process_words($conn, $page, $json) {
          logger("ec_process_words($page)");
-         $conn->query("UPDATE nl_words SET word='' WHERE page='$page'");
+         $conn->query("UPDATE words SET word='' WHERE page='$page'");
          $fieldNames = array('title', 'synopsis', 'article');
          $words = array();
          foreach ($fieldNames as $fieldName) {
@@ -785,12 +745,12 @@
          }
         $words = array_unique($words);
         foreach ($words as $word) {
-            $result = $conn->query("SELECT id FROM nl_words WHERE word=''");
+            $result = $conn->query("SELECT id FROM words WHERE word=''");
             if ($row = mysqli_fetch_object($result)) {
                 $id = $row->id;
-                $conn->query("UPDATE nl_words SET page=$page,word='$word' WHERE id=$id");
+                $conn->query("UPDATE words SET page=$page,word='$word' WHERE id=$id");
             } else {
-                $conn->query("INSERT INTO nl_words (page,word) VALUES ($page,'$word')");
+                $conn->query("INSERT INTO words (page,word) VALUES ($page,'$word')");
             }
             mysqli_free_result($result);
         }

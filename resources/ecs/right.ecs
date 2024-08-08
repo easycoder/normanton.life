@@ -30,7 +30,7 @@ Show:
   get Mode from storage as `mode`
   if Mode is `admin` set style `display` of EditButton to `block`
   else set style `display` of EditButton to `none`
-  rest get Content from `/resources/php/rest.php/_/nl_articles/slug/right?v=` cat now
+  rest get Content from `/resources/php/rest.php/_/articles/slug/right?v=` cat now
   or begin
     alert `Failed to get the content of the right panel.`
     stop

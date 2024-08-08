@@ -17,6 +17,7 @@
   div EditionDiv
   div SectionDiv
   div AuthorDiv
+  div AuthorName
   div TitleDiv
   div TagsDiv
   div SynopsisDiv
@@ -43,7 +44,6 @@
   input SlugInput
   input EditionInput
   input SectionInput
-  input AuthorInput
   input TitleInput
   input TagsInput
   date Date
@@ -141,8 +141,7 @@
   create AuthorLabel in AuthorDiv
   set the style of AuthorLabel to `width:7em`
   set the content of AuthorLabel to `Author:`
-  create AuthorInput in AuthorDiv
-  set the size of AuthorInput to TextBoxWidth
+  create AuthorName in AuthorDiv
 
   create TitleDiv in Block1
   set style `display` of TitleDiv to `flex`
@@ -241,7 +240,7 @@ Editor:
   set the content of SlugInput to Slug
   set the content of EditionInput to Edition
   set the content of SectionInput to Section
-  set the content of AuthorInput to Author
+  set the content of AuthorName to Author
   set the content of TitleInput to Title
   set the content of TagsInput to Tags
   wait 50 ticks
@@ -273,7 +272,6 @@ Save:
   put attribute `checked` of PublicCheckbox into Public
   put the text of EditionInput into Edition
   put the text of SectionInput into Section
-  put the text of AuthorInput into Author
   put the text of TitleInput into Title
   put the text of TagsInput into Tags
   ckeditor get Synopsis from SynopsisDiv
@@ -321,7 +319,7 @@ Save:
   set property `tags` of Record to lowercase Tags
   set property `synopsis` of Record to encode Synopsis
   set property `article` of Record to encode Article
-  rest post Record to `/resources/php/rest.php/_/nl_articles/update/` cat ID
+  rest post Record to `/resources/php/rest.php/_/articles/update/` cat ID
   or begin
     set the content of Status to `Failed to save article`
     stop

@@ -116,12 +116,14 @@
     create Label in ItemDiv
     set the style of Label to `flex:` cat LabelWidth
 
+!	Create the buttons
     create ButtonDiv in ItemDiv
     set the style of ButtonDiv to `flex:` cat FieldWidth
     create LoginButton in ButtonDiv
     set the style of LoginButton to `margin-right:1em`
     set the text of LoginButton to `Login`
     on click LoginButton go to ProcessLogin
+    
     create RegisterButton in ButtonDiv
     set the style of RegisterButton to `margin-right:1em`
     set the text of RegisterButton to `Register`
@@ -168,7 +170,6 @@
 ProcessLogin:
     if EmailInput is empty go to FillAllFields
     if PasswordInput is empty go to FillAllFields
-    gosub to HideMessage
     put the text of EmailInput into Email
     put the text of PasswordInput into Password
 
@@ -179,6 +180,7 @@ GetUserRecord:
       	gosub to SaveUserDetails
       	set style `display` of LoginDiv to `none`
         gosub to SaveUserDetails
+        send `login` to parent
       	go to Exit
     end
 
@@ -401,4 +403,5 @@ HideMessage:
 
 !	Exit: close the form
 Exit:
+    gosub to HideMessage
     exit

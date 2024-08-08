@@ -32,7 +32,6 @@
   variable Count
   variable SelectedSection
   variable SelectedAuthor
-  variable HomeEnable
   variable SectionEnable
   variable AuthorEnable
   variable Action
@@ -46,7 +45,7 @@
   set AuthorEnable
 
   create MenuDiv in Header
-  if mobile set the style of MenuDiv to
+  if Mobile set the style of MenuDiv to
     `display:flex;width:100%;margin:0 auto auto;text-align:center`
   else set the style of MenuDiv to
     `display:flex;width:800px;margin:0 auto;padding:0.5em 0;background:#444;color:white;font-weight:bold;text-align:center`
@@ -65,7 +64,7 @@
   set the style of SectionsButton to Style2
   set style `cursor` of SectionsButton to `pointer`
   set the content of SectionsButton to `Sections`
-  on click SectionsButton go to DoSections
+  on click SectionsButton gosub to DoSections
   create SectionSelect in SectionDiv
   set the style of SectionSelect to Style
   set style `display` of SectionSelect to `none`
@@ -77,7 +76,7 @@
   set the style of AuthorsButton to Style2
   set style `cursor` of AuthorsButton to `pointer`
   set the content of AuthorsButton to `Authors`
-  on click AuthorsButton go to DoAuthors
+  on click AuthorsButton gosub to DoAuthors
   create AuthorSelect in AuthorDiv
   set the style of AuthorSelect to Style
   set style `display` of AuthorSelect to `none`
@@ -108,19 +107,35 @@
   on message
   begin
     put the message into Message
-!    print `Menu message: ` cat Message
-	put property `action` of Message into Action
-	if Action is `enable`
+!alert `Menu message: ` cat Message
+	if Message is `login`
     begin
-      if property `button` of Message is `home` gosub to EnableHome
-      else if property `button` of Message is `sections` gosub to EnableSection
-      else if property `button` of Message is `authors` gosub to EnableAuthor
+    	send Message to parent
     end
-    else if Action is `disable`
+    else if Message is `reset`
     begin
-      if property `button` of Message is `home` gosub to DisableHome
-      else if property `button` of Message is `sections` gosub to DisableSection
-      else if property `button` of Message is `authors` gosub to DisableAuthor
+    	put empty into SelectedSection
+        gosub to DoSections
+  		gosub to ResetSections
+        put empty into SelectedAuthor
+        gosub to DoAuthors
+        gosub to ResetAuthors
+    end
+    else
+    begin
+      put property `action` of Message into Action
+      if Action is `enable`
+      begin
+        if property `button` of Message is `home` gosub to EnableHome
+        else if property `button` of Message is `sections` gosub to EnableSection
+        else if property `button` of Message is `authors` gosub to EnableAuthor
+      end
+      else if Action is `disable`
+      begin
+        if property `button` of Message is `home` gosub to DisableHome
+        else if property `button` of Message is `sections` gosub to DisableSection
+        else if property `button` of Message is `authors` gosub to DisableAuthor
+      end
     end
   end
 
@@ -160,6 +175,16 @@ DisableAuthor:
     set style `color` of AuthorsButton to `gray`
     clear AuthorEnable
 	return
+
+ResetSections:
+  	set style `display` of SectionsButton to `inline-block`
+  	set style `display` of SectionSelect to `none`
+    return
+
+ResetAuthors:
+  	set style `display` of AuthorsButton to `inline-block`
+  	set style `display` of AuthorSelect to `none`
+    return
 
 EnableFilters:
 	gosub to EnableSection
@@ -206,9 +231,7 @@ DoHome:
 ! Show the list of sections
 DoSections:
   if not SectionEnable stop
-  set style `display` of SectionsButton to `none`
-  set style `display` of SectionSelect to `inline-block`
-  rest get Sections from `/resources/php/rest.php/_/nl_sections/enum?v=` cat now
+  rest get Sections from `/resources/php/rest.php/_/sections/enum?v=` cat now
   put the json count of Sections into Count
   set the elements of Section to Count
   put `[]` into List
@@ -226,6 +249,8 @@ DoSections:
   put SelectedSection into Value
   if Value is empty put `all` into Value
   set SectionSelect from List as Value
+  set style `display` of SectionsButton to `none`
+  set style `display` of SectionSelect to `inline-block`
   on change SectionSelect
   begin
    	put attribute `value` of SectionSelect into SelectedSection
@@ -234,22 +259,19 @@ DoSections:
    	set property `source` of Message to `Menu`
    	set property `selector` of Message to `author`
    	set property `section` of Message to SelectedSection
-  	set style `display` of SectionsButton to `inline-block`
-  	set style `display` of SectionSelect to `none`
+    gosub to ResetSections
 !    if SelectedSection is empty gosub to EnableFilters
 !    else gosub to DisableFilters
 	gosub to EnableHome
    	send Message to parent
   end
-  stop
+  return
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Show the list of authors
 DoAuthors:
   if not AuthorEnable stop
-  set style `display` of AuthorsButton to `none`
-  set style `display` of AuthorSelect to `inline-block`
-  rest get Authors from `/resources/php/rest.php/_/nl_authors/enum?v=` cat now
+  rest get Authors from `/resources/php/rest.php/_/authors/enum?v=` cat now
   put the json count of Authors into Count
   set the elements of Author to Count
   put `[]` into List
@@ -267,6 +289,8 @@ DoAuthors:
   put SelectedAuthor into Value
   if Value is empty put `all` into Value
   set AuthorSelect from List as Value
+  set style `display` of AuthorsButton to `none`
+  set style `display` of AuthorSelect to `inline-block`
   on change AuthorSelect
   begin
    	put attribute `value` of AuthorSelect into SelectedAuthor
@@ -275,11 +299,10 @@ DoAuthors:
    	set property `source` of Message to `Menu`
    	set property `selector` of Message to `author`
    	set property `author` of Message to SelectedAuthor
-  	set style `display` of AuthorsButton to `inline-block`
-  	set style `display` of AuthorSelect to `none`
+    gosub to ResetAuthors
 !    if SelectedAuthor is empty gosub to EnableFilters
 !    else gosub to DisableFilters
 	gosub to EnableHome
    	send Message to parent
   end
-  stop
+  return

@@ -26,6 +26,7 @@
   variable Section
   variable Author
   variable Valid
+  variable UserName
   variable ID
   variable Tags
   variable Count
@@ -46,21 +47,23 @@
 ShowArticle:
 print `ShowArticle ` cat decode property `title` of Record
   set the content of Container to ``
-!  if Mode is `admin`
-!  begin
-!    create EditButton in Container
-!    set the style of EditButton to `float:right;width:25px;margin-top:0.25em`
-!    set attribute `src` of EditButton to `https://` cat the hostname cat `/resources/system/edit.png`
-!    on click EditButton
-!    begin
-!      put `edit` into Message
-!      history back
-!    end
-!  end
 
   put property `section` of Record into Section
   put property `author` of Record into Author
   put property `tags` of Record into Tags
+  
+  get UserName from storage as `user.name`
+  if UserName is Author
+  begin
+    create EditButton in Container
+    set the style of EditButton to `float:right;width:25px;margin-top:0.25em`
+    set attribute `src` of EditButton to `https://` cat the hostname cat `/resources/system/edit.png`
+    on click EditButton
+    begin
+      put `edit` into Message
+      history back
+    end
+  end
 
   create SectionHeader in Container
   set the style of SectionHeader to `color:#f08`
@@ -141,7 +144,7 @@ print `ShowArticle ` cat decode property `title` of Record
   begin
     create Span in TagsDiv
     set the content of Span to `Tags: `
-    rest get Tags from `/resources/php/rest.php/_/nl_tags/tags/` cat ID cat `?v=` cat now
+    rest get Tags from `/resources/php/rest.php/_/tags/tags/` cat ID cat `?v=` cat now
     or begin
       alert `Failed to read the article tags.`
       stop
