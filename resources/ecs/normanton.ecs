@@ -181,25 +181,15 @@
         history back
       	gosub to RedrawBlocks
       end
-!      else if Selector
-!      begin
-!        put `` into Selector
-!        gosub to DisableHomeButton
-!        put 0 into CurrentPage
-!        gosub to RedrawBlocks
-!      end
-!      else if CurrentPage is not 0
-!      begin
-!        gosub to DisableHomeButton
-!        put 0 into CurrentPage
-!        gosub to RedrawBlocks
-!      end
     end
-!    else if Message is `menubutton`
-!    begin
-!      if Location is `edit` stop
-!      if Location is `show` history back
-!    end
+    else if Message is `new`
+    begin
+    	set Record to object
+        set property `author` of Record to UserName
+        set property `published` of Record to now
+    	rest post Record to `_/articles/new/` cat Slug giving Article
+        go to Editor
+    end
     else
     begin
       put property `source` of Message into Source
@@ -414,6 +404,8 @@ RedrawBlocks:
   else if Selector is `author`
   begin
     set property `author` of TrackingMessage to Author
+!    print `/resources/php/rest.php/_/articles/get/` cat UserName
+!    	cat `/author/` cat Author cat `?v=` cat now
     rest get Articles from `/resources/php/rest.php/_/articles/get/` cat UserName
     	cat `/author/` cat Author cat `?v=` cat now
       or go to DataReadFail
@@ -426,10 +418,14 @@ RedrawBlocks:
   end
   else
   begin
-    rest get Articles from `/resources/php/rest.php/_/articles/get/` cat UserName
+    print `/resources/php/rest.php/_/articles/get/` cat UserName
     	cat `/all/-?v=` cat now
+    rest get Articles from `/resources/php/rest.php/_/articles/get/` cat UserName
+    	cat `/all?v=` cat now
       or go to DataReadFail
   end
+  
+!  print newline cat `Articles:` cat newline cat Articles
   
   gosub to Tracking
   put the json count of Articles into ArticleCount
@@ -480,11 +476,6 @@ RedrawBlocks:
     index EditButton to Index
     create Block in Blocks
     set the style of Block to `position:relative`
-!    create EditButton in Block
-!    set the style of EditButton to
-!      `position:absolute;top:0.25em;right:0.25em;width:25px;display:none`
-!    set attribute `src` of EditButton to `resources/system/edit.png`
-!    set attribute `title` of EditButton to `Edit this article`
     create TitleGroup in Block
     create TitleLink in TitleGroup
     set the style of TitleLink to `font-size:1.2em;font-weight:bold;margin-bottom:1em`
@@ -695,11 +686,6 @@ Viewer:
     set style `display` of Buttons to `block`
     gosub to ShowBlocks
     if ArticleCount is greater than 10 set style `display` of NavigatorDiv to `block`
-!    if Mode is `admin`
-!    begin
-!      set style `display` of NewButton to `block`
-!      set style `display` of ToolsButton to `block`
-!    end
     wait 10 ticks
     scroll to ScrollPosition
   end

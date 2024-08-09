@@ -14,7 +14,6 @@
   div PublishedDiv
   div IDDiv
   div SlugDiv
-  div EditionDiv
   div SectionDiv
   div AuthorDiv
   div AuthorName
@@ -29,7 +28,6 @@
   label IDLabel
   label IDText
   label SlugLabel
-  label EditionLabel
   label SectionLabel
   label AuthorLabel
   label TitleLabel
@@ -42,7 +40,6 @@
   module FileManager
   input PublicCheckbox
   input SlugInput
-  input EditionInput
   input SectionInput
   input TitleInput
   input TagsInput
@@ -51,7 +48,6 @@
   variable Slug
   variable Published
   variable Public
-  variable Edition
   variable Section
   variable Author
   variable Title
@@ -119,14 +115,6 @@
   set the content of SlugLabel to `SEO&nbsp;Slug:`
   create SlugInput in SlugDiv
   set the size of SlugInput to TextBoxWidth
-
-  create EditionDiv in Block1
-  set style `display` of EditionDiv to `flex`
-  create EditionLabel in EditionDiv
-  set the style of EditionLabel to `width:7em`
-  set the content of EditionLabel to `Edition:`
-  create EditionInput in EditionDiv
-  set the size of EditionInput to TextBoxWidth
 
   create SectionDiv in Block1
   set style `display` of SectionDiv to `flex`
@@ -206,7 +194,6 @@ Editor:
   put property `public` of Record into Public
   put property `id` of Record into ID
   put property `slug` of Record into Slug
-  put property `edition` of Record into Edition
   put property `section` of Record into Section
   put property `author` of Record into Author
   put decode property `title` of Record into Title
@@ -222,15 +209,17 @@ Editor:
 
   if Synopsis is empty
   begin
-    alert `Synopsis is empty - cancelling this edit`
-    history back
-    stop
+	put `synopsis` into Synopsis
+!    alert `Synopsis is empty - cancelling this edit`
+!    history back
+!    stop
   end
   if Article is empty
   begin
-    alert `Article is empty - cancelling this edit`
-    history back
-    stop
+  	put `article` into Article
+!    alert `Article is empty - cancelling this edit`
+!    history back
+!    stop
   end
 
   set the date of Date to Published
@@ -238,7 +227,6 @@ Editor:
   else remove attribute `checked` of PublicCheckbox
   set the content of IDText to ID
   set the content of SlugInput to Slug
-  set the content of EditionInput to Edition
   set the content of SectionInput to Section
   set the content of AuthorName to Author
   set the content of TitleInput to Title
@@ -270,7 +258,6 @@ Editor:
 Save:
   put Date into Published
   put attribute `checked` of PublicCheckbox into Public
-  put the text of EditionInput into Edition
   put the text of SectionInput into Section
   put the text of TitleInput into Title
   put the text of TagsInput into Tags
@@ -312,7 +299,6 @@ Save:
   set property `published` of Record to Published
   set property `public` of Record to Public
   set property `slug` of Record to Slug
-  set property `edition` of Record to Edition
   set property `section` of Record to Section
   set property `author` of Record to Author
   set property `title` of Record to encode Title

@@ -46,12 +46,16 @@
 
   create MenuDiv in Header
   if Mobile set the style of MenuDiv to
-    `display:flex;width:100%;margin:0 auto auto;text-align:center`
+    `display:flex;width:100%`
   else set the style of MenuDiv to
-    `display:flex;width:800px;margin:0 auto;padding:0.5em 0;background:#444;color:white;font-weight:bold;text-align:center`
+    `display:flex;width:800px`
+  set style `display` of MenuDiv to `flex`
+  set style `margin` of MenuDiv to `0 auto`
+  set style `padding` of MenuDiv to `1em 0`
+  set style `text-align` of MenuDiv to `center`
 
-  put `flex:33;background:#444;color:white;font-weight:bold` into Style
-  put `width:100%;height:100%;background:#444;color:white;font-weight:bold` into Style2
+  put `flex:1;background:#444;padding-top:0.5em;color:white;font-weight:bold` into Style
+  put `width:100%;background:#444;color:white;font-weight:bold` into Style2
   create HomeButton in MenuDiv
   set the style of HomeButton to Style
   gosub to DisableHome
@@ -82,27 +86,30 @@
   set style `display` of AuthorSelect to `none`
   put empty into SelectedAuthor
   
-  if not Mobile
-  begin
-    create AddButton in MenuDiv
-    set the style of AddButton to `width:1.5em;background:#444;text-align:left`
+  create AddButton in MenuDiv
+!  if Mobile set style `display` of AddButton to `none`
+!  else
+!  begin
+    set the style of AddButton to `width:1.5em;background:#444;padding:0.5em 0;text-align:left`
     create AddIcon in AddButton
     set style `width` of AddIcon to `1em`
     set style `height` of AddIcon to `1em`
     set attribute `src` of AddIcon to `/resources/icon/plus.png`
     if UserName is empty set style `display` of AddButton to `none`
     on click AddIcon go to AddArticle
-    
-    create UserButton in MenuDiv
-    set the style of UserButton to `width:1.5em;background:#444;text-align:left`
-    create UserIcon in UserButton
-    set style `width` of UserIcon to `1em`
-    set style `height` of UserIcon to `1em`
-    if UserName is empty set attribute `src` of UserIcon to `/resources/icon/user.png`
-    else set attribute `src` of UserIcon to `/resources/icon/user-loggedin.png`
-    set style `cursor` of UserIcon to `pointer`
-    on click UserIcon go to ManageUsers
-  end
+!  end
+  if UserName is empty set style `display` of AddButton to `none`
+  else set style `display` of AddButton to `inline-block`
+
+  create UserButton in MenuDiv
+  set the style of UserButton to `width:1.5em;background:#444;padding:0.5em 0;text-align:left`
+  create UserIcon in UserButton
+  set style `width` of UserIcon to `1em`
+  set style `height` of UserIcon to `1em`
+  if UserName is empty set attribute `src` of UserIcon to `/resources/icon/user.png`
+  else set attribute `src` of UserIcon to `/resources/icon/user-loggedin.png`
+  set style `cursor` of UserIcon to `pointer`
+  on click UserIcon go to ManageUsers
 
   on message
   begin
@@ -201,7 +208,7 @@ DisableFilters:
 ManageUsers:
 	create UserPanel in Header
 	rest get Script from `/resources/ecs/user.ecs?v=` cat now
-    run Script with UserPanel as UserModule
+    run Script with UserPanel and Mobile as UserModule
     remove element UserPanel
     get UserName from storage as `user.name`
     if UserName is empty
@@ -219,6 +226,7 @@ ManageUsers:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Add a new article
 AddArticle:
+	send `new` to parent
 	stop
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

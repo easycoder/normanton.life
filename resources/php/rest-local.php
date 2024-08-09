@@ -88,9 +88,9 @@
                         // Endpoint: {site root}/rest.php/_/articles/id/{id}
                         // Get a record given its id
                         $id = $request[0];
-                        $result = $conn->query("SELECT value FROM articles WHERE id='$id'");
+                        $result = $conn->query("SELECT unsaved FROM articles WHERE id='$id'");
                         if ($row = mysqli_fetch_object($result)) {
-                            $value = $row->value;
+                            $value = $row->unsaved;
                             $json = json_decode($value);
                             $json->id = $id;
                             $value = json_encode($json);
@@ -101,9 +101,9 @@
                         // Endpoint: {site root}/rest.php/_/articles/slug/{slug}
                         // Get a record given its slug
                         $slug = $request[0];
-                        $result = $conn->query("SELECT id,value FROM articles WHERE slug='$slug'");
+                        $result = $conn->query("SELECT id,unsaved FROM articles WHERE slug='$slug'");
                         if ($row = mysqli_fetch_object($result)) {
-                            $value = $row->value;
+                            $value = $row->unsaved;
                             $json = json_decode($value);
                             $json->id = $row->id;
                             $value = json_encode($json);
@@ -121,7 +121,7 @@
                         $user = $request[0];
                         $result = $conn->query("SELECT admin FROM ec_user WHERE name='$user'");
                         $row = mysqli_fetch_object($result);
-                        $where = $row->admin ? "" : "WHERE public=1";
+                        $admin = $row->admin;
                         mysqli_free_result($result);
                         array_shift($request);
 
@@ -154,24 +154,28 @@
                         switch ($filter)
                         {
                             case 'section':
+                                $where = $row->admin ? "" : "WHERE public=1";
                                 $where = $where ? "$where AND" : "WHERE";
                                 $where = "$where section='$name'";
-                                $result = $conn->query("SELECT value FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
+                                $result = $conn->query("SELECT saved FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                             case 'author':
-                                $where = $where ? "$where AND" : "WHERE";
-                                $where = "$where author='$name'";
-                                $result = $conn->query("SELECT value FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
+                                $where = "WHERE author='$name'";
+                                if (!$admin) {
+                                    $where .= " AND (author='$user' OR public=1)";
+                                }
+                                // print("SELECT unsaved,saved,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
+                                $result = $conn->query("SELECT unsaved,saved,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                             case 'tag':
                                 // $filter = 'tags';
-                                // $result = $conn->query("SELECT articles.value from articles
+                                // $result = $conn->query("SELECT articles.saved from articles
                                 //     INNER JOIN $filter ON $filter.page = articles.id
                                 //     WHERE  public=1 AND tag='" . str_replace(' ', '%20', $name)
                                 //         ."'ORDER BY articles.published DESC LIMIT $offset, $count");
                                 break;
                             case 'all':
-                                $result = $conn->query("SELECT value FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
+                                $result = $conn->query("SELECT unsaved FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                         }
 
@@ -180,7 +184,12 @@
                             if ($response != '[') {
                                 $response .= ',';
                             }
-                            $response .= $row->value;
+                            // Special case where the filter is 'author' and the user is the article author
+                            if ($admin || $filter == 'author' && $user == $row->author) {
+                                $response .= $row->unsaved;
+                            } else {
+                                $response .= $row->saved;
+                            }
                         }
                         $response .= ']';
                         mysqli_free_result($result);
@@ -548,8 +557,8 @@
                             $slug = ec_getUniqueSlug($conn, $id, $slug);
                             $json->slug = $slug;
                             $value = json_encode($json);
-                            logger("UPDATE articles SET value=(value),slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
-                            $conn->query("UPDATE articles SET value='$value',slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
+                            logger("UPDATE articles SET unsaved=(value),slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
+                            $conn->query("UPDATE articles SET unsaved='$value',slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
                             ec_process_tags($conn, $id, $json->tags);
                             ec_process_words($conn, $id, $json);
                             print 'OK';
@@ -568,15 +577,15 @@
                         $json = json_decode($value);
                         $author = $json->author;
                         $published = $json->published;
-                        $conn->query("INSERT INTO articles (value,author,published,ts) VALUES ('$value','$author','$published','$ts')");
+                        $conn->query("INSERT INTO articles (unsaved,author,published,ts) VALUES ('$value','$author','$published','$ts')");
                         $id = mysqli_insert_id($conn);
                         $json->id = $id;
                         $json->title = "Record $id";
                         $json->slug = "record-$id";
                         $value = json_encode($json);
-                        $conn->query("UPDATE articles SET slug='record-$id',value='$value' WHERE id=$id");
+                        $conn->query("UPDATE articles SET slug='record-$id',unsaved='$value' WHERE id=$id");
                         http_response_code(201);
-                        print 'OK';
+                        print $value;
                         break;
                     default:
                         http_response_code(400);

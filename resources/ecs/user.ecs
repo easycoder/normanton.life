@@ -2,7 +2,7 @@
 
     script User
 
-    import div Container
+    import div Container and variable Mobile
 
     form LoginDiv
     div ItemDiv
@@ -53,84 +53,134 @@
     	`width:50%;height:auto;margin:1em auto 0 auto;background:#ffc`
     
     create LoginDiv in Container
-    set the style of LoginDiv to `padding:0.5em;border:1px solid black`
+    
+    if Mobile
+    begin
+      set the style of LoginDiv to `padding:0.5em;border:1px solid black;display:flex;flex-direction:column`
+    
+  	  create EmailDiv in LoginDiv
+      create Label in EmailDiv
+      set the content of Label to `Email:`
+      create EmailInput in EmailDiv
+      set style `width` of EmailInput to `calc(100% - 1em)`
 
-    create EmailDiv in LoginDiv
-    set the style of EmailDiv to `display:flex`
-    create Label in EmailDiv
-    set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
-    set the content of Label to `Email:`
-    create EmailInput in EmailDiv
-    set the style of EmailInput to FieldHeight cat `;padding:4px;flex:` cat FieldWidth
-    set the size of EmailInput to 40
+  	  create PasswordDiv in LoginDiv
+      create Label in PasswordDiv
+      set the content of Label to `Password:`
+      create PasswordInput in PasswordDiv
+      set style `width` of PasswordInput to `calc(100% - 1em)`
+      set attribute `type` of PasswordInput to `password`
 
-    create PasswordDiv in LoginDiv
-    set the style of PasswordDiv to `display:flex`
-    create Label in PasswordDiv
-    set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
-    set the content of Label to `Password:`
-    create PasswordInput in PasswordDiv
-    set the style of PasswordInput to FieldHeight cat `;flex:` cat FieldWidth
-    set the size of PasswordInput to 40
-    set attribute `type` of PasswordInput to `password`
+  	  create Password2Div in LoginDiv
+      set the style of Password2Div to `display:none`
+      create Label in Password2Div
+      set the content of Label to `Password&nbsp;(again):`
+      create Password2Input in Password2Div
+      set style `width` of Password2Input to `calc(100% - 1em)`
+      set attribute `type` of Password2Input to `password`
 
-    create Password2Div in LoginDiv
-    set the style of Password2Div to `display:none`
-    create Label in Password2Div
-    set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
-    set the content of Label to `Password&nbsp;(again):`
-    create Password2Input in Password2Div
-    set the style of Password2Input to FieldHeight cat `;flex:` cat FieldWidth
-    set the size of Password2Input to 40
-    set attribute `type` of Password2Input to `password`
+  	  create ResetDiv in LoginDiv
+      set the style of ResetDiv to `display:none`
+      create Label in ResetDiv
+      set the content of Label to `Reset Code:`
+      create ResetInput in ResetDiv
+      set style `width` of ResetInput to `calc(100% - 1em)`
 
-    create ResetDiv in LoginDiv
-    set the style of ResetDiv to `display:none`
-    create Label in ResetDiv
-    set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
-    set the content of Label to `Reset Code:`
-    create ResetInput in ResetDiv
-    set the style of ResetInput to FieldHeight cat `;padding:4px;flex:` cat FieldWidth
-    set the size of ResetInput to 6
+  	  create NameDiv in LoginDiv
+      set the style of NameDiv to `display:none`
+      create Label in NameDiv
+      set the content of Label to `Reset Code:`
+      create NameInput in NameDiv
+      set style `width` of NameInput to `calc(100% - 1em)`
 
-    create NameDiv in LoginDiv
-    set the style of NameDiv to `display:none`
-    create Label in NameDiv
-    set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
-    set the content of Label to `Name&nbsp;or&nbsp;Nickname:`
-    create NameInput in NameDiv
-    set the style of NameInput to FieldHeight cat `;padding:4px;flex:` cat FieldWidth
-    set the size of NameInput to 40
+  	  create ConfirmationDiv in LoginDiv
+      set the style of ConfirmationDiv to `display:none`
+      create Label in ConfirmationDiv
+      set the content of Label to `Confirmation Code:`
+      create ConfirmationInput in ConfirmationDiv
+      set style `width` of ConfirmationInput to `calc(100% - 1em)`
+    end
+    else
+    begin
+      set the style of LoginDiv to `padding:0.5em;border:1px solid black`
+      create EmailDiv in LoginDiv
+      set style `display` of EmailDiv to `flex`
+      create Label in EmailDiv
+      set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
+      set the content of Label to `Email:`
+      create EmailInput in EmailDiv
+      set the style of EmailInput to FieldHeight cat `;padding:4px;flex:` cat FieldWidth
+      set the size of EmailInput to 40
 
-    create ConfirmationDiv in LoginDiv
-    set the style of ConfirmationDiv to `display:none`
-    create Label in ConfirmationDiv
-    set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
-    set the content of Label to `Confirmation Code:`
-    create ConfirmationInput in ConfirmationDiv
-    set the style of ConfirmationInput to FieldHeight cat `;padding:4px;flex:` cat FieldWidth
-    set the size of ConfirmationInput to 6
+      create PasswordDiv in LoginDiv
+      if not Mobile set style `display` of PasswordDiv to `flex`
+      create Label in PasswordDiv
+      set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
+      set the content of Label to `Password:`
+      create PasswordInput in PasswordDiv
+      set the style of PasswordInput to FieldHeight cat `;flex:` cat FieldWidth
+      set the size of PasswordInput to 40
+      set attribute `type` of PasswordInput to `password`
 
-    create ItemDiv in LoginDiv
-    set the style of ItemDiv to `display:flex;margin-top:0.5em`
-    create Label in ItemDiv
-    set the style of Label to `flex:` cat LabelWidth
+      create Password2Div in LoginDiv
+      set the style of Password2Div to `display:none`
+      create Label in Password2Div
+      set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
+      set the content of Label to `Password&nbsp;(again):`
+      create Password2Input in Password2Div
+      set the style of Password2Input to FieldHeight cat `;flex:` cat FieldWidth
+      set the size of Password2Input to 40
+      set attribute `type` of Password2Input to `password`
+
+      create ResetDiv in LoginDiv
+      set the style of ResetDiv to `display:none`
+      create Label in ResetDiv
+      set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
+      set the content of Label to `Reset Code:`
+      create ResetInput in ResetDiv
+      set the style of ResetInput to FieldHeight cat `;padding:4px;flex:` cat FieldWidth
+      set the size of ResetInput to 6
+
+      create NameDiv in LoginDiv
+      set the style of NameDiv to `display:none`
+      create Label in NameDiv
+      set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
+      set the content of Label to `Name&nbsp;or&nbsp;Nickname:`
+      create NameInput in NameDiv
+      set the style of NameInput to FieldHeight cat `;padding:4px;flex:` cat FieldWidth
+      set the size of NameInput to 40
+
+      create ConfirmationDiv in LoginDiv
+      set the style of ConfirmationDiv to `display:none`
+      create Label in ConfirmationDiv
+      set the style of Label to `padding-top:0.8em;flex:` cat LabelWidth
+      set the content of Label to `Confirmation Code:`
+      create ConfirmationInput in ConfirmationDiv
+      set the style of ConfirmationInput to FieldHeight cat `;padding:4px;flex:` cat FieldWidth
+      set the size of ConfirmationInput to 6
+    end
 
 !	Create the buttons
-    create ButtonDiv in ItemDiv
+    create ButtonDiv in LoginDiv
     set the style of ButtonDiv to `flex:` cat FieldWidth
+    if Mobile set style `flex-direction` of ButtonDiv to `column`
+    else set style `margin-top` of ButtonDiv to `1em`
+    
     create LoginButton in ButtonDiv
-    set the style of LoginButton to `margin-right:1em`
+    if Mobile set the style of LoginButton to `width:100%;margin-top:1em`
+    else set style `margin-right` of LoginButton to `1em`
     set the text of LoginButton to `Login`
     on click LoginButton go to ProcessLogin
     
     create RegisterButton in ButtonDiv
-    set the style of RegisterButton to `margin-right:1em`
+    if Mobile set the style of RegisterButton to `width:100%;margin-top:1em`
+    else set style `margin-right` of RegisterButton to `1em`
     set the text of RegisterButton to `Register`
     on click RegisterButton go to Register
 
     create ResetPasswordButton in ButtonDiv
-    set the style of ResetPasswordButton to `margin-right:1em`
+    if Mobile set the style of ResetPasswordButton to `width:100%;margin-top:1em`
+    else set style `margin-right` of ResetPasswordButton to `1em`
     set the text of ResetPasswordButton to `Reset Password`
     on click ResetPasswordButton
     begin
@@ -139,17 +189,21 @@
     end
 
     create RestartButton in ButtonDiv
-    set the style of RestartButton to `margin-right:1em;display:none`
+    if Mobile set the style of RestartButton to `width:100%;margin-top:1em`
+    else set style `margin-right` of RestartButton to `1em`
+    set style `display` of RestartButton to `none`
     set the text of RestartButton to `Restart`
     on click RestartButton go to GoBack
     
     create LogoutButton in ButtonDiv
-    set the style of LogoutButton to `margin-right:1em`
+    if Mobile set the style of LogoutButton to `width:100%;margin-top:1em`
+    else set style `margin-right` of LogoutButton to `1em`
     set the text of LogoutButton to `Log out`
     if Name is empty set style `display` of LogoutButton to `none`
     on click LogoutButton go to Logout
     
     create CancelButton in ButtonDiv
+    if Mobile set the style of CancelButton to `width:100%;margin-top:1em`
     set the text of CancelButton to `Cancel`
     on click CancelButton go to Exit
 
@@ -209,14 +263,24 @@ SaveUserDetails:
 !	Register as new user
 Register:
     gosub to HideMessage
-    set style `display` of PasswordDiv to `flex`
-    set style `display` of Password2Div to `flex`
+!    set style `display` of PasswordDiv to `flex`
+    if Mobile
+    begin
+    	set style `display` of Password2Div to `block`
+        set style `display` of NameDiv to `block`
+        set style `display` of RegisterButton to `block`
+        set style `display` of RestartButton to `block`
+    end
+    else
+    begin
+    	set style `display` of Password2Div to `flex`
+        set style `display` of NameDiv to `flex`
+        set style `display` of RegisterButton to `inline-block`
+        set style `display` of RestartButton to `inline-block`
+    end
     set style `display` of ResetDiv to `none`
-    set style `display` of NameDiv to `flex`
     set style `display` of LoginButton to `none`
-    set style `display` of RegisterButton to `inline-block`
     set style `display` of ResetPasswordButton to `none`
-    set style `display` of RestartButton to `inline-block`
     on click RegisterButton go to ProcessRegistration
     stop
 
