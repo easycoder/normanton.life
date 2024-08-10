@@ -165,6 +165,7 @@
     end
     else if Message is `back`
     begin
+      print `Location: ` cat Location
       if Location is `home`
       begin
       	put empty into Section
@@ -176,9 +177,7 @@
       else
       begin
         clear Flag
-        if Section is not empty set Flag
-        if Author is not empty set Flag
-        if Flag gosub to EnableHomeButton
+        if Selector is empty gosub to DisableHomeButton else gosub to EnableHomeButton
         history back
       	gosub to RedrawBlocks
       end

@@ -90,7 +90,7 @@
                         $id = $request[0];
                         $result = $conn->query("SELECT null FROM articles WHERE id='$id'");
                         if ($row = mysqli_fetch_object($result)) {
-                            $value = getArticle($id, "unsaved");
+                            $value = getArticle($id, true);
                             print $value;
                         }
                         break;
@@ -101,7 +101,7 @@
                         // print("SELECT id FROM articles WHERE slug='$slug'\n");
                         $result = $conn->query("SELECT id FROM articles WHERE slug='$slug'");
                         if ($row = mysqli_fetch_object($result)) {
-                            $value = getArticle($row->id, "unsaved");
+                            $value = getArticle($row->id, true);
                             print $value;
                         } else {
                             http_response_code(404);
@@ -119,6 +119,7 @@
                         $admin = $row->admin;
                         mysqli_free_result($result);
                         array_shift($request);
+                        $filter = "all";
 
                         $filter = '';
                         if (count($request) > 0) {
@@ -156,7 +157,7 @@
                                 break;
                             case 'author':
                                 $where = "WHERE author='$name'";
-                                if (!$admin) {
+                                if ($admin == 0) {
                                     $where .= " AND (author='$user' OR public=1)";
                                 }
                                 // print("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
@@ -170,7 +171,7 @@
                                 //         ."'ORDER BY articles.published DESC LIMIT $offset, $count");
                                 break;
                             case 'all':
-                                $where = "WHERE public=1";
+                                $where = $admin ? "" : "WHERE public=1 OR $admin";
                                 // print("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
                                 $result = $conn->query("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
@@ -180,13 +181,13 @@
                         while ($row = mysqli_fetch_object($result)) {
                             $id = $row->id;
                             // Special case where the filter is 'author' and the user is the article author
-                            if ($admin || ($filter == 'author' && $user == $row->author)) {
+                            if ($filter == 'author' && $admin == 1) {
                                 if ($response != '[') {
                                     $response .= ',';
                                 }
-                                $response .= getArticle($id, "unsaved");
+                                $response .= getArticle($id, false);
                             } else {
-                                $content = getArticle($id, "saved");
+                                $content = getArticle($id, true);
                                 if ($content) {
                                     if ($response != '[') {
                                         $response .= ',';

@@ -5,7 +5,6 @@
     import div Container and variable Mobile
 
     form LoginDiv
-    div ItemDiv
     div ButtonDiv
     div EmailDiv
     div ResetDiv
