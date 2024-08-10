@@ -127,6 +127,7 @@
         put empty into SelectedAuthor
         gosub to DoAuthors
         gosub to ResetAuthors
+        set the content of HomeButton to `Home`
     end
     else
     begin
@@ -142,6 +143,10 @@
         if property `button` of Message is `home` gosub to DisableHome
         else if property `button` of Message is `sections` gosub to DisableSection
         else if property `button` of Message is `authors` gosub to DisableAuthor
+      end
+      else if Action is `home`
+      begin
+      	set the content of HomeButton to property `name` of Message
       end
     end
   end
@@ -232,7 +237,7 @@ AddArticle:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Here when the Home button is clicked
 DoHome:
-	send `homebutton` to parent
+	send `back` to parent
     stop
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

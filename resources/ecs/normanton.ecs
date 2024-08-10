@@ -35,6 +35,7 @@
   	module ArticleEditor
   	variable Mobile
     variable UserName
+    variable IsAdmin
   	variable Visitor
   	variable HostName
     variable ArticleList
@@ -44,7 +45,7 @@
   	variable ArticleCount
   	variable CurrentPage
   	variable ArticleViewerRunning
-  	variable ArticleEditorRunning
+  	variable Editing
   	variable MenuRunning
   	variable Record
   	variable Script
@@ -80,8 +81,7 @@
 !  debug step
 
 	clear Mobile
-    get UserName from storage as `user.name`
-    if UserName is empty put `guest` into UserName
+    gosub to GetCurrentUser
     print `User: ` cat UserName
   
    	put `https://` cat the hostname into HostName
@@ -112,10 +112,10 @@
   	set property `day` of Content to `numeric`
   	set property `options` of DateFormat to Content
 
- 	 put empty into CopyrightFormat
+ 	put empty into CopyrightFormat
   	set property `mode` of CopyrightFormat to `date`
   	set property `locale` of CopyrightFormat to `en-EN`
- 	 put empty into Content
+ 	put empty into Content
   	set property `year` of Content to `numeric`
   	set property `options` of CopyrightFormat to Content
 
@@ -150,6 +150,7 @@
     if Message is `login`
     begin
     	get UserName from storage as `user.name`
+        gosub to GetCurrentUser
         gosub to RedrawBlocks
     end
     else if Message is `editleft`
@@ -162,7 +163,7 @@
       put `right` into Slug
       go to EditSlug
     end
-    else if Message is `homebutton`
+    else if Message is `back`
     begin
       if Location is `home`
       begin
@@ -174,7 +175,7 @@
         send `reset` to Menu
       else
       begin
-      clear Flag
+        clear Flag
         if Section is not empty set Flag
         if Author is not empty set Flag
         if Flag gosub to EnableHomeButton
@@ -418,8 +419,8 @@ RedrawBlocks:
   end
   else
   begin
-    print `/resources/php/rest.php/_/articles/get/` cat UserName
-    	cat `/all/-?v=` cat now
+!    print `/resources/php/rest.php/_/articles/get/` cat UserName
+!    	cat `/all/-?v=` cat now
     rest get Articles from `/resources/php/rest.php/_/articles/get/` cat UserName
     	cat `/all?v=` cat now
       or go to DataReadFail
@@ -450,6 +451,13 @@ RedrawBlocks:
   set the elements of SectionLink to DisplayCount
 
   set the content of Blocks to ``
+  if Selector is `section`
+  begin
+    create SelectorDiv in Blocks
+    set the style of SelectorDiv to `font-weight:bold;color:green;margin-bottom:0.5em`
+    replace `%20` with ` ` in Author
+    set the content of SelectorDiv to `Articles in section ` cat Section
+  end
   if Selector is `author`
   begin
     create SelectorDiv in Blocks
@@ -538,6 +546,7 @@ ShowSynopses:
 ShowSynopsis:
   put element Index of Articles into Article
   if property `author` of Article is UserName set style `display` of EditButton to `inline-block`
+  if IsAdmin set style `display` of EditButton to `inline-block`
   set style `display` of Block to `block`
   if property `public` of Article set style `background` of Block to ``
   else
@@ -621,7 +630,7 @@ Viewer:
   put the scroll position into ScrollPosition
   scroll to 0
   put `` into ViewerMessage
-  if not ArticleViewerRunning
+  if ArticleViewer is not running
   begin
     rest get Script from `/resources/ecs/viewer.ecs?v=` cat now
     or begin
@@ -630,8 +639,8 @@ Viewer:
     end
     run Script with CenterColumn and Article  and ViewerMessage
       as ArticleViewer
-    set ArticleViewerRunning
   end
+  gosub SetHomeToBack
   gosub to DisableButtons
   put `` into HistoryState
   set property `script` of HistoryState to `NormantonLife`
@@ -640,6 +649,7 @@ Viewer:
   history set state HistoryState
   on restore
   begin
+  	if Selector is empty gosub SetHomeToHome
     gosub to EnableButtons
 !    if CurrentPage is 0 gosub to DisableHomeButton
     if Location is not `home`
@@ -712,7 +722,7 @@ EditSlug:
 ! Edit an article
 Editor:
   put `` into Message
-  if not ArticleEditorRunning
+  if ArticleEditor is not running
   begin
     require js `https://easycoder.github.io/dist/plugins/ui.js?ver=2.6.0`
     require js `https://easycoder.github.io/dist/plugins/ckeditor.js?ver=2.6.0`
@@ -722,12 +732,16 @@ Editor:
       stop
     end
     run Script with Body and CenterColumn and Article and Message as ArticleEditor
-    set ArticleEditorRunning
   end
   history set
   on restore
   begin
-    if CurrentPage is 0 gosub to DisableHomeButton
+  	clear Editing
+  	if Selector is empty
+    begin
+    	gosub to SetHomeToHome
+        gosub to DisableHomeButton
+    end
   	gosub to EnableButtons
     put Article into Record
     close ArticleEditor
@@ -749,6 +763,11 @@ Editor:
   gosub to DisableButtons
   put `edit` into Location
   send to ArticleEditor
+  set Message to object
+  set property `action` of Message to `home`
+  set property `name` of Message to `Back`
+  set Editing
+  send Message to Menu
   set style `display` of NewButton to `none`
   set style `display` of ToolsButton to `none`
   set style `display` of NavigatorDiv to `none`
@@ -766,6 +785,33 @@ Tracking:
 !    end
 !  end
   return
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Get the current user and check if they are admin
+GetCurrentUser:
+    get UserName from storage as `user.name`
+    if UserName is empty put `guest` into UserName
+    rest get Record from  `name/` cat UserName cat `?v=` cat now
+    if property `admin` of Record is 1 set IsAdmin else clear IsAdmin
+    return
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Set the text of the Home button to 'Back'
+SetHomeToBack:
+    set Message to object
+    set property `action` of Message to `home`
+    set property `name` of Message to `Back`
+    send Message to Menu
+	return
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Set the text of the Home button to 'Home'
+SetHomeToHome:
+    set Message to object
+    set property `action` of Message to `home`
+    set property `name` of Message to `Home`
+    send Message to Menu
+	return
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Control item visibility

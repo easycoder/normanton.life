@@ -88,12 +88,9 @@
                         // Endpoint: {site root}/rest.php/_/articles/id/{id}
                         // Get a record given its id
                         $id = $request[0];
-                        $result = $conn->query("SELECT unsaved FROM articles WHERE id='$id'");
+                        $result = $conn->query("SELECT null FROM articles WHERE id='$id'");
                         if ($row = mysqli_fetch_object($result)) {
-                            $value = $row->unsaved;
-                            $json = json_decode($value);
-                            $json->id = $id;
-                            $value = json_encode($json);
+                            $value = getArticle($id, "unsaved");
                             print $value;
                         }
                         break;
@@ -101,12 +98,10 @@
                         // Endpoint: {site root}/rest.php/_/articles/slug/{slug}
                         // Get a record given its slug
                         $slug = $request[0];
-                        $result = $conn->query("SELECT id,unsaved FROM articles WHERE slug='$slug'");
+                        // print("SELECT id FROM articles WHERE slug='$slug'\n");
+                        $result = $conn->query("SELECT id FROM articles WHERE slug='$slug'");
                         if ($row = mysqli_fetch_object($result)) {
-                            $value = $row->unsaved;
-                            $json = json_decode($value);
-                            $json->id = $row->id;
-                            $value = json_encode($json);
+                            $value = getArticle($row->id, "unsaved");
                             print $value;
                         } else {
                             http_response_code(404);
@@ -157,15 +152,15 @@
                                 $where = $row->admin ? "" : "WHERE public=1";
                                 $where = $where ? "$where AND" : "WHERE";
                                 $where = "$where section='$name'";
-                                $result = $conn->query("SELECT saved FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
+                                $result = $conn->query("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                             case 'author':
                                 $where = "WHERE author='$name'";
                                 if (!$admin) {
                                     $where .= " AND (author='$user' OR public=1)";
                                 }
-                                // print("SELECT unsaved,saved,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
-                                $result = $conn->query("SELECT unsaved,saved,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
+                                // print("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
+                                $result = $conn->query("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                             case 'tag':
                                 // $filter = 'tags';
@@ -175,20 +170,29 @@
                                 //         ."'ORDER BY articles.published DESC LIMIT $offset, $count");
                                 break;
                             case 'all':
-                                $result = $conn->query("SELECT unsaved FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
+                                $where = "WHERE public=1";
+                                // print("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
+                                $result = $conn->query("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                         }
 
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
-                            if ($response != '[') {
-                                $response .= ',';
-                            }
+                            $id = $row->id;
                             // Special case where the filter is 'author' and the user is the article author
-                            if ($admin || $filter == 'author' && $user == $row->author) {
-                                $response .= $row->unsaved;
+                            if ($admin || ($filter == 'author' && $user == $row->author)) {
+                                if ($response != '[') {
+                                    $response .= ',';
+                                }
+                                $response .= getArticle($id, "unsaved");
                             } else {
-                                $response .= $row->saved;
+                                $content = getArticle($id, "saved");
+                                if ($content) {
+                                    if ($response != '[') {
+                                        $response .= ',';
+                                    }
+                                    $response .= $content;
+                                }
                             }
                         }
                         $response .= ']';
@@ -527,28 +531,9 @@
                             $result = $conn->query("SELECT id FROM articles WHERE slug='$id'");
                         }
                         $json->id = $id;
-
-                        // Write to a backup file on the server
-                        $articles = 'resources/articles';
-                        if (!file_exists($articles)) {
-                            mkdir($articles);
-                        }
-                        $id = '' . $id;
-                        while (strlen($id) < 4) {
-                            $id = '0' . $id;
-                        }
                         $value = json_encode($json, JSON_PRETTY_PRINT);
-                        $file = getRoot() . "$articles/$id";
-                        logger("Save to $file");
-                        $fp = fopen($file, "w");
-                        if ($fp) {
-                            fwrite($fp, "$value");
-                            fclose($fp);
-                            logger("Success");
-                        } else {
-                            http_response_code(400);
-                            log_error("{\"message\":\"REST: Can't open file '$file'.\"}");
-                        }
+
+                        saveArticle($json);
 
                         // Update the article record
                        if ($row = mysqli_fetch_object($result)) {
@@ -557,8 +542,8 @@
                             $slug = ec_getUniqueSlug($conn, $id, $slug);
                             $json->slug = $slug;
                             $value = json_encode($json);
-                            logger("UPDATE articles SET unsaved=(value),slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
-                            $conn->query("UPDATE articles SET unsaved='$value',slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
+                            logger("UPDATE articles SET slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
+                            $conn->query("UPDATE articles SET slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
                             ec_process_tags($conn, $id, $json->tags);
                             ec_process_words($conn, $id, $json);
                             print 'OK';
@@ -577,13 +562,14 @@
                         $json = json_decode($value);
                         $author = $json->author;
                         $published = $json->published;
-                        $conn->query("INSERT INTO articles (unsaved,author,published,ts) VALUES ('$value','$author','$published','$ts')");
+                        $conn->query("INSERT INTO articles (author,published,ts) VALUES ('$author','$published','$ts')");
                         $id = mysqli_insert_id($conn);
                         $json->id = $id;
                         $json->title = "Record $id";
                         $json->slug = "record-$id";
+                        saveArticle($json);
                         $value = json_encode($json);
-                        $conn->query("UPDATE articles SET slug='record-$id',unsaved='$value' WHERE id=$id");
+                        $conn->query("UPDATE articles SET slug='record-$id' WHERE id=$id");
                         http_response_code(201);
                         print $value;
                         break;
@@ -698,7 +684,48 @@
                 break;
         }
     }
-    
+
+    /////////////////////////////////////////////////////////////////////////
+    // Save an article to the server, into 'unsaved'
+    function saveArticle($json) {
+        $id = $json->id;
+        $group = intval(intval($id) / 1000);
+        $articles = "resources/articles/$group/unsaved";
+        if (!file_exists($articles)) {
+            $result = mkdir($articles, 0777, true);
+        }
+        while (strlen($id) < 3) {
+            $id = '0' . $id;
+        }
+        $file = getRoot() . "$articles/$id";
+        $fp = fopen($file, "w");
+        if ($fp) {
+            fwrite($fp, json_encode($json, JSON_PRETTY_PRINT));
+            fclose($fp);
+        } else {
+            http_response_code(400);
+            log_error("{\"message\":\"REST: Can't open file '$file'.\"}");
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // Get an article from the server
+    function getArticle($id, $saved) {
+        $group = intval(intval($id) / 1000);
+        $articles = "resources/articles/$group/" . ($saved ? "saved" : "unsaved");
+        while (strlen($id) < 3) {
+            $id = '0' . $id;
+        }
+        $file = getRoot() . "$articles/$id";
+        if (file_exists($file)) {
+            $content = file_get_contents($file);
+        } else {
+            $content = "";
+        }
+        return $content;
+    }
+
+    /////////////////////////////////////////////////////////////////////////
     function ec_getUniqueSlug($conn, $id, $slug) {
         $original = $slug;
         $n = 0;
@@ -713,6 +740,7 @@
         }
     }
     
+    /////////////////////////////////////////////////////////////////////////
     function ec_process_tags($conn, $page, $tags) {
         logger("ec_process_tags($page)");
         $result = $conn->query("UPDATE tags SET tag='' WHERE page='$page'");
@@ -730,6 +758,7 @@
         }
     }
     
+    /////////////////////////////////////////////////////////////////////////
     function ec_process_words($conn, $page, $json) {
          logger("ec_process_words($page)");
          $conn->query("UPDATE words SET word='' WHERE page='$page'");

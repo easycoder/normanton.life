@@ -312,11 +312,12 @@
                 // Get a user record by its user name
                 // Endpoint: {site root}/resources/php/rest.php/name/{name}
                 $name = $request[0];
-                $result = $conn->query("SELECT email,password FROM ec_user WHERE name='$name'");
+                $result = $conn->query("SELECT email,password,admin FROM ec_user WHERE name='$name'");
                 if ($row = mysqli_fetch_object($result)) {
                     $email = $row->email;
                     $password = $row->password;
-                    print("{\"email\":\"$email\",\"password\":\"$password\",\"name\":\"$name\"}");
+                    $admin = $row->admin;
+                    print("{\"email\":\"$email\",\"password\":\"$password\",\"name\":\"$name\",\"admin\":\"$admin\"}");
                 } else {
                     http_response_code(404);
                     log_error("No user record for '$name'.");
