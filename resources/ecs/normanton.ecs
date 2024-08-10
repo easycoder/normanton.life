@@ -22,7 +22,9 @@
   	span Span
   	a TitleLink
   	a SectionLink
+  	a AuthorLink
   	h5 SelectorDiv
+    label Label
   	img EditButton
   	img NewButton
   	img ToolsButton
@@ -300,10 +302,10 @@ SetupScreen:
   create BannerDiv in Header
   if portrait
     set the style of BannerDiv to
-      `width:140%;position:relative;left:-20%;padding-bottom:1em;border-bottom:1px solid #ccc`
+      `width:140%;position:relative;left:-20%`
   else
     set the style of BannerDiv to
-      `width:100%;position:relative;padding-bottom:1em;border-bottom:1px solid #ccc`
+      `width:100%;position:relative`
 
   create Buttons in BannerDiv
   set the style of Buttons to `position:absolute;right:0`
@@ -344,17 +346,6 @@ SetupScreen:
     set attribute `src` of BannerImage to `resources/system/banner.jpg`
   end
 
-  if not MenuRunning
-  begin
-    rest get Script from `/resources/ecs/menu.ecs?v=` cat now
-    or begin
-      alert `Unable to get the menu script - please try again.`
-      stop
-    end
-    run Script with Header and Mobile as Menu
-    set MenuRunning
-  end
-
   create ContentDiv in Body
   set style `position` of ContentDiv to `relative`
   create Columns in ContentDiv
@@ -376,7 +367,19 @@ SetupScreen:
     set the style of LeftColumn to `flex:200`
     set the style of CenterColumn to `flex:800;margin:0 20px`
     set the style of RightColumn to `flex:200`
+  end  
+
+  if not MenuRunning
+  begin
+    rest get Script from `/resources/ecs/menu.ecs?v=` cat now
+    or begin
+      alert `Unable to get the menu script - please try again.`
+      stop
+    end
+    run Script with CenterColumn and Mobile as Menu
+    set MenuRunning
   end
+  
   create Blocks in CenterColumn
 
   create NavigatorDiv in CenterColumn
@@ -397,7 +400,7 @@ RedrawBlocks:
   if Selector is `section`
   begin
     set property `section` of TrackingMessage to Section
-    rest get Articles from `/resources/php/rest.php/_/sections/get/` cat UserName
+    rest get Articles from `/resources/php/rest.php/_/articles/get/` cat UserName
     	cat `/section/` cat Section cat `?v=` cat now
       or go to DataReadFail
   end
@@ -448,6 +451,7 @@ RedrawBlocks:
   set the elements of SynopsisGroup to DisplayCount
   set the elements of EditButton to DisplayCount
   set the elements of SectionLink to DisplayCount
+  set the elements of AuthorLink to DisplayCount
 
   set the content of Blocks to ``
   if Selector is `section`
@@ -489,7 +493,7 @@ RedrawBlocks:
     create EditButton in TitleGroup
     set the style of EditButton to
       `position:absolute;top:0.25em;right:0.25em;width:25px;display:none`
-    set attribute `src` of EditButton to `resources/system/edit.png`
+    set attribute `src` of EditButton to `resources/icon/edit.png`
     set attribute `title` of EditButton to `Edit this article`
     create SynopsisGroup in Block
     create SynopsisText in SynopsisGroup
@@ -530,11 +534,13 @@ ShowSynopses:
   begin
     index Block to Index
     index EditButton to Index
+    index TitleGroup to Index
     index TitleLink to Index
     index EditButton to Index
     index SynopsisGroup to Index
     index SynopsisText to Index
     index SectionLink to Index
+    index AuthorLink to Index
     gosub to ShowSynopsis
     add 1 to Index
   end
@@ -547,12 +553,6 @@ ShowSynopsis:
   if property `author` of Article is UserName set style `display` of EditButton to `inline-block`
   if IsAdmin set style `display` of EditButton to `inline-block`
   set style `display` of Block to `block`
-  if property `public` of Article set style `background` of Block to ``
-  else
-  begin
-!    if Mode is `admin` set style `background` of Block to `#fee`
-!    else set style `display` of Block to `none`
-  end
   put decode property `title` of Article into Content
   set the content of TitleLink to Content
   set attribute `href` of TitleLink to HostName cat `/` cat property `slug` of Article
@@ -561,6 +561,12 @@ ShowSynopsis:
     put the index of TitleLink into Index
     put element Index of Articles into Article
     gosub to ViewArticle
+  end
+  if not property `public` of Article
+  begin
+  	create Label in TitleGroup
+    set the style of Label to `margin-left:4em;color:red`
+    set the content of Label to `(not public)`
   end
   set the content of SynopsisText to decode property `synopsis` of Article
   create DateGroup in SynopsisGroup
@@ -596,7 +602,29 @@ ShowSynopsis:
       put 0 into CurrentPage
       scroll to 0
       gosub to RedrawBlocks
-!      gosub to EnableHomeButton
+    end
+  end
+  put decode property `author` of Article into Author
+  if Author
+  begin
+    if mobile
+    begin
+  		create DateGroup in SynopsisGroup
+        set the style of DateGroup to
+          `padding-bottom:0.5em;border-bottom:1px solid lightgray;font-size:85%`
+    end
+    create Span in DateGroup
+    if not mobile set the style of Span to `padding-left:3em`
+    set the content of Span to `Author: `
+    create AuthorLink in DateGroup
+    set the content of AuthorLink to Author
+    on click AuthorLink
+    begin
+      put `author` into Selector
+      put the content of AuthorLink into Author
+      put 0 into CurrentPage
+      scroll to 0
+      gosub to RedrawBlocks
     end
   end
   return
@@ -742,6 +770,7 @@ Editor:
         gosub to DisableHomeButton
     end
   	gosub to EnableButtons
+    send `show` to Menu
     put Article into Record
     close ArticleEditor
     gosub to RedrawBlocks
@@ -760,6 +789,7 @@ Editor:
 
   gosub to EnableHomeButton
   gosub to DisableButtons
+  send `hide` to Menu
   put `edit` into Location
   send to ArticleEditor
   set Message to object

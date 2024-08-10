@@ -6,18 +6,11 @@
 
   div Inner
   div Block1
-  img EditButton
-  variable Content
+  variable Article
   variable Mode
-
+  
   create Inner in Container
   set the style of Inner to `margin:5% 5%`
-
-  create EditButton in Inner
-  set the style of EditButton to `width:25px;display:none`
-  set attribute `src` of EditButton to `https://normanton.life/resources/system/edit.png`
-  set attribute `title` of EditButton to `Edit the right sidebar article`
-  on click EditButton send `editright` to parent
 
   create Block1 in Inner
   set the style of Block1 to `padding-bottom:1em;border-bottom:1px solid lightgray;margin-bottom:1em`
@@ -28,12 +21,10 @@
 
 Show:
   get Mode from storage as `mode`
-  if Mode is `admin` set style `display` of EditButton to `block`
-  else set style `display` of EditButton to `none`
-  rest get Content from `/resources/php/rest.php/_/articles/slug/right?v=` cat now
+  rest get Article from `/resources/php/rest.php/_/articles/slug/right?v=` cat now
   or begin
     alert `Failed to get the content of the right panel.`
     stop
   end
-  set the content of Block1 to decode property `article` of Content
+  set the content of Block1 to decode property `article` of Article
   stop

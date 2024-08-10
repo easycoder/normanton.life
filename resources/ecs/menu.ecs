@@ -86,20 +86,20 @@
   set style `display` of AuthorSelect to `none`
   put empty into SelectedAuthor
   
-  create AddButton in MenuDiv
-!  if Mobile set style `display` of AddButton to `none`
-!  else
-!  begin
+  if UserName is not empty
+  begin
+    create AddButton in MenuDiv
     set the style of AddButton to `width:1.5em;background:#444;padding:0.5em 0;text-align:left`
     create AddIcon in AddButton
     set style `width` of AddIcon to `1em`
     set style `height` of AddIcon to `1em`
     set attribute `src` of AddIcon to `/resources/icon/plus.png`
     if UserName is empty set style `display` of AddButton to `none`
+    set attribute `title` of AddIcon to `Add a new article`
     on click AddIcon go to AddArticle
-!  end
-  if UserName is empty set style `display` of AddButton to `none`
-  else set style `display` of AddButton to `inline-block`
+    if UserName is empty set style `display` of AddButton to `none`
+    else set style `display` of AddButton to `inline-block`
+  end
 
   create UserButton in MenuDiv
   set the style of UserButton to `width:1.5em;background:#444;padding:0.5em 0;text-align:left`
@@ -109,6 +109,7 @@
   if UserName is empty set attribute `src` of UserIcon to `/resources/icon/user.png`
   else set attribute `src` of UserIcon to `/resources/icon/user-loggedin.png`
   set style `cursor` of UserIcon to `pointer`
+  set attribute `title` of UserIcon to `Login/logout`
   on click UserIcon go to ManageUsers
 
   on message
@@ -128,6 +129,14 @@
         gosub to DoAuthors
         gosub to ResetAuthors
         set the content of HomeButton to `Home`
+    end
+    else if Message is `hide`
+    begin
+        set style `display` of MenuDiv to `none`
+    end
+    else if Message is `show`
+    begin
+        set style `display` of MenuDiv to `flex`
     end
     else
     begin
@@ -244,6 +253,7 @@ DoHome:
 ! Show the list of sections
 DoSections:
   if not SectionEnable stop
+  gosub to ResetAuthors
   rest get Sections from `/resources/php/rest.php/_/sections/enum?v=` cat now
   put the json count of Sections into Count
   set the elements of Section to Count
@@ -284,6 +294,7 @@ DoSections:
 ! Show the list of authors
 DoAuthors:
   if not AuthorEnable stop
+  gosub to ResetSections
   rest get Authors from `/resources/php/rest.php/_/authors/enum?v=` cat now
   put the json count of Authors into Count
   set the elements of Author to Count

@@ -1,6 +1,6 @@
 {
     "id": "1",
-    "published": 1722639600,
+    "published": 1722553200,
     "public": false,
     "slug": "left",
     "section": "general",
@@ -8,5 +8,5 @@
     "title": "Left-hand sidebar",
     "tags": "",
     "synopsis": "<p>Synopsis<\/p>",
-    "article": "<p><img alt=~dq~~dq~ src=~dq~https:\/\/normanton.life\/resources\/articles\/new\/general\/highst.jpg~dq~ style=~dq~width:100%~dq~ \/><\/p><p>Welcome to Normanton Life. This website features the people of Normanton and the events taking place in and around the town.<\/p>"
+    "article": "<p>Welcome to <strong>Normanton Life<\/strong><\/p><p><img alt=~dq~~dq~ src=~dq~https:\/\/normanton.life\/resources\/articles\/new\/general\/highst.jpg~dq~ style=~dq~width:100%~dq~ \/><\/p><p>This website features the people of Normanton and the activities and events taking place in and around the town.<\/p>"
 }

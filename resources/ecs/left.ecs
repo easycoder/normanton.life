@@ -9,20 +9,12 @@
   div Weather
   div FBDiv
   div Padding
-  img EditButton
-  variable Content
+  variable Article
   variable Mode
-  variable FacebookDone
   variable WeatherDone
-
+  
   create Inner in Container
   set the style of Inner to `margin:5% 5%`
-
-  create EditButton in Inner
-  set the style of EditButton to `width:25px;display:none`
-  set attribute `src` of EditButton to `https://` cat the hostname cat `/resources/system/edit.png`
-  set attribute `title` of EditButton to `Edit the left sidebar article`
-  on click EditButton send `editleft` to parent
 
   create Block1 in Inner
   set the style of Block1 to
@@ -34,24 +26,12 @@
 
 Show:
   get Mode from storage as `mode`
-  if Mode is `admin` set style `display` of EditButton to `block`
-  else set style `display` of EditButton to `none`
-  rest get Content from `/resources/php/rest.php/_/articles/slug/left?v=` cat now
+  rest get Article from `/resources/php/rest.php/_/articles/slug/left?v=` cat now
   or begin
     alert `Failed to get the content of the left panel.`
     stop
   end
-  set the content of Block1 to decode property `article` of Content
-
-  if not FacebookDone
-  begin
-    create FBDiv in Inner
-    set the style of FBDiv to `padding-bottom:1em;border-bottom:1px solid lightgray`
-    rest get Content from `/resources/php/rest.php/_load/html~facebook?v=` cat now
-    set the content of FBDiv to Content
-    create Padding in Inner
-    set the content of Padding to `&nbsp;`
-  end
+  set the content of Block1 to decode property `article` of Article
 
   if not WeatherDone
   begin

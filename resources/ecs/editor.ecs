@@ -36,14 +36,14 @@
   button ArticleButton
   img FolderIcon
   img SaveIcon
-  img ViewIcon
+  img CloseIcon
   module FileManager
-  input PublicCheckbox
   input SlugInput
   input SectionInput
   input TitleInput
   input TagsInput
   date Date
+  variable HostName
   variable ID
   variable Slug
   variable Published
@@ -63,7 +63,7 @@
 !  debug step
   
   create EditorDiv in Container
-  set the style of EditorDiv to `display:none;width:100%`
+  set the style of EditorDiv to `display:none;width:100%;margin-top:1em`
 
   create Buttons in EditorDiv
   set the style of Buttons to `float:right;text-align:right`
@@ -72,19 +72,21 @@
   set the style of Status to `color:green;padding-right:1em;margin-bottom:1em`
   create FolderIcon in Buttons
   set the style of FolderIcon to `width:25px;margin-right:10px`
-  set attribute `src` of FolderIcon to `https://normanton.life/resources/system/media.png`
+  set attribute `src` of FolderIcon to `https://normanton.life/resources/icon/media.png`
   set attribute `title` of FolderIcon to `Media manager`
   on click FolderIcon go to FileMan
+  put `https://` cat the hostname into HostName
+  print HostName
   create SaveIcon in Buttons
   set the style of SaveIcon to `width:25px;margin-right:10px`
-  set attribute `src` of SaveIcon to `https://normanton.life/resources/system/save.png`
+  set attribute `src` of SaveIcon to `https://normanton.life/resources/icon/save.png`
   set attribute `title` of SaveIcon to `Save changes`
   on click SaveIcon go to Save
-  create ViewIcon in Buttons
-  set the style of ViewIcon to `width:25px;margin-right:10px`
-  set attribute `src` of ViewIcon to `https://normanton.life/resources/system/binoculars.png`
-  set attribute `title` of ViewIcon to `View article without saving`
-  on click ViewIcon go to View
+  create CloseIcon in Buttons
+  set the style of CloseIcon to `width:25px;margin-right:10px`
+  set attribute `src` of CloseIcon to HostName cat `/resources/icon/stop.png`
+  set attribute `title` of CloseIcon to `Close the editor`
+  on click CloseIcon go to Close
 
   create Block1 in EditorDiv
 
@@ -92,13 +94,10 @@
   set style `display` of PublishedDiv to `flex`
   create PublishedLabel in PublishedDiv
   set the style of PublishedLabel to `width:7em`
-  set the content of PublishedLabel to `Published:`
+  set the content of PublishedLabel to `Date:`
   create DateHolder in PublishedDiv
   set style `margin-bottom` of DateHolder to `0.5em`
   create Date in DateHolder
-  create PublicCheckbox in DateHolder
-  set style `margin-left` of PublicCheckbox to `3em`
-  set attribute `type` of PublicCheckbox to `checkbox`
   put 40 into TextBoxWidth
 
   create IDDiv in Block1
@@ -223,8 +222,6 @@ Editor:
   end
 
   set the date of Date to Published
-  if Public set attribute `checked` of PublicCheckbox
-  else remove attribute `checked` of PublicCheckbox
   set the content of IDText to ID
   set the content of SlugInput to Slug
   set the content of SectionInput to Section
@@ -257,8 +254,6 @@ Editor:
 
 Save:
   put Date into Published
-  put attribute `checked` of PublicCheckbox into Public
-  put the text of SectionInput into Section
   put the text of TitleInput into Title
   put the text of TagsInput into Tags
   ckeditor get Synopsis from SynopsisDiv
@@ -316,7 +311,7 @@ Save:
   set the content of Status to ``
   stop
 
-View:
+Close:
   put `show` into Message
   history back
   stop

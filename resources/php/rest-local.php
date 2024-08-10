@@ -157,7 +157,7 @@
                                 break;
                             case 'author':
                                 $where = "WHERE author='$name'";
-                                if ($admin == 0) {
+                                if (!$admin) {
                                     $where .= " AND (author='$user' OR public=1)";
                                 }
                                 // print("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
@@ -180,14 +180,18 @@
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
                             $id = $row->id;
-                            // Special case where the filter is 'author' and the user is the article author
+                            $author = $row->author;
                             if ($filter == 'author' && $admin == 1) {
                                 if ($response != '[') {
                                     $response .= ',';
                                 }
                                 $response .= getArticle($id, false);
                             } else {
-                                $content = getArticle($id, true);
+                                if ($author == $user) {
+                                    $content = getArticle($id, false);
+                                } else {
+                                    $content = getArticle($id, true);
+                                }
                                 if ($content) {
                                     if ($response != '[') {
                                         $response .= ',';
