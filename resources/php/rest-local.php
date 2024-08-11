@@ -113,26 +113,35 @@
                         // Endpoint: {site root}/rest.php/_/articles/get/{user}/[{filter}/{name}][{offset}/][{count}]
                         // Get all the public articles in the range specified
                         // First see if the user is admin
+                        // print_r($request);print "\n";
                         $user = $request[0];
-                        $result = $conn->query("SELECT admin FROM ec_user WHERE name='$user'");
-                        $row = mysqli_fetch_object($result);
-                        $admin = $row->admin;
-                        mysqli_free_result($result);
+                        if ($user == "-") {
+                            $admin = 0;
+                        } else {
+                            $result = $conn->query("SELECT admin FROM ec_user WHERE name='$user'");
+                            $row = mysqli_fetch_object($result);
+                            $admin = $row->admin;
+                            mysqli_free_result($result);
+                        }
+                        // print "User:$user, admin:$admin\n";
+
+                        // Get the filter
                         array_shift($request);
                         $filter = "all";
-
-                        $filter = '';
-                        if (count($request) > 0) {
+                        if (in_array($request[0], array('section', 'author', 'tag', 'all'))) {
                             $filter = $request[0];
-                            if (in_array($request[0], array('section', 'author', 'tag', 'all'))) {
-                                $filter = $request[0];
-                                array_shift($request);
-                                if (count($request) > 0) {
-                                    $name = $request[0];
-                                    array_shift($request);
-                                }
-                            }
                         }
+                        // print "Filter:$filter\n";
+
+                        // Get the section or author
+                        array_shift($request);
+                        if (count($request) > 0) {
+                            $name = $request[0];
+                            array_shift($request);
+                        }
+                        // print "Name:$name\n";
+
+                        // Get the offset and count
                         switch (count($request)) {
                             case 1:
                                 $offset = $request[0];
@@ -147,6 +156,7 @@
                                 $count = 10;
                                 break;
                         }
+
                         switch ($filter)
                         {
                             case 'section':
@@ -167,11 +177,11 @@
                                 // $filter = 'tags';
                                 // $result = $conn->query("SELECT articles.saved from articles
                                 //     INNER JOIN $filter ON $filter.page = articles.id
-                                //     WHERE  public=1 AND tag='" . str_replace(' ', '%20', $name)
+                                //     WHERE  public=1 AND tag='" . str_replace(' ', '%20', $author)
                                 //         ."'ORDER BY articles.published DESC LIMIT $offset, $count");
                                 break;
                             case 'all':
-                                $where = $admin ? "" : "WHERE public=1 OR $admin";
+                                $where = $admin ? "" : "WHERE public=1";
                                 // print("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
                                 $result = $conn->query("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;

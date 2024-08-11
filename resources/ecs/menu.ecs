@@ -43,6 +43,8 @@
   get UserName from storage as `user.name`
   set SectionEnable
   set AuthorEnable
+  
+  create UserPanel in Header
 
   create MenuDiv in Header
   if Mobile set the style of MenuDiv to
@@ -86,9 +88,9 @@
   set style `display` of AuthorSelect to `none`
   put empty into SelectedAuthor
   
+  create AddButton in MenuDiv
   if UserName is not empty
   begin
-    create AddButton in MenuDiv
     set the style of AddButton to `width:1.5em;background:#444;padding:0.5em 0;text-align:left`
     create AddIcon in AddButton
     set style `width` of AddIcon to `1em`
@@ -117,6 +119,10 @@
     put the message into Message
 !alert `Menu message: ` cat Message
 	if Message is `login`
+    begin
+    	send Message to parent
+    end
+	else if Message is `logout`
     begin
     	send Message to parent
     end
@@ -220,10 +226,9 @@ DisableFilters:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Manage users
 ManageUsers:
-	create UserPanel in Header
 	rest get Script from `/resources/ecs/user.ecs?v=` cat now
     run Script with UserPanel and Mobile as UserModule
-    remove element UserPanel
+    clear UserPanel
     get UserName from storage as `user.name`
     if UserName is empty
     begin

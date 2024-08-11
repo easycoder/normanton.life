@@ -49,7 +49,7 @@
     get Name from storage as `user.name`
 
     set the style of Container to
-    	`width:50%;height:auto;margin:1em auto 0 auto;background:#ffc`
+    	`width:100%;height:auto;margin:1em auto 0 auto;background:#ffc`
     
     create LoginDiv in Container
     
@@ -161,7 +161,7 @@
 
 !	Create the buttons
     create ButtonDiv in LoginDiv
-    set the style of ButtonDiv to `flex:` cat FieldWidth
+    set the style of ButtonDiv to `width:` cat FieldWidth cat `;text-align:center`
     if Mobile set style `flex-direction` of ButtonDiv to `column`
     else set style `margin-top` of ButtonDiv to `1em`
     
@@ -446,7 +446,7 @@ GoBack:
     stop
 
 Logout:
-	put empty into storage as `user.name`
+    send `logout` to parent
     goto Exit
 
 ShowErrorMessage:
@@ -466,5 +466,4 @@ HideMessage:
 
 !	Exit: close the form
 Exit:
-    gosub to HideMessage
     exit

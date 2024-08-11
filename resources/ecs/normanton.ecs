@@ -26,7 +26,6 @@
   	h5 SelectorDiv
     label Label
   	img EditButton
-  	img NewButton
   	img ToolsButton
   	img BannerImage
   	module LeftPanel
@@ -40,13 +39,11 @@
     variable IsAdmin
   	variable Visitor
   	variable HostName
-    variable ArticleList
   	variable Articles
   	variable Article
   	variable DisplayCount
   	variable ArticleCount
   	variable CurrentPage
-  	variable ArticleViewerRunning
   	variable Editing
   	variable MenuRunning
   	variable Record
@@ -69,7 +66,6 @@
   	variable ViewerMessage
   	variable ButtonMessage
   	variable TrackingMessage
-  	variable All
   	variable Action
   	variable Selector
   	variable Tag
@@ -152,6 +148,12 @@
     if Message is `login`
     begin
     	get UserName from storage as `user.name`
+        gosub to GetCurrentUser
+        gosub to RedrawBlocks
+    end
+    else if Message is `logout`
+    begin
+		put empty into storage as `user.name`
         gosub to GetCurrentUser
         gosub to RedrawBlocks
     end
@@ -257,8 +259,6 @@
 ! Show the admin controls
 ShowAdminControls:
 !  gosub to RedrawBlocks
-  set style `display` of NewButton to `inline-block`
-  set attribute `title` of NewButton to `New article`
   set style `display` of ToolsButton to `inline-block`
   set attribute `title` of ToolsButton to `Admin tools`
   put 0 into N
@@ -309,29 +309,9 @@ SetupScreen:
 
   create Buttons in BannerDiv
   set the style of Buttons to `position:absolute;right:0`
-  create NewButton in Buttons
-  set the style of NewButton to `display:none;width:25px;margin-top:0.5em;`
-  set attribute `src` of NewButton to `resources/system/new.png`
-  set attribute `title` of NewButton to `New article`
-  on click NewButton
-  begin
-    put `` into Record
-    set property `published` of Record to now
-    set property `slug` of Record to ``
-    set property `edition` of Record to ``
-    set property `title` of Record to `Title`
-    set property `section` of Record to ``
-    set property `author` of Record to UserName
-    set property `tags` of Record to ``
-    set property `synopsis` of Record to `Synopsis text`
-    set property `article` of Record to `Main article text`
-    rest post Record to `/resources/php/rest.php/_/articles/new/`
-    or alert `Unable to create new record - please try again.`
-    gosub to RedrawBlocks
-  end
   create ToolsButton in Buttons
   set the style of ToolsButton to `display:none;width:25px;margin-top:0.5em;`
-  set attribute `src` of ToolsButton to `resources/system/gear.png`
+  set attribute `src` of ToolsButton to `resources/icon/gear.png`
   set attribute `title` of ToolsButton to `Admin tools`
   on click ToolsButton location new HostName cat `/admin.html`
 
@@ -389,7 +369,6 @@ SetupScreen:
 ! Redraw all the current blocks
 RedrawBlocks:
   gosub to ShowBlocks
-  put empty into All
   put empty into TrackingMessage
   if TrackingMessage put `home` into Item else put `enter` into Item
   set property `event` of TrackingMessage to Item
@@ -397,9 +376,11 @@ RedrawBlocks:
   if Selector set property `filter` of TrackingMessage to Selector
   
   ! Get a list  of article IDs
+  print `User: ` cat UserName
   if Selector is `section`
   begin
     set property `section` of TrackingMessage to Section
+    print `/resources/php/rest.php/_/articles/get/` cat UserName cat `/section/` cat Section
     rest get Articles from `/resources/php/rest.php/_/articles/get/` cat UserName
     	cat `/section/` cat Section cat `?v=` cat now
       or go to DataReadFail
@@ -407,8 +388,7 @@ RedrawBlocks:
   else if Selector is `author`
   begin
     set property `author` of TrackingMessage to Author
-!    print `/resources/php/rest.php/_/articles/get/` cat UserName
-!    	cat `/author/` cat Author cat `?v=` cat now
+    print `/resources/php/rest.php/_/articles/get/` cat UserName cat `/author/` cat Author
     rest get Articles from `/resources/php/rest.php/_/articles/get/` cat UserName
     	cat `/author/` cat Author cat `?v=` cat now
       or go to DataReadFail
@@ -421,8 +401,7 @@ RedrawBlocks:
   end
   else
   begin
-!    print `/resources/php/rest.php/_/articles/get/` cat UserName
-!    	cat `/all/-?v=` cat now
+    print `/resources/php/rest.php/_/articles/get/` cat UserName cat `/all`
     rest get Articles from `/resources/php/rest.php/_/articles/get/` cat UserName
     	cat `/all?v=` cat now
       or go to DataReadFail
@@ -436,7 +415,9 @@ RedrawBlocks:
   if ArticleCount is greater than 10
   begin
     set style `display` of NavigatorDiv to `block`
-  end else begin
+  end
+  else
+  begin
     set style `display` of NavigatorDiv to `none`
   end
 
@@ -781,7 +762,6 @@ Editor:
       gosub to Viewer
       stop
     end
-    set style `display` of NewButton to `inline-block`
     set style `display` of ToolsButton to `inline-block`
     gosub to ShowBlocks
     if ArticleCount is greater than 10 set style `display` of NavigatorDiv to `block`
@@ -797,7 +777,6 @@ Editor:
   set property `name` of Message to `Back`
   set Editing
   send Message to Menu
-  set style `display` of NewButton to `none`
   set style `display` of ToolsButton to `none`
   set style `display` of NavigatorDiv to `none`
   gosub to HideBlocks
@@ -819,9 +798,16 @@ Tracking:
 ! Get the current user and check if they are admin
 GetCurrentUser:
     get UserName from storage as `user.name`
-    if UserName is empty put `guest` into UserName
-    rest get Record from  `name/` cat UserName cat `?v=` cat now
-    if property `admin` of Record is 1 set IsAdmin else clear IsAdmin
+    if UserName is empty
+    begin
+    	put `-` into UserName
+        clear IsAdmin
+    end
+    else
+    begin
+	    rest get Record from  `name/` cat UserName cat `?v=` cat now
+    	if property `admin` of Record is 1 set IsAdmin else clear IsAdmin
+    end
     return
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

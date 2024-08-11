@@ -7,8 +7,6 @@
   div Inner
   div Block1
   div Weather
-  div FBDiv
-  div Padding
   variable Article
   variable Mode
   variable WeatherDone

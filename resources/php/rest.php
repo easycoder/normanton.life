@@ -12,6 +12,7 @@
     require '/home/normantonlife/normanton.life/PHPMailer/src/SMTP.php';
 
     date_default_timezone_set('Europe/London');
+    // print(substr($_SERVER['PATH_INFO'], 1)); print "\n";
     logger(substr($_SERVER['PATH_INFO'], 1));
     $request = explode("/", substr($_SERVER['PATH_INFO'], 1));
     $table = array_shift($request);

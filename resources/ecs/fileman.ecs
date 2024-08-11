@@ -35,6 +35,8 @@
   variable Even
   variable Progress
   variable Status
+  
+  debug step
 
   history push
   create Mask in Container
