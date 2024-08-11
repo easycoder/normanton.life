@@ -57,7 +57,7 @@ print `ShowArticle ` cat decode property `title` of Record
   begin
     create EditButton in Container
     set the style of EditButton to `float:right;width:25px;margin-top:0.25em`
-    set attribute `src` of EditButton to `https://` cat the hostname cat `/resources/system/edit.png`
+    set attribute `src` of EditButton to `https://` cat the hostname cat `/resources/icon/edit.png`
     on click EditButton
     begin
       put `edit` into Message

@@ -7,6 +7,7 @@
   div MenuDiv
   div SectionDiv
   div AuthorDiv
+  div ReleaseButton
   div HomeButton
   div SectionsButton
   div AuthorsButton
@@ -15,6 +16,7 @@
   div AddButton
   select SectionSelect
   select AuthorSelect
+  img ReleaseIcon
   img UserIcon
   img AddIcon
   module UserModule
@@ -30,6 +32,7 @@
   variable Author
   variable Name
   variable Count
+  variable Record
   variable SelectedSection
   variable SelectedAuthor
   variable SectionEnable
@@ -58,6 +61,18 @@
 
   put `flex:1;background:#444;padding-top:0.5em;color:white;font-weight:bold` into Style
   put `width:100%;background:#444;color:white;font-weight:bold` into Style2
+  
+  create ReleaseButton in MenuDiv
+  set the style of ReleaseButton to `width:1em;background:#444;padding:0.5em 0 0.5em 0.5em;text-align:left`
+  create ReleaseIcon in ReleaseButton
+  set style `width` of ReleaseIcon to `1em`
+  set style `height` of ReleaseIcon to `1em`
+  set attribute `src` of ReleaseIcon to `/resources/icon/refresh.png`
+  set style `cursor` of ReleaseIcon to `pointer`
+  set attribute `title` of ReleaseIcon to `Login/logout`
+  on click ReleaseIcon go to Release
+  gosub to CheckIfAdmin
+  
   create HomeButton in MenuDiv
   set the style of HomeButton to Style
   gosub to DisableHome
@@ -121,10 +136,12 @@
 	if Message is `login`
     begin
     	send Message to parent
+        gosub to CheckIfAdmin
     end
 	else if Message is `logout`
     begin
     	send Message to parent
+        gosub to CheckIfAdmin
     end
     else if Message is `reset`
     begin
@@ -168,6 +185,17 @@
 
   set ready
   stop
+
+CheckIfAdmin:
+	get UserName from storage as `user.name`
+    if UserName is empty set style `display` of ReleaseButton to `none`
+    else
+    begin
+    	rest get Record from  `name/` cat UserName cat `?v=` cat now
+    	if property `admin` of Record is 1 set style `display` of ReleaseButton to `inline-block`
+    	else set style `display` of ReleaseButton to `none`
+    end
+	return
 
 EnableHome:
     set style `cursor` of HomeButton to `pointer`
@@ -222,6 +250,12 @@ DisableFilters:
 	gosub to DisableSection
     gosub to DisableAuthor
     goto DisableHome
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Manage releases
+Release:
+	send `release` to parent
+    stop
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Manage users

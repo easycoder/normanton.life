@@ -36,6 +36,7 @@
   button ArticleButton
   img FolderIcon
   img SaveIcon
+  img ReleaseIcon
   img CloseIcon
   module FileManager
   input SlugInput
@@ -47,7 +48,6 @@
   variable ID
   variable Slug
   variable Published
-  variable Public
   variable Section
   variable Author
   variable Title
@@ -74,6 +74,7 @@
   set the style of FolderIcon to `width:25px;margin-right:10px`
   set attribute `src` of FolderIcon to `https://normanton.life/resources/icon/media.png`
   set attribute `title` of FolderIcon to `Media manager`
+  set style `cursor` of FolderIcon to `pointer`
   on click FolderIcon go to FileMan
   put `https://` cat the hostname into HostName
   print HostName
@@ -81,11 +82,19 @@
   set the style of SaveIcon to `width:25px;margin-right:10px`
   set attribute `src` of SaveIcon to `https://normanton.life/resources/icon/save.png`
   set attribute `title` of SaveIcon to `Save changes`
+  set style `cursor` of SaveIcon to `pointer`
   on click SaveIcon go to Save
+  create ReleaseIcon in Buttons
+  set the style of ReleaseIcon to `width:25px;margin-right:10px`
+  set attribute `src` of ReleaseIcon to `https://normanton.life/resources/icon/refresh.png`
+  set attribute `title` of ReleaseIcon to `Release this version`
+  set style `cursor` of ReleaseIcon to `pointer`
+  on click ReleaseIcon go to Release
   create CloseIcon in Buttons
   set the style of CloseIcon to `width:25px;margin-right:10px`
   set attribute `src` of CloseIcon to HostName cat `/resources/icon/stop.png`
   set attribute `title` of CloseIcon to `Close the editor`
+  set style `cursor` of CloseIcon to `pointer`
   on click CloseIcon go to Close
 
   create Block1 in EditorDiv
@@ -190,7 +199,6 @@ Editor:
 
   history push
   put property `published` of Record into Published
-  put property `public` of Record into Public
   put property `id` of Record into ID
   put property `slug` of Record into Slug
   put property `section` of Record into Section
@@ -255,6 +263,7 @@ Editor:
 Save:
   put Date into Published
   put the text of TitleInput into Title
+  put the text of SectionInput into Section
   put the text of TagsInput into Tags
   ckeditor get Synopsis from SynopsisDiv
   ckeditor get Article from ArticleDiv
@@ -292,7 +301,6 @@ Save:
   put `{}` into Record
   set property `id` of Record to ID
   set property `published` of Record to Published
-  set property `public` of Record to Public
   set property `slug` of Record to Slug
   set property `section` of Record to Section
   set property `author` of Record to Author
@@ -300,6 +308,7 @@ Save:
   set property `tags` of Record to lowercase Tags
   set property `synopsis` of Record to encode Synopsis
   set property `article` of Record to encode Article
+!  print Record
   rest post Record to `/resources/php/rest.php/_/articles/update/` cat ID
   or begin
     set the content of Status to `Failed to save article`
@@ -310,6 +319,18 @@ Save:
   wait 3
   set the content of Status to ``
   stop
+ 
+Release:
+	set Message to object
+    set property `source` of Message to `Editor`
+    set property `action` of Message to `release`
+    set property `id` of Message to ID
+    send Message to parent
+
+    set the content of Status to `Release requested`
+    wait 3
+    set the content of Status to ``
+	stop
 
 Close:
   put `show` into Message

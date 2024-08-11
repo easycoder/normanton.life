@@ -17,7 +17,7 @@
                     case 'count':
                         // Endpoint: {site root}/rest.php/_/articles/count
                         // Return the number of public items in the table
-                        $result = $conn->query("SELECT id from articles WHERE public=1");
+                        $result = $conn->query("SELECT id from articles WHERE pub=1");
                         //print "{\"count\":".mysqli_num_rows($result)."}";
                         print mysqli_num_rows($result);
                         break;
@@ -30,7 +30,7 @@
                         break;
                     case 'list':
                         // Endpoint: {site root}/rest.php/_/articles/list/{offset}/{count}
-                        // List the ids of all public items in the range specified
+                        // List the ids of all pub items in the range specified
                         switch (count($request)) {
                             case 1:
                                 $offset = $request[0];
@@ -45,7 +45,7 @@
                                 $count = 10;
                                 break;
                         }
-                        $result = $conn->query("SELECT id FROM articles WHERE public=1 ORDER BY published DESC LIMIT $offset, $count");
+                        $result = $conn->query("SELECT id FROM articles WHERE pub=1 ORDER BY published DESC LIMIT $offset, $count");
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
                             if ($response != '[') {
@@ -91,7 +91,7 @@
                         $result = $conn->query("SELECT null FROM articles WHERE id='$id'");
                         if ($row = mysqli_fetch_object($result)) {
                             $value = getArticle($id, true);
-                            print $value;
+                            print json_encode($value);
                         }
                         break;
                     case 'slug':
@@ -102,7 +102,7 @@
                         $result = $conn->query("SELECT id FROM articles WHERE slug='$slug'");
                         if ($row = mysqli_fetch_object($result)) {
                             $value = getArticle($row->id, true);
-                            print $value;
+                            print json_encode($value);
                         } else {
                             http_response_code(404);
                             log_error("{\"message\":\"REST: Slug '$slug' not found.\"}");
@@ -128,7 +128,7 @@
                         // Get the filter
                         array_shift($request);
                         $filter = "all";
-                        if (in_array($request[0], array('section', 'author', 'tag', 'all'))) {
+                        if (in_array($request[0], array('section', 'author', 'tag', 'waiting', 'all'))) {
                             $filter = $request[0];
                         }
                         // print "Filter:$filter\n";
@@ -160,54 +160,61 @@
                         switch ($filter)
                         {
                             case 'section':
-                                $where = $row->admin ? "" : "WHERE public=1";
+                                $where = $row->admin ? "" : "WHERE pub=1";
                                 $where = $where ? "$where AND" : "WHERE";
                                 $where = "$where section='$name'";
-                                $result = $conn->query("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
+                                $result = $conn->query("SELECT * FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                             case 'author':
                                 $where = "WHERE author='$name'";
                                 if (!$admin) {
-                                    $where .= " AND (author='$user' OR public=1)";
+                                    $where .= " AND (author='$user' OR pub=1)";
                                 }
-                                // print("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
-                                $result = $conn->query("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
+                                // print("SELECT* FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
+                                $result = $conn->query("SELECT * FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                             case 'tag':
                                 // $filter = 'tags';
                                 // $result = $conn->query("SELECT articles.saved from articles
                                 //     INNER JOIN $filter ON $filter.page = articles.id
-                                //     WHERE  public=1 AND tag='" . str_replace(' ', '%20', $author)
+                                //     WHERE  pub=1 AND tag='" . str_replace(' ', '%20', $author)
                                 //         ."'ORDER BY articles.published DESC LIMIT $offset, $count");
                                 break;
+                            case 'waiting':
+                                // print("SELECT * FROM articles WHERE waiting=1\n");
+                                $result = $conn->query("SELECT * FROM articles WHERE waiting=1");
+                                break;
                             case 'all':
-                                $where = $admin ? "" : "WHERE public=1";
-                                // print("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
-                                $result = $conn->query("SELECT id,author FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
+                                $where = $admin ? "" : "WHERE pub=1";
+                                // print("SELECT * FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
+                                $result = $conn->query("SELECT * FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                         }
 
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
                             $id = $row->id;
-                            $author = $row->author;
-                            if ($filter == 'author' && $admin == 1) {
-                                if ($response != '[') {
-                                    $response .= ',';
-                                }
-                                $response .= getArticle($id, false);
+                            if ($filter == 'waiting') {
+                                $content = getArticle($id, false);
                             } else {
-                                if ($author == $user) {
+                                $author = $row->author;
+                                $pub = $row->pub;
+                                if ($filter == 'author' && $admin == 1) {
                                     $content = getArticle($id, false);
                                 } else {
-                                    $content = getArticle($id, true);
-                                }
-                                if ($content) {
-                                    if ($response != '[') {
-                                        $response .= ',';
+                                    if ($author == $user) {
+                                        $content = getArticle($id, false);
+                                    } else {
+                                        $content = getArticle($id, true);
                                     }
-                                    $response .= $content;
                                 }
+                            }
+                            if ($content) {
+                                if ($response != '[') {
+                                    $response .= ",\n";
+                                }
+                                $content->pub = $pub;
+                                $response .= json_encode($content);
                             }
                         }
                         $response .= ']';
@@ -533,7 +540,6 @@
                         $value = stripslashes(file_get_contents("php://input"));
                         $json = json_decode($value);
                         $slug = $json->slug;
-                        $public = $json->public;
                         $section = $json->section;
                         $author = $json->author;
                         $published = $json->published;
@@ -546,19 +552,17 @@
                             $result = $conn->query("SELECT id FROM articles WHERE slug='$id'");
                         }
                         $json->id = $id;
-                        $value = json_encode($json, JSON_PRETTY_PRINT);
 
                         saveArticle($json);
 
                         // Update the article record
-                       if ($row = mysqli_fetch_object($result)) {
+                        if ($row = mysqli_fetch_object($result)) {
                              // It exists, so update it
                             $id = $row->id;
                             $slug = ec_getUniqueSlug($conn, $id, $slug);
                             $json->slug = $slug;
-                            $value = json_encode($json);
-                            logger("UPDATE articles SET slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
-                            $conn->query("UPDATE articles SET slug='$slug',section='$section',author='$author',published=$published,public='$public',ts=$ts WHERE id=$id");
+                            logger("UPDATE articles SET slug='$slug',section='$section',author='$author',published=$published,ts=$ts WHERE id=$id");
+                            $conn->query("UPDATE articles SET slug='$slug',section='$section',author='$author',published=$published,ts=$ts WHERE id=$id");
                             ec_process_tags($conn, $id, $json->tags);
                             ec_process_words($conn, $id, $json);
                             print 'OK';
@@ -587,6 +591,13 @@
                         $conn->query("UPDATE articles SET slug='record-$id' WHERE id=$id");
                         http_response_code(201);
                         print $value;
+                        break;
+                    case 'release':
+                        // Endpoint: {site root}/rest.php/_/articles/release/{id}
+                        // Request to release a new record
+                        $id = $request[0];
+                        $conn->query("UPDATE articles SET waiting=1 WHERE id=$id");
+                        print "OK";
                         break;
                     default:
                         http_response_code(400);
@@ -715,7 +726,7 @@
         $file = getRoot() . "$articles/$id";
         $fp = fopen($file, "w");
         if ($fp) {
-            fwrite($fp, json_encode($json, JSON_PRETTY_PRINT));
+            fwrite($fp, json_encode($json));
             fclose($fp);
         } else {
             http_response_code(400);
@@ -737,7 +748,7 @@
         } else {
             $content = "";
         }
-        return $content;
+        return json_decode($content);
     }
 
     /////////////////////////////////////////////////////////////////////////

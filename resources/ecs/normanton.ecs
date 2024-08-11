@@ -62,6 +62,7 @@
   	variable HistoryState
   	variable Index
   	variable N
+    variable ID
   	variable Message
   	variable ViewerMessage
   	variable ButtonMessage
@@ -76,7 +77,7 @@
   	variable CopyrightFormat
   	variable ScrollPosition
 
-!  debug step
+!    debug step
 
 	clear Mobile
     gosub to GetCurrentUser
@@ -194,6 +195,12 @@
     	rest post Record to `_/articles/new/` cat Slug giving Article
         go to Editor
     end
+    else if Message is `release`
+    begin
+    	put `waiting` into Selector
+        put 0 into CurrentPage
+        gosub to RedrawBlocks
+    end
     else
     begin
       put property `source` of Message into Source
@@ -214,6 +221,7 @@
         end
         gosub to RedrawBlocks
         send to Navigator
+        stop
       end
       else if Source is `Menu'
       begin
@@ -228,6 +236,12 @@
         	put property `author` of Message into Author
             if Author is empty put empty into Selector
         end
+      end
+      else if Source is `Editor'
+      begin
+        put property `action` of Message into Action
+        if Action is `release` go to ReleaseArticle
+        stop
       end
       put 0 into CurrentPage
       gosub to RedrawBlocks
@@ -399,6 +413,11 @@ RedrawBlocks:
 !    rest get ArticleList from `/resources/php/rest.php/_/tags/list/` cat Tag cat `?v=` cat now
 !      or go to DataReadFail
   end
+  else if Selector is `waiting`
+  begin
+    rest get Articles from `/resources/php/rest.php/_/articles/get/waiting` cat `?v=` cat now
+      or go to DataReadFail
+  end
   else
   begin
     print `/resources/php/rest.php/_/articles/get/` cat UserName cat `/all`
@@ -543,7 +562,7 @@ ShowSynopsis:
     put element Index of Articles into Article
     gosub to ViewArticle
   end
-  if not property `public` of Article
+  if property `pub` of Article is 0
   begin
   	create Label in TitleGroup
     set the style of Label to `margin-left:4em;color:red`
@@ -781,6 +800,14 @@ Editor:
   set style `display` of NavigatorDiv to `none`
   gosub to HideBlocks
   stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Release an article
+ReleaseArticle:
+	print Message
+    put property `id` of Message into ID
+    rest post to `_/articles/release/` cat ID
+    stop
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Track an article

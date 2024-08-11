@@ -20,8 +20,11 @@
   button UploadButton
   button DeleteButton
   a FileName
+  a Previous
   img Icon
+  img PreviousIcon
   img Image
+  variable HostName
   variable Alpha
   variable FileCount
   variable File
@@ -36,7 +39,7 @@
   variable Progress
   variable Status
   
-  debug step
+!  debug step
 
   history push
   create Mask in Container
@@ -105,7 +108,7 @@
     put prompt `Name of folder:` with `new` into Name
     if Name is empty stop
     replace ` ` with `-` in Name
-    put `/home/yorkshirewoman/` cat hostname cat `/resources/` cat CurrentPath cat `/` cat Path into Path
+    put HostName cat `/resources/images/` cat CurrentPath cat `/` cat Path into Path
     rest post to `_mkdir/` cat CurrentPath cat `/` cat Name
     or begin
       alert `Failed to create a directory.`
@@ -113,6 +116,8 @@
     end
     goto Browser
   end
+  
+  put `https://` cat the hostname into HostName
 
   set ready
 
@@ -147,6 +152,7 @@ Browser:
   put the json count of Content into FileCount
   set the elements of File to FileCount
   set the elements of FileName to FileCount
+  set the elements of Icon to FileCount
 
 ! Add a row for each file
   set the content of Scroller to empty
@@ -157,22 +163,18 @@ Browser:
   set the content of FileRow to `Current folder: ` cat Path
   set Even
 
-  if CurrentPath is not empty
+  if CurrentPath is not `/images`
   begin
     create FileRow in Scroller
     set the style of FileRow to `width:90%;padding:0.5em 1em;text-align:left`
-    create Icon in FileRow
-    set the style of Icon to `float:left;margin-right:0.5em;width:20px`
-    set attribute `src` of Icon to `https://` cat hostname cat `/resources/system/arrow-back.png`
-    create FileName in FileRow
-    set the content of FileName to `(back to previous folder)`
-    on click FileName
-    begin
-      put the position of the last `/` in CurrentPath into N
-      if N is less than 0 put the position of the last `/` in CurrentPath into N
-      put left N of CurrentPath into CurrentPath
-      go to Browser
-    end
+    create PreviousIcon in FileRow
+    set the style of PreviousIcon to `float:left;margin-right:0.5em;width:20px`
+    set attribute `src` of PreviousIcon to `https://` cat hostname cat `/resources/icon/arrow-back.png`
+    set style `cursor` of PreviousIcon to `pointer`
+    create Previous in FileRow
+    set the content of Previous to `(back to previous folder)`
+    on click PreviousIcon go to GoPrevious
+    on click Previous go to GoPrevious
   end
 
   set the elements of FileName to FileCount
@@ -180,6 +182,7 @@ Browser:
   while N is less than FileCount
   begin
     index File to N
+    index Icon to N
     put element N of Content into File
     put property `name` of File into Name
     put property `type` of File into Type
@@ -193,11 +196,22 @@ Browser:
     else if Type is `txt` put `text.png` into Source
     else if Type is `doc` put `document.png` into Source
     else put `unknown.png` into Source
-    set attribute `src` of Icon to `https://` cat hostname cat `/resources/system/` cat Source
+    set attribute `src` of Icon to `https://` cat hostname cat `/resources/icon/` cat Source
+    set style `cursor` of Icon to `pointer`
     index FileName to N
     create FileName in FileRow
     set the content of FileName to Name
-    on click FileName go to SelectFile
+    on click Icon
+    begin
+  		index File to the index of Icon
+  		index FileName to the index of Icon
+    	go to SelectFile
+     end
+    on click FileName
+    begin
+  		index File to the index of FileName
+    	go to SelectFile
+     end
     toggle Even
     add 1 to N
   end
@@ -206,9 +220,7 @@ Browser:
   begin
     if FileCount is 0
     begin
-!      put `/home/yorkshirewoman/` cat hostname cat `/resources` cat CurrentPath into Path
-      put CurrentPath into Path
-      rest post to `_delete/` cat Path
+      rest post to `_delete/resources` cat CurrentPath
       or begin
         alert `Failed to delete a file.`
         stop
@@ -226,8 +238,12 @@ Browser:
 
   stop
 
+GoPrevious:
+    put the position of the last `/` in CurrentPath into N
+    put left N of CurrentPath into CurrentPath
+    go to Browser
+
 SelectFile:
-  index File to the index of FileName
   put property `type` of File into Type
   if Type is `dir`
   begin
@@ -252,8 +268,7 @@ SelectFile:
     end
     on click DeleteButton
     begin
-      put CurrentPath into Path
-      rest post to `_delete/` cat Path cat `/` cat the content of FileName
+      rest post to `_delete/resources` cat CurrentPath cat `/` cat the content of FileName
       or begin
         alert `Failed to delete the image.`
         stop
