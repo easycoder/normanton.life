@@ -69,8 +69,8 @@
   set style `height` of ReleaseIcon to `1em`
   set attribute `src` of ReleaseIcon to `/resources/icon/refresh.png`
   set style `cursor` of ReleaseIcon to `pointer`
-  set attribute `title` of ReleaseIcon to `Login/logout`
-  on click ReleaseIcon go to Release
+  set attribute `title` of ReleaseIcon to `Show release requests`
+  on click ReleaseIcon go to ShowWaiting
   gosub to CheckIfAdmin
   
   create HomeButton in MenuDiv
@@ -252,9 +252,9 @@ DisableFilters:
     goto DisableHome
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Manage releases
-Release:
-	send `release` to parent
+! Show waiting releases
+ShowWaiting:
+	send `waiting` to parent
     stop
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

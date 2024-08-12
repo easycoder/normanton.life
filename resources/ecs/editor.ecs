@@ -89,7 +89,7 @@
   set attribute `src` of ReleaseIcon to `https://normanton.life/resources/icon/refresh.png`
   set attribute `title` of ReleaseIcon to `Release this version`
   set style `cursor` of ReleaseIcon to `pointer`
-  on click ReleaseIcon go to Release
+  on click ReleaseIcon go to RequestRelease
   create CloseIcon in Buttons
   set the style of CloseIcon to `width:25px;margin-right:10px`
   set attribute `src` of CloseIcon to HostName cat `/resources/icon/stop.png`
@@ -320,10 +320,10 @@ Save:
   set the content of Status to ``
   stop
  
-Release:
+RequestRelease:
 	set Message to object
     set property `source` of Message to `Editor`
-    set property `action` of Message to `release`
+    set property `action` of Message to `request-release`
     set property `id` of Message to ID
     send Message to parent
 

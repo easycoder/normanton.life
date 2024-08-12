@@ -25,7 +25,8 @@
   	a AuthorLink
   	h5 SelectorDiv
     label Label
-  	img EditButton
+!  	img EditButton
+    img ReleaseButton
   	img ToolsButton
   	img BannerImage
   	module LeftPanel
@@ -67,6 +68,7 @@
   	variable ViewerMessage
   	variable ButtonMessage
   	variable TrackingMessage
+    variable Waiting
   	variable Action
   	variable Selector
   	variable Tag
@@ -89,7 +91,8 @@
    	json parse url the location as Args
 !   	print `Args: ` cat Args
    	put property `arg` of Args into Slug
-  	if Slug is empty put `` into Slug
+!  	if Slug is empty put `` into Slug
+    print `Slug: ` cat Slug
 
 ! 	Basic information & set up
 !  	put empty into storage as `visitor`
@@ -126,6 +129,8 @@
     	gosub to ViewSlug
     	gosub to DoFooter
   	end
+    
+    gosub to RedrawBlocks
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Handle clicks on the document
@@ -178,7 +183,6 @@
  	    put empty into Selector
       	gosub to RedrawBlocks
         gosub to DisableHomeButton
-        send `reset` to Menu
       else
       begin
         clear Flag
@@ -195,11 +199,12 @@
     	rest post Record to `_/articles/new/` cat Slug giving Article
         go to Editor
     end
-    else if Message is `release`
+    else if Message is `waiting`
     begin
     	put `waiting` into Selector
         put 0 into CurrentPage
         gosub to RedrawBlocks
+        gosub to EnableHomeButton
     end
     else
     begin
@@ -240,7 +245,7 @@
       else if Source is `Editor'
       begin
         put property `action` of Message into Action
-        if Action is `release` go to ReleaseArticle
+        if Action is `request-release` go to RequestRelease
         stop
       end
       put 0 into CurrentPage
@@ -276,13 +281,13 @@ ShowAdminControls:
   set style `display` of ToolsButton to `inline-block`
   set attribute `title` of ToolsButton to `Admin tools`
   put 0 into N
-  while N is less than DisplayCount
-  begin
-    index EditButton to N
-    set style `display` of EditButton to `inline-block`
-    set attribute `title` of EditButton to `Edit this article`
-    add 1 to N
-  end
+!  while N is less than DisplayCount
+!  begin
+!    index EditButton to N
+!    set style `display` of EditButton to `inline-block`
+!    set attribute `title` of EditButton to `Edit this article`
+!    add 1 to N
+!  end
   send to LeftPanel
   send to RightPanel
   stop
@@ -378,6 +383,7 @@ SetupScreen:
 
   create NavigatorDiv in CenterColumn
   create CopyrightDiv in ContentDiv
+  return
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Redraw all the current blocks
@@ -388,6 +394,9 @@ RedrawBlocks:
   set property `event` of TrackingMessage to Item
 
   if Selector set property `filter` of TrackingMessage to Selector
+  
+  rest get Waiting from `/resources/php/rest.php/_/articles/list/waiting?v=` cat now or go to DataReadFail
+  print Waiting
   
   ! Get a list  of article IDs
   print `User: ` cat UserName
@@ -415,7 +424,8 @@ RedrawBlocks:
   end
   else if Selector is `waiting`
   begin
-    rest get Articles from `/resources/php/rest.php/_/articles/get/waiting` cat `?v=` cat now
+    print `/resources/php/rest.php/_/articles/get/-/waiting`
+    rest get Articles from `/resources/php/rest.php/_/articles/get/-/waiting` cat `?v=` cat now
       or go to DataReadFail
   end
   else
@@ -449,7 +459,8 @@ RedrawBlocks:
   set the elements of TitleLink to DisplayCount
   set the elements of SynopsisText to DisplayCount
   set the elements of SynopsisGroup to DisplayCount
-  set the elements of EditButton to DisplayCount
+!  set the elements of EditButton to DisplayCount
+  set the elements of ReleaseButton to DisplayCount
   set the elements of SectionLink to DisplayCount
   set the elements of AuthorLink to DisplayCount
 
@@ -475,7 +486,7 @@ RedrawBlocks:
     set the content of SelectorDiv to `Articles with tag '` cat Tag cat `'`
   end
 
-  ! Show the edit buttons
+  ! Show the Edit and Release buttons
   put 0 into Index
   while Index is less than DisplayCount
   begin
@@ -484,26 +495,34 @@ RedrawBlocks:
     index TitleLink to Index
     index SynopsisGroup to Index
     index SynopsisText to Index
-    index EditButton to Index
+!    index EditButton to Index
+    index ReleaseButton to Index
     create Block in Blocks
     set the style of Block to `position:relative`
     create TitleGroup in Block
     create TitleLink in TitleGroup
     set the style of TitleLink to `font-size:1.2em;font-weight:bold;margin-bottom:1em`
-    create EditButton in TitleGroup
-    set the style of EditButton to
-      `position:absolute;top:0.25em;right:0.25em;width:25px;display:none`
-    set attribute `src` of EditButton to `resources/icon/edit.png`
-    set attribute `title` of EditButton to `Edit this article`
+    create ReleaseButton in TitleGroup
+    set the style of ReleaseButton to
+      `position:absolute;top:0.25em;right:35px;width:25px;display:none`
+    set attribute `src` of ReleaseButton to `resources/icon/tick.png`
+    set attribute `title` of ReleaseButton to `Release this article`
+!    create EditButton in TitleGroup
+!    set the style of EditButton to
+!      `position:absolute;top:0.25em;right:0;width:25px;display:none`
+!    set attribute `src` of EditButton to `resources/icon/edit.png`
+!    set attribute `title` of EditButton to `Edit this article`
     create SynopsisGroup in Block
     create SynopsisText in SynopsisGroup
+    
+    on click ReleaseButton go to ReleaseArticle
 
-    on click EditButton
-    begin
-      put the index of EditButton into Index
-      put element Index of Articles into Article
-      go to Editor
-    end
+!    on click EditButton
+!    begin
+!      put the index of EditButton into Index
+!      put element Index of Articles into Article
+!      go to Editor
+!    end
     add 1 to Index
   end
 
@@ -533,10 +552,10 @@ ShowSynopses:
   while Index is less than DisplayCount
   begin
     index Block to Index
-    index EditButton to Index
+    index ReleaseButton to Index
+!    index EditButton to Index
     index TitleGroup to Index
     index TitleLink to Index
-    index EditButton to Index
     index SynopsisGroup to Index
     index SynopsisText to Index
     index SectionLink to Index
@@ -550,8 +569,19 @@ ShowSynopses:
 ! Show the synopsis of a selected article
 ShowSynopsis:
   put element Index of Articles into Article
-  if property `author` of Article is UserName set style `display` of EditButton to `inline-block`
-  if IsAdmin set style `display` of EditButton to `inline-block`
+!  if property `author` of Article is UserName set style `display` of EditButton to `inline-block`
+  if IsAdmin
+  begin
+!  	set style `display` of EditButton to `inline-block`
+  	put property `id` of Article into ID
+  	put 0 into N
+  	while N is less than the json count of Waiting
+  	begin
+  		if element N of Waiting is ID set style `display` of ReleaseButton to `inline-block`
+  		add 1 to N
+    end
+  end
+
   set style `display` of Block to `block`
   put decode property `title` of Article into Content
   set the content of TitleLink to Content
@@ -632,7 +662,7 @@ ShowSynopsis:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! View an article given its slug
 ViewSlug:
-  rest get Article from `_/articles/slug/` cat Slug cat `?v=` cat now
+  rest get Article from `_/articles/slug/s/` cat Slug cat `?v=` cat now
   or begin
 !    alert `Unable to read article - please try again.`
     put empty into Slug
@@ -654,6 +684,7 @@ TA2:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Show the selected article
 Viewer:
+print `View ` cat Slug
   put the scroll position into ScrollPosition
   scroll to 0
   put `` into ViewerMessage
@@ -739,7 +770,7 @@ Viewer:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Edit an article given its slug
 EditSlug:
-  rest get Article from `_/articles/slug/` cat Slug cat `?v=` cat now
+  rest get Article from `_/articles/slug/u/` cat Slug cat `?v=` cat now
   or begin
     alert `Unable to get the article - please try again.`
     stop
@@ -802,11 +833,19 @@ Editor:
   stop
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Request to release an article
+RequestRelease:
+    put property `id` of Message into ID
+    rest post to `_/articles/request-release/` cat ID
+    stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Release an article
 ReleaseArticle:
-	print Message
-    put property `id` of Message into ID
-    rest post to `_/articles/release/` cat ID
+	put the index of ReleaseButton into Index
+    put element Index of Articles into Article
+    rest post to `_/articles/release/` cat property `id` of Article
+    gosub to RedrawBlocks
     stop
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

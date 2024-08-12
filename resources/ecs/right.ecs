@@ -21,7 +21,7 @@
 
 Show:
   get Mode from storage as `mode`
-  rest get Article from `/resources/php/rest.php/_/articles/slug/right?v=` cat now
+  rest get Article from `/resources/php/rest.php/_/articles/slug/s/right?v=` cat now
   or begin
     alert `Failed to get the content of the right panel.`
     stop

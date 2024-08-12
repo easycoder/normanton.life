@@ -29,51 +29,21 @@
                         print mysqli_num_rows($result);
                         break;
                     case 'list':
-                        // Endpoint: {site root}/rest.php/_/articles/list/{offset}/{count}
-                        // List the ids of all pub items in the range specified
-                        switch (count($request)) {
-                            case 1:
-                                $offset = $request[0];
-                                $count = 10;
+                        // Endpoint: {site root}/rest.php/_/articles/list/[filter]
+                        // List the ids of articles in the range specified
+                        // Get the filter
+                        $filter = "all";
+                        if (in_array($request[0], array('waiting', 'all'))) {
+                            $filter = $request[0];
+                        }
+                        switch ($filter) {
+                            case 'waiting':
+                                $result = $conn->query("SELECT id FROM articles WHERE waiting=1 ORDER BY id ASC");
                                 break;
-                            case 2:
-                                $offset = $request[0];
-                                $count = $request[1];
-                                break;
-                            default:
-                                $offset = 0;
-                                $count = 10;
+                            case 'all':
+                                $result = $conn->query("SELECT id FROM articles ORDER BY id ASC LIMIT 0, 100");
                                 break;
                         }
-                        $result = $conn->query("SELECT id FROM articles WHERE pub=1 ORDER BY published DESC LIMIT $offset, $count");
-                        $response = '[';
-                        while ($row = mysqli_fetch_object($result)) {
-                            if ($response != '[') {
-                                $response .= ',';
-                            }
-                            $response .= $row->id;
-                        }
-                        $response .= ']';
-                        print $response;
-                        break;
-                    case 'listAll':
-                        // Endpoint: {site root}/rest.php/_/articles/listAll/{offset}/{count}
-                        // List the ids of all articles in the range specified
-                        switch (count($request)) {
-                            case 1:
-                                $offset = $request[0];
-                                $count = 10;
-                                break;
-                            case 2:
-                                $offset = $request[0];
-                                $count = $request[1];
-                                break;
-                            default:
-                                $offset = 0;
-                                $count = 10;
-                                break;
-                        }
-                        $result = $conn->query("SELECT id FROM articles ORDER BY published DESC LIMIT $offset, $count");
                         $response = '[';
                         while ($row = mysqli_fetch_object($result)) {
                             if ($response != '[') {
@@ -90,18 +60,19 @@
                         $id = $request[0];
                         $result = $conn->query("SELECT null FROM articles WHERE id='$id'");
                         if ($row = mysqli_fetch_object($result)) {
-                            $value = getArticle($id, true);
+                            $value = getArticle($id, false);
                             print json_encode($value);
                         }
                         break;
                     case 'slug':
-                        // Endpoint: {site root}/rest.php/_/articles/slug/{slug}
+                        // Endpoint: {site root}/rest.php/_/articles/slug/[s/u]/{slug}
                         // Get a record given its slug
-                        $slug = $request[0];
+                        $version = $request[0];
+                        $slug = $request[1];
                         // print("SELECT id FROM articles WHERE slug='$slug'\n");
                         $result = $conn->query("SELECT id FROM articles WHERE slug='$slug'");
                         if ($row = mysqli_fetch_object($result)) {
-                            $value = getArticle($row->id, true);
+                            $value = getArticle($row->id, $version == 's');
                             print json_encode($value);
                         } else {
                             http_response_code(404);
@@ -185,7 +156,7 @@
                                 $result = $conn->query("SELECT * FROM articles WHERE waiting=1");
                                 break;
                             case 'all':
-                                $where = $admin ? "" : "WHERE pub=1";
+                                $where = $admin ? "" : "WHERE pub=1 OR author='$user'";
                                 // print("SELECT * FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
                                 $result = $conn->query("SELECT * FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
@@ -553,7 +524,7 @@
                         }
                         $json->id = $id;
 
-                        saveArticle($json);
+                        saveArticle($json, false);
 
                         // Update the article record
                         if ($row = mysqli_fetch_object($result)) {
@@ -586,17 +557,26 @@
                         $json->id = $id;
                         $json->title = "Record $id";
                         $json->slug = "record-$id";
-                        saveArticle($json);
+                        saveArticle($json, false);
                         $value = json_encode($json);
                         $conn->query("UPDATE articles SET slug='record-$id' WHERE id=$id");
                         http_response_code(201);
                         print $value;
                         break;
-                    case 'release':
-                        // Endpoint: {site root}/rest.php/_/articles/release/{id}
-                        // Request to release a new record
+                    case 'request-release':
+                        // Endpoint: {site root}/rest.php/_/articles/request-release/{id}
+                        // Request to release a new or updated record
                         $id = $request[0];
                         $conn->query("UPDATE articles SET waiting=1 WHERE id=$id");
+                        print "OK";
+                        break;
+                    case 'release':
+                        // Endpoint: {site root}/rest.php/_/articles/release/{id}
+                        // Release a record
+                        $id = $request[0];
+                        $article = getArticle($id, false);
+                        saveArticle($article, true);
+                        $conn->query("UPDATE articles SET waiting=0,pub=1 WHERE id=$id");
                         print "OK";
                         break;
                     default:
@@ -713,10 +693,10 @@
 
     /////////////////////////////////////////////////////////////////////////
     // Save an article to the server, into 'unsaved'
-    function saveArticle($json) {
+    function saveArticle($json, $saved) {
         $id = $json->id;
         $group = intval(intval($id) / 1000);
-        $articles = "resources/articles/$group/unsaved";
+        $articles = "resources/articles/$group/" . ($saved ? "saved" : "unsaved");
         if (!file_exists($articles)) {
             $result = mkdir($articles, 0777, true);
         }

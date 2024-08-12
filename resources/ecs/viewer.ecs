@@ -13,7 +13,6 @@
   div SectionDiv
   div AuthorDiv
   div TagsDiv
-  div CopyrightDiv
   h2 TitleHeader
   h5 SectionHeader
   img EditButton
@@ -21,20 +20,23 @@
   a AuthorLink
   a TagLink
   span Span
-  variable Password
   variable Title
   variable Section
   variable Author
-  variable Valid
   variable UserName
   variable ID
   variable Tags
   variable Count
   variable N
+  variable M
+  variable P
+  variable Q
   variable Tag
-  variable CopyrightFormat
+  variable Article
   variable Content
-  variable User
+  variable Hyperlink
+  variable Slug
+  variable NewLink
   
 !  debug step
 
@@ -45,7 +47,6 @@
   stop
 
 ShowArticle:
-print `ShowArticle ` cat decode property `title` of Record
   set the content of Container to ``
 
   put property `section` of Record into Section
@@ -77,8 +78,9 @@ print `ShowArticle ` cat decode property `title` of Record
 
   create ArticleDiv in Container
   set style `margin-top` of ArticleDiv to `0.5em`
-  put decode property `article` of Record into Content
-  set the content of ArticleDiv to Content
+  put decode property `article` of Record into Article
+  set the content of ArticleDiv to Article
+  gosub to InterceptHyperlinks
 
   create FooterDiv in Container
   set style of FooterDiv to
@@ -190,3 +192,51 @@ print `ShowArticle ` cat decode property `title` of Record
   if mobile scroll to 1
 
   stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!	Intercept all local hyperlinks (of the form href="/[slug]/")
+!	This allows requested articles to load without reloading the page
+InterceptHyperlinks:
+	put Article into Content
+    put 0 into N
+    while true
+    begin
+        ! Find a hyperlink element
+    	put the position of `<a href="/` in Content into P
+        if P is -1
+        begin
+    		print Article
+            put 0 into N
+            while N is less than the elements of Slug
+            begin
+            	index Slug to N
+                print Slug
+                add 1 to N
+            end
+        	return
+        end
+        
+        ! Get the hyperlink
+        put from P of Content into Content
+        put the position of `</a>` in Content into Q
+        add 4 to Q
+        put left Q of Content into Hyperlink
+        
+        ! Get the slug (an array)
+        index Slug to N
+        add 1 to N
+        add 1 to N giving M
+        set the elements of Slug to M
+        put from 10 of Hyperlink into Slug
+        put the position of `/">` in Slug into Q
+        put left Q of Slug into Slug
+        
+        ! Move over this element
+        add the length of Hyperlink to P
+        put from P of Article into Content
+        
+        put `<a id="id-` cat Slug cat `"` cat from 2 of Hyperlink into NewLink
+        print NewLink
+        replace Hyperlink with NewLink in Article
+    end
+	return
