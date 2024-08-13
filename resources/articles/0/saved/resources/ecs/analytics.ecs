@@ -1,0 +1,166 @@
+! Analytics
+
+  script Analytics
+
+  div Body
+  div Main
+  div Analysis
+  div AnalysisTitle
+  div DataPanel
+  div VisitorsPanel
+  div MapPanel
+  div InfoPanel
+  div Title
+  div LowerInfoPanel
+  span Span
+  date StartDateEditor
+  date EndDateEditor
+  a SearchLink
+  a ShowAllLink
+  module VisitorsModule
+  module VisitorModule
+  module MapModule
+  variable Password
+  variable Valid
+  variable Result
+  variable DateFormat
+  variable StartDate
+  variable EndDate
+  variable Value
+  variable Script
+  variable Message
+  variable VID
+  variable Info
+  variable Location
+  
+  get Password from storage as `password`
+  rest get Valid from `_verify/` cat Password
+    or alert `Unable to verify password - please try again.`
+  if Valid is not `yes` location `https://normanton.live`
+
+  require js `https://easycoder.github.io/dist/plugins/gmap.js`
+
+  get StartDate from storage as `startdate`
+  get EndDate from storage as `enddate`
+  if not StartDate put today into StartDate
+  if not EndDate put today into EndDate
+
+  put empty into DateFormat
+  set property `mode` of DateFormat to `date`
+  set property `locale` of DateFormat to `en-EN`
+  put empty into Value
+  set property `weekday` of Value to `long`
+  set property `year` of Value to `numeric`
+  set property `month` of Value to `long`
+  set property `day` of Value to `numeric`
+  set property `options` of DateFormat to Value
+
+  create Body
+  set the style of Body to `width:calc(100% - 20px);height:calc(100% - 20px);overflow:hidden`
+
+  create Main in Body
+  set the style of Main to `width:100%;height:100%;padding:1em`
+  
+  create Analysis in Main
+  set the style of Analysis to
+    `width:calc(100% - 3em);height:calc(50% - 2em - 30px);border:1px solid black;` cat
+    `margin:1em 0 0 0;padding:0.5em;background:#ffe`
+  create AnalysisTitle in Analysis
+  set the style of AnalysisTitle to
+    `position:relative;top:-1em;margin-left:1em;display:inline;` cat
+    `background-color:white;padding:0.5em;border:1px solid black;background:#eff` 
+  create Span in AnalysisTitle
+  set the content of Span to `Analysis: From `
+  create Span in AnalysisTitle
+  create StartDateEditor in Span
+  set the date of StartDateEditor to StartDate
+  create Span in AnalysisTitle
+  set the content of Span to ` to `
+  create Span in AnalysisTitle
+  create EndDateEditor in Span
+  set the date of EndDateEditor to EndDate
+  create Span in AnalysisTitle
+  set the content of Span to ` (inclusive)&nbsp;&nbsp;&nbsp;`
+  create SearchLink in AnalysisTitle
+  set the content of SearchLink to `Search`
+  create InfoPanel in Analysis
+  on click SearchLink
+  begin
+    clear InfoPanel
+    clear VisitorsPanel
+    clear MapPanel
+    go to GetVisitors
+  end
+
+  create DataPanel in Main
+  set the style of DataPanel to
+    `width:calc(100% - 3em);height:calc(50% - 2em - 30px);border:1px solid black;` cat
+    `margin:3em 0 0 0;padding:0.5em;background:#ffe;display:flex`
+  create VisitorsPanel in DataPanel
+  set the style of VisitorsPanel to `flex:50`
+  create MapPanel in DataPanel
+  set the style of MapPanel to `flex:50`
+
+  rest get Script from `/resources/ecs/analytics-visitors.ecs?v=` cat now
+    or alert `Unable to load the visitors script - please restart.`
+  run Script with VisitorsPanel and Result as VisitorsModule
+  rest get Script from `/resources/ecs/analytics-visitor.ecs?v=` cat now
+    or alert `Unable to load the visitor script - please restart.`
+  run Script with LowerInfoPanel and Info as VisitorModule
+  rest get Script from `/resources/ecs/analytics-map.ecs?v=` cat now
+    or alert `Unable to load the map script - please restart.`
+  run Script with MapPanel and Message as MapModule
+
+  on message
+  begin
+    put the message into Message
+    if property `action` of Message is `visitor`
+    begin
+      put property `visitor` of Message into VID
+      go to ShowVisitor
+    end
+    else if property `action` of Message is `map`
+    begin
+    	put property `vid` of Message into VID
+    	put property `location` of Message into Location
+        put empty into Message
+        set property `vid` of Message to VID
+        set property `location` of Message to Location
+        set property `zoom` of Message to 12
+        send to MapModule
+    end
+  end
+
+GetVisitors:
+  put StartDateEditor into StartDate
+  put EndDateEditor into EndDate
+  put StartDate into storage as `startdate`
+  put EndDate into storage as `enddate`
+  add 60*60*24 to EndDate
+  set the style of InfoPanel to `width:90%;height:calc(100% - 2em);overflow-y:auto`
+  create Title in InfoPanel
+  set the style of Title to `margin-bottom:1em`
+  create Span in Title
+  set the style of Span to `font-weight:bold`
+  set the content of Span to `Searching...`
+  create LowerInfoPanel in InfoPanel
+  set the style of LowerInfoPanel to `height:calc(100% - 2.5em);overflow-y:auto`
+  rest get Result from `_/ec_visitors/dates/` cat StartDate cat `/` cat EndDate cat `?v=` cat now
+    or alert `REST call failed`
+  set the content of Span to `Visitors: ` cat the json count of Result cat `&nbsp;&nbsp;&nbsp;`
+  create ShowAllLink in Title
+  set the content of ShowAllLink to `Show All`
+  on click ShowAllLink go to ShowAll
+
+  send to VisitorsModule
+  stop
+
+ShowAll:
+  alert `Show All`
+  stop
+
+ShowVisitor:
+  clear LowerInfoPanel
+  rest get Info from `_/ec_visits/single/` cat VID cat `/` cat StartDate cat `/` cat EndDate
+  send to VisitorModule
+  stop

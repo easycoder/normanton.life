@@ -1,0 +1,368 @@
+! Menu
+
+  script Menu
+
+  import div Header and variable Mobile
+
+  div MenuDiv
+  div SectionDiv
+!  div AuthorDiv
+  div ReleaseButton
+  div HomeButton
+  div SectionsButton
+!  div AuthorsButton
+  div UserButton
+  div UserPanel
+  div AddButton
+  select SectionSelect
+!  select AuthorSelect
+  img ReleaseIcon
+  img UserIcon
+  img AddIcon
+  module UserModule
+  variable Script
+  variable Style
+  variable Style2
+  variable Message
+  variable UserName
+  variable List
+  variable Sections
+  variable Section
+!  variable Authors
+  variable Author
+  variable Name
+  variable Count
+  variable Record
+  variable SelectedSection
+!  variable SelectedAuthor
+  variable SectionEnable
+  variable AuthorEnable
+  variable Action
+  variable Value
+  variable N
+  
+!  debug step
+
+  get UserName from storage as `user.name`
+  set SectionEnable
+  set AuthorEnable
+  
+  create UserPanel in Header
+
+  create MenuDiv in Header
+  if Mobile set the style of MenuDiv to
+    `display:flex;width:100%`
+  else set the style of MenuDiv to
+    `display:flex;width:800px`
+  set style `display` of MenuDiv to `flex`
+  set style `margin` of MenuDiv to `0 auto`
+  set style `padding` of MenuDiv to `1em 0`
+  set style `text-align` of MenuDiv to `center`
+
+  put `flex:1;background:#444;padding-top:0.5em;color:white;font-weight:bold` into Style
+  put `width:100%;background:#444;color:white;font-weight:bold` into Style2
+  
+  create ReleaseButton in MenuDiv
+  set the style of ReleaseButton to `width:1em;background:#444;padding:0.5em 0 0.5em 0.5em;text-align:left`
+  create ReleaseIcon in ReleaseButton
+  set style `width` of ReleaseIcon to `1em`
+  set style `height` of ReleaseIcon to `1em`
+  set attribute `src` of ReleaseIcon to `/resources/icon/refresh.png`
+  set style `cursor` of ReleaseIcon to `pointer`
+  set attribute `title` of ReleaseIcon to `Show release requests`
+  on click ReleaseIcon go to ShowWaiting
+  gosub to CheckIfAdmin
+  
+  create HomeButton in MenuDiv
+  set the style of HomeButton to Style
+  gosub to DisableHome
+  set the content of HomeButton to `Home`
+  on click HomeButton go to DoHome
+
+  create SectionDiv in MenuDiv
+  set the style of SectionDiv to Style
+  create SectionsButton in SectionDiv
+  set the style of SectionsButton to Style2
+  set style `cursor` of SectionsButton to `pointer`
+  set the content of SectionsButton to `Sections`
+  on click SectionsButton gosub to DoSections
+  create SectionSelect in SectionDiv
+  set the style of SectionSelect to Style
+  set style `display` of SectionSelect to `none`
+  put empty into SelectedSection
+
+!  create AuthorDiv in MenuDiv
+!  set the style of AuthorDiv to Style
+!  create AuthorsButton in AuthorDiv
+!  set the style of AuthorsButton to Style2
+!  set style `cursor` of AuthorsButton to `pointer`
+!  set the content of AuthorsButton to `Authors`
+!  on click AuthorsButton gosub to DoAuthors
+!  create AuthorSelect in AuthorDiv
+!  set the style of AuthorSelect to Style
+!  set style `display` of AuthorSelect to `none`
+!  put empty into SelectedAuthor
+  
+  create AddButton in MenuDiv
+  if UserName is not empty
+  begin
+    set the style of AddButton to `width:1.5em;background:#444;padding:0.5em 0;text-align:left`
+    create AddIcon in AddButton
+    set style `width` of AddIcon to `1em`
+    set style `height` of AddIcon to `1em`
+    set attribute `src` of AddIcon to `/resources/icon/plus.png`
+    if UserName is empty set style `display` of AddButton to `none`
+    set attribute `title` of AddIcon to `Add a new article`
+    on click AddIcon go to AddArticle
+    if UserName is empty set style `display` of AddButton to `none`
+    else set style `display` of AddButton to `inline-block`
+  end
+
+  create UserButton in MenuDiv
+  set the style of UserButton to `width:1.5em;background:#444;padding:0.5em 0;text-align:left`
+  create UserIcon in UserButton
+  set style `width` of UserIcon to `1em`
+  set style `height` of UserIcon to `1em`
+  if UserName is empty set attribute `src` of UserIcon to `/resources/icon/user.png`
+  else set attribute `src` of UserIcon to `/resources/icon/user-loggedin.png`
+  set style `cursor` of UserIcon to `pointer`
+  set attribute `title` of UserIcon to `Login/logout`
+  on click UserIcon go to ManageUsers
+
+  on message
+  begin
+    put the message into Message
+!alert `Menu message: ` cat Message
+	if Message is `login`
+    begin
+    	send Message to parent
+        gosub to CheckIfAdmin
+    end
+	else if Message is `logout`
+    begin
+    	send Message to parent
+        gosub to CheckIfAdmin
+    end
+    else if Message is `reset`
+    begin
+    	put empty into SelectedSection
+        gosub to DoSections
+  		gosub to ResetSections
+!        put empty into SelectedAuthor
+!        gosub to DoAuthors
+!        gosub to ResetAuthors
+        set the content of HomeButton to `Home`
+        gosub to EnableHome
+    end
+    else if Message is `hide`
+    begin
+        set style `display` of MenuDiv to `none`
+    end
+    else if Message is `show`
+    begin
+        set style `display` of MenuDiv to `flex`
+    end
+    else
+    begin
+      put property `action` of Message into Action
+      if Action is `enable`
+      begin
+        if property `button` of Message is `home` gosub to EnableHome
+        else if property `button` of Message is `sections` gosub to EnableSection
+!        else if property `button` of Message is `authors` gosub to EnableAuthor
+      end
+      else if Action is `disable`
+      begin
+        if property `button` of Message is `home` gosub to DisableHome
+        else if property `button` of Message is `sections` gosub to DisableSection
+!        else if property `button` of Message is `authors` gosub to DisableAuthor
+      end
+      else if Action is `home`
+      begin
+      	set the content of HomeButton to property `name` of Message
+      end
+    end
+  end
+
+  set ready
+  stop
+
+CheckIfAdmin:
+	get UserName from storage as `user.name`
+    if UserName is empty set style `display` of ReleaseButton to `none`
+    else
+    begin
+    	rest get Record from  `name/` cat UserName cat `?v=` cat now
+    	if property `admin` of Record is 1 set style `display` of ReleaseButton to `inline-block`
+    	else set style `display` of ReleaseButton to `none`
+    end
+	return
+
+EnableHome:
+    set style `cursor` of HomeButton to `pointer`
+    set style `color` of HomeButton to `white`
+	return
+
+DisableHome:
+    set style `cursor` of HomeButton to `none`
+    set style `color` of HomeButton to `gray`
+	return
+
+EnableSection:
+    set style `cursor` of SectionsButton to `pointer`
+    set style `color` of SectionsButton to `white`
+    set SectionEnable
+	return
+
+DisableSection:
+    set style `cursor` of SectionsButton to `none`
+    set style `color` of SectionsButton to `gray`
+    clear SectionEnable
+	return
+
+!EnableAuthor:
+!    set style `cursor` of AuthorsButton to `pointer`
+!    set style `color` of AuthorsButton to `white`
+!    set AuthorEnable
+!	return
+
+!DisableAuthor:
+!    set style `cursor` of AuthorsButton to `none`
+!    set style `color` of AuthorsButton to `gray`
+!    clear AuthorEnable
+!	return
+
+ResetSections:
+  	set style `display` of SectionsButton to `inline-block`
+  	set style `display` of SectionSelect to `none`
+    return
+
+!ResetAuthors:
+!  	set style `display` of AuthorsButton to `inline-block`
+!  	set style `display` of AuthorSelect to `none`
+!    return
+
+EnableFilters:
+	gosub to EnableSection
+!    gosub to EnableAuthor
+    go to EnableHome
+
+DisableFilters:
+	gosub to DisableSection
+!    gosub to DisableAuthor
+    goto DisableHome
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Show waiting releases
+ShowWaiting:
+	send `waiting` to parent
+    stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Manage users
+ManageUsers:
+	rest get Script from `/resources/ecs/user.ecs?v=` cat now
+    run Script with UserPanel and Mobile as UserModule
+    clear UserPanel
+    get UserName from storage as `user.name`
+    if UserName is empty
+    begin
+    	set attribute `src` of UserIcon to `/resources/icon/user.png`
+        set style `display` of AddButton to `none`
+    end
+    else
+    begin
+    	set attribute `src` of UserIcon to `/resources/icon/user-loggedin.png`
+        set style `display` of AddButton to `inline-block`
+    end
+    stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Add a new article
+AddArticle:
+	send `new` to parent
+	stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Here when the Home button is clicked
+DoHome:
+	send `back` to parent
+    stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Show the list of sections
+DoSections:
+  if not SectionEnable stop
+!  gosub to ResetAuthors
+  rest get Sections from `/resources/php/rest.php/_/sections/enum?v=` cat now
+  put the json count of Sections into Count
+  set the elements of Section to Count
+  put `[]` into List
+  json add `all` to List
+  put 0 into N
+  while N is less than Count
+  begin
+    index Section to N
+    put element N of Sections into Section
+    put Section into Name
+    replace `%20` with ` ` in Name
+   	json add Name to List
+    add 1 to N
+  end
+  put SelectedSection into Value
+  if Value is empty put `all` into Value
+  set SectionSelect from List as Value
+  set style `display` of SectionsButton to `none`
+  set style `display` of SectionSelect to `inline-block`
+  on change SectionSelect
+  begin
+   	put attribute `value` of SectionSelect into SelectedSection
+    if SelectedSection is `all` put empty into SelectedSection
+   	put `` into Message
+   	set property `source` of Message to `Menu`
+   	set property `selector` of Message to `author`
+   	set property `section` of Message to SelectedSection
+    gosub to ResetSections
+	gosub to EnableHome
+   	send Message to parent
+  end
+  return
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Show the list of authors
+!DoAuthors:
+!  if not AuthorEnable stop
+!  gosub to ResetSections
+!  rest get Authors from `/resources/php/rest.php/_/authors/enum?v=` cat now
+!  put the json count of Authors into Count
+!  set the elements of Author to Count
+!  put `[]` into List
+!  json add `all` to List
+!  put 0 into N
+!  while N is less than Count
+!  begin
+!    index Author to N
+!    put element N of Authors into Author
+!    put Author into Name
+!    replace `%20` with ` ` in Name
+!   	json add Name to List
+!    add 1 to N
+!  end
+!  put SelectedAuthor into Value
+!  if Value is empty put `all` into Value
+!  set AuthorSelect from List as Value
+!  set style `display` of AuthorsButton to `none`
+!  set style `display` of AuthorSelect to `inline-block`
+!  on change AuthorSelect
+!  begin
+!   	put attribute `value` of AuthorSelect into SelectedAuthor
+!    if SelectedAuthor is `all` put empty into SelectedAuthor
+!   	put `` into Message
+!   	set property `source` of Message to `Menu`
+!   	set property `selector` of Message to `author`
+!   	set property `author` of Message to SelectedAuthor
+!    gosub to ResetAuthors
+!	gosub to EnableHome
+!   	send Message to parent
+!  end
+!  return

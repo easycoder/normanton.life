@@ -1,0 +1,47 @@
+!	Analytics Map
+
+	script AnalyticsMap
+
+    import div Container
+        and variable Message
+    
+    gmap Map
+    marker Marker
+    variable Location
+    variable Latitude
+    variable Longitude
+    variable Zoom
+    variable Key
+    variable N
+    variable Position
+
+    on message go to Run
+    set ready
+    stop
+
+Run:
+    clear Container
+    put property `location` of Message into Location
+    put the position of `,` in Location into N
+    put left N of Location into Latitude
+    add 1 to N
+    take N from the length of Location giving N
+    put right N of Location into Longitude
+    put property `zoom` of Message into Zoom
+
+	create Map in Container
+	rest get Key from `ec_data/name/key?v=` cat now
+	set the key of Map to Key
+	set the latitude of Map to Latitude
+	set the longitude of Map to Longitude
+	set the zoom of Map to Zoom
+	show Map
+    
+    put `{}` into Position
+    set property `latitude` of Position to Latitude
+    set property `longitude` of Position to Longitude
+    create Marker in Map
+    set the position of Marker to Position
+    set the title of Marker to `Visitor ` cat property `vid` of Message
+
+	stop

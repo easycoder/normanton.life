@@ -1,0 +1,41 @@
+! Left Panel
+
+  script LeftPanel
+
+  import div Container
+
+  div Inner
+  div Block1
+  div Weather
+  variable Article
+  variable Mode
+  variable WeatherDone
+  
+  create Inner in Container
+  set the style of Inner to `margin:5% 5%`
+
+  create Block1 in Inner
+  set the style of Block1 to
+    `padding-bottom:1em;border-bottom:1px solid lightgray;margin-bottom:1em`
+
+  on message go to Show
+  set ready
+  stop
+
+Show:
+  get Mode from storage as `mode`
+  rest get Article from `/resources/php/rest.php/_/articles/slug/s/left?v=` cat now
+  or begin
+    alert `Failed to get the content of the left panel.`
+    stop
+  end
+  set the content of Block1 to decode property `article` of Article
+
+  if not WeatherDone
+  begin
+    create Weather in Inner
+    set attribute `id` of Weather to `cont_d8f5d58c339aa6fbea3a58d369d5c0b9`
+    require js `https://www.yourweather.co.uk/wid_loader/d8f5d58c339aa6fbea3a58d369d5c0b9`
+    set WeatherDone
+  end
+  stop

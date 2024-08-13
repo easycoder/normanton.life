@@ -1,0 +1,87 @@
+! Analytics Visitor
+
+  script AnalyticsVisitor
+
+  import div Container
+    and variable EventList
+
+  div Events
+  div Div
+  span Span
+  variable Record
+  variable NEvents
+  variable N
+  variable DateFormat
+  variable TimeFormat
+  variable Content
+  variable VID
+  variable TS
+  variable Event
+  variable ArticleID
+  variable Article
+
+  put empty into DateFormat
+  set property `mode` of DateFormat to `date`
+  set property `locale` of DateFormat to `en-EN`
+  put empty into Content
+  set property `hour` of Content to `numeric`
+  set property `minute` of Content to `numeric`
+  set property `second` of Content to `numeric`
+  set property `year` of Content to `numeric`
+  set property `month` of Content to `long`
+  set property `day` of Content to `numeric`
+  set property `options` of DateFormat to Content
+
+  put empty into TimeFormat
+  set property `mode` of TimeFormat to `time`
+  set property `locale` of TimeFormat to `en-EN`
+  put empty into Content
+  set property `hour` of Content to `numeric`
+  set property `minute` of Content to `numeric`
+  set property `second` of Content to `numeric`
+  set property `options` of TimeFormat to Content
+
+  on message go to Run
+  set ready
+  stop
+
+Run:
+  clear Container
+  put the json count of EventList into NEvents
+  create Events in Container
+  put 0 into N
+  put element 0 of EventList into Record
+  put property `vid` of Record into VID
+  create Div in Events
+  set the style of Div to `font-weight:bold`
+  set the content of Div to `Visitor ` cat VID
+  while N is less than NEvents
+  begin
+    put element N of EventList into Record
+
+    create Div in Events
+    put property `ts` of Record into TS
+    create Span in Div
+    set the content of Span to TS format DateFormat 
+    create Span in Div
+    set the content of Span to `: `
+    put property `event` of Record into Event
+    create Span in Div
+    set the content of Span to Event
+    if Event is `article` gosub to ShowArticle
+    if Event is `slug` gosub to ShowArticle
+
+    add 1 to N
+  end
+  stop
+
+ShowArticle:
+  put property `article` of Record into ArticleID
+  create Span in Div
+  set the content of Span to ` ` cat ArticleID
+  rest get Article from `_/yw_articles/id/` cat ArticleID cat `?v=` cat now
+  create Span in Div
+  set the content of Span to `: `
+  create Span in Div
+  set the content of Span to property `title` of Article
+  return

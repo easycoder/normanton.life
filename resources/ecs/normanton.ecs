@@ -475,7 +475,8 @@ RedrawBlocks:
   set the elements of AuthorLink to DisplayCount
 
   set the content of Blocks to ``
-  if Selector is `section`
+  if Selector is empty send `reset` to Menu
+  else if Selector is `section`
   begin
     create SelectorDiv in Blocks
     set the style of SelectorDiv to `font-weight:bold;color:green;margin-bottom:0.5em`

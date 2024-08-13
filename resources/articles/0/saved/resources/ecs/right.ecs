@@ -1,0 +1,30 @@
+! Right Panel
+
+  script RightPanel
+
+  import div Container
+
+  div Inner
+  div Block1
+  variable Article
+  variable Mode
+  
+  create Inner in Container
+  set the style of Inner to `margin:5% 5%`
+
+  create Block1 in Inner
+  set the style of Block1 to `padding-bottom:1em;border-bottom:1px solid lightgray;margin-bottom:1em`
+
+  on message go to Show
+  set ready
+  stop
+
+Show:
+  get Mode from storage as `mode`
+  rest get Article from `/resources/php/rest.php/_/articles/slug/s/right?v=` cat now
+  or begin
+    alert `Failed to get the content of the right panel.`
+    stop
+  end
+  set the content of Block1 to decode property `article` of Article
+  stop

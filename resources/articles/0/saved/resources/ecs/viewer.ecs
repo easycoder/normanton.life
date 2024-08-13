@@ -1,0 +1,245 @@
+! Article viewer
+
+  script ArticleViewer
+
+  import
+    div Parent
+    and variable Record
+    and variable Message
+
+  div Container
+  div ArticleDiv
+  div FooterDiv
+  div SectionDiv
+  div AuthorDiv
+  div TagsDiv
+  img EditButton
+  a SectionLink
+  a AuthorLink
+  a TagLink
+  a PageLink
+  span Span
+  variable Title
+  variable Section
+  variable Author
+  variable UserName
+  variable ID
+  variable Tags
+  variable Count
+  variable N
+  variable M
+  variable P
+  variable Q
+  variable Tag
+  variable Article
+  variable Content
+  variable Hyperlink
+  variable Slug
+  variable NewLink
+  variable LinkCount
+  
+!  debug step
+
+  create Container in Parent
+
+  on message go to ShowArticle
+  set ready
+  stop
+
+ShowArticle:
+  set the content of Container to ``
+
+  put property `section` of Record into Section
+  put property `author` of Record into Author
+  put property `tags` of Record into Tags
+  
+  get UserName from storage as `user.name`
+  if UserName is Author
+  begin
+    create EditButton in Container
+    set the style of EditButton to `float:right;width:25px;margin-top:0.25em`
+    set attribute `src` of EditButton to `https://` cat the hostname cat `/resources/icon/edit.png`
+    on click EditButton
+    begin
+      put `edit` into Message
+      history back
+    end
+  end
+
+  create ArticleDiv in Container
+  set style `margin-top` of ArticleDiv to `0.5em`
+  put decode property `article` of Record into Article
+  gosub to InterceptHyperlinks
+  set the content of ArticleDiv to Article
+  gosub to Refresh
+
+  create FooterDiv in Container
+  set style of FooterDiv to
+    `margin:0.5em 0;border-top:1px solid gray`
+  if Section
+  begin
+    create SectionDiv in FooterDiv
+    set style of SectionDiv to
+      `margin:0.5em 0;font-size:85%;font-weight:bold;color:red`
+  end
+  if Author
+  begin
+    create AuthorDiv in FooterDiv
+    set style of AuthorDiv to
+      `margin:0.5em 0;font-size:85%;font-weight:bold;color:blue`
+  end
+  if Tags
+  begin
+    create TagsDiv in FooterDiv
+    set style of TagsDiv to
+      `margin:0.5em 0;font-size:85%;font-weight:bold;color:green`
+  end
+
+  put property `id` of Record into ID
+
+  if Section
+  begin
+    create Span in SectionDiv
+    set the content of Span to `Section: `
+    create SectionLink in SectionDiv
+    set style `margin` of SectionLink to `0 0.25em`
+    set the content of SectionLink to Section
+    on click SectionLink
+    begin
+      put `{}` into Message
+      set property `source` of Message to `Viewer`
+      set property `action` of Message to `section`
+      replace ` ` with `%20` in Section
+      set property `name` of Message to Section
+      history back
+    end
+  end
+
+  if Author
+  begin
+    create Span in AuthorDiv
+    set the content of Span to `Author: `
+    create AuthorLink in AuthorDiv
+    set style `margin` of AuthorLink to `0 0.25em`
+    set the content of AuthorLink to Author
+    on click AuthorLink
+    begin
+      put `{}` into Message
+      set property `source` of Message to `Viewer`
+      set property `action` of Message to `author`
+      replace ` ` with `%20` in Author
+      set property `name` of Message to Author
+      history back
+    end
+  end
+
+  if Tags
+  begin
+    create Span in TagsDiv
+    set the content of Span to `Tags: `
+    rest get Tags from `/resources/php/rest.php/_/tags/tags/` cat ID cat `?v=` cat now
+    or begin
+      alert `Failed to read the article tags.`
+      stop
+    end
+    put the json count of Tags into Count
+    set the elements of TagLink to Count
+    put 0 into N
+    while N is less than Count
+    begin
+      index TagLink to N
+      create TagLink in TagsDiv
+      set style `margin` of TagLink to `0 0.25em`
+      set the content of TagLink to element N of Tags
+      on click TagLink
+      begin
+        put the content of TagLink into Tag
+        put `{}` into Message
+        set property `source` of Message to `Viewer`
+        set property `action` of Message to `tag`
+        set property `tag` of Message to Tag
+        history back
+      end
+      add 1 to N
+    end
+  end
+
+  history push url `?` cat property `slug` of Record
+
+!  put empty into Content
+!  set property `action` of Content to `view`
+!  set property `slug` of Content to property `slug` of Record
+!  get User from storage as `user`
+!  rest post Content to `_/ec-tracking/tracking/` cat User or stop
+
+  on close
+  begin
+	! print `Close Article Viewer`
+  	clear Container
+  	set style `display` of Container to `none`
+  end
+
+  set style `display` of Container to `block`
+  if mobile scroll to 1
+
+  stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!	Intercept all local hyperlinks (of the form href="/[slug]/")
+!	This allows requested articles to load without reloading the page
+InterceptHyperlinks:
+	put Article into Content
+    put 0 into LinkCount
+    put 0 into N
+    while true
+    begin
+        ! Find a hyperlink element
+    	put the position of `<a href="/` in Content into P
+        if P is -1 return
+        
+        ! Get the hyperlink
+        put from P of Content into Content
+        put the position of `</a>` in Content into Q
+        add 4 to Q
+        put left Q of Content into Hyperlink
+        
+        ! Get the slug (an array)
+        index Slug to N
+        index PageLink to N
+        add 1 to N
+        add 1 to N giving M
+        set the elements of Slug to M
+        set the elements of PageLink to M
+        put from 10 of Hyperlink into Slug
+        put the position of `/">` in Slug into Q
+        put left Q of Slug into Slug
+        
+        ! Move over this element
+        add the length of Hyperlink to P
+        put from P of Article into Content
+        
+        put `<a id="id-` cat Slug cat `"` cat from 2 of Hyperlink into NewLink
+        replace Hyperlink with NewLink in Article
+        add 1 to LinkCount
+    end
+	return
+
+Refresh:
+    put 0 into N
+    while N is less than LinkCount
+    begin
+        index Slug to N
+        index PageLink to N
+        attach PageLink to `id-` cat Slug
+        on click PageLink
+        begin
+!        	alert `Click ` cat attribute `id` of PageLink
+            set Message to object
+            set property `source` of Message to `Viewer`
+            set property `action` of Message to `slug`
+            set property `slug` of Message to Slug
+            send Message to parent
+        end
+        add 1 to N
+    end
+	return

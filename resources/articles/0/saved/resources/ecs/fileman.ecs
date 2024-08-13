@@ -1,0 +1,300 @@
+! File Manager
+
+  script FileManager
+
+  import div Container
+
+  div Mask
+  div Panel
+  div FileListing
+  div FileRow
+  div Scroller
+  div Uploader
+  div Buttons
+  span UploadStatus
+  progress UploadProgress
+  input UploadFile
+  button CloseButton
+  button NewFolderButton
+  button ShowURLButton
+  button UploadButton
+  button DeleteButton
+  a FileName
+  a Previous
+  img Icon
+  img PreviousIcon
+  img Image
+  variable HostName
+  variable Alpha
+  variable FileCount
+  variable File
+  variable Name
+  variable Type
+  variable Source
+  variable Content
+  variable CurrentPath
+  variable Path
+  variable N
+  variable Even
+  variable Progress
+  variable Status
+  
+!  debug step
+
+  history push
+  create Mask in Container
+  set the style of Mask to `display:none;position:fixed;top:0;left:0;right:0;bottom:0;`
+    cat `width:100%;height:100%;z-index:5;background-color:rgba(0,0,0,0.0);text-align:center`
+  create Panel in Mask
+  if mobile
+    set the style of Panel to
+      `width:100%;height:100%;background:#ffe`
+  else
+    set the style of Panel to
+      `width:50%;height:90%;margin-top:5%;margin-left:25%;background:#ffe;border:3px solid black`
+
+  create Uploader in Panel
+  set the style of Uploader to
+    `width:100%;padding:0.5em 0;border:1px solid gray;font-size:80%;text-align:center`
+  create UploadFile in Uploader
+  set the style of UploadFile to `display:inline-block`
+  set attribute `type` of UploadFile to `file`
+  set attribute `name` of UploadFile to `Source`
+  create UploadStatus in Uploader
+  create UploadProgress in Uploader
+  set style `margin-left` of UploadProgress to `0.5em`
+  set attribute `value` of UploadProgress to 0
+  set attribute `max` of UploadProgress to 100
+
+  create Buttons in Panel
+  set the style of Buttons to `position:relative;top:10px`
+  create CloseButton in Buttons
+  set the style of CloseButton to `width:150px;height:40px`
+  set the text of CloseButton to `Close`
+  create DeleteButton in Buttons
+  set the style of DeleteButton to `width:150px;height:40px`
+  set the text of DeleteButton to `Delete`
+  on click CloseButton history back
+  create NewFolderButton in Buttons
+  set the style of NewFolderButton to `width:150px;height:40px`
+  set the text of NewFolderButton to `New Folder`
+  create ShowURLButton in Buttons
+  set the style of ShowURLButton to `display:none;width:150px;height:40px`
+  set the text of ShowURLButton to `Show URL`
+  create UploadButton in Buttons
+  set the style of UploadButton to `width:150px;height:40px`
+  set the text of UploadButton to `Upload`
+  on click UploadButton go to Upload
+
+  create FileListing in Panel
+  set the style of FileListing to `position:relative;top:40px;width:100%;height:80%;text-align:center`
+  create Scroller in FileListing
+  set the style of Scroller to
+    `position:absolute;top:0;left:0;bottom:0;right:0;text-align:left;overflow-y:scroll`
+  create Image in FileListing
+  set the style of Image to `display:none;display: block;margin: 0 auto;max-width:100%;max-height:100%`
+
+  on close
+  begin
+    clear Panel
+    remove element Panel
+  	clear Mask
+    remove element Mask
+    exit
+  end
+
+  on click NewFolderButton
+  begin
+    put prompt `Name of folder:` with `new` into Name
+    if Name is empty stop
+    replace ` ` with `-` in Name
+    put HostName cat `/resources/images/` cat CurrentPath cat `/` cat Path into Path
+    rest post to `_mkdir/` cat CurrentPath cat `/` cat Name
+    or begin
+      alert `Failed to create a directory.`
+      stop
+    end
+    goto Browser
+  end
+  
+  put `https://` cat the hostname into HostName
+
+  set ready
+
+Show:
+  set style `display` of Mask to `block`
+  set style `display` of Panel to `block`
+  put 0 into Alpha
+  while Alpha is less than 8
+  begin
+    set style `background-color` of Mask to `rgba(0,0,0,0.` cat Alpha cat `)`
+    wait 4 ticks
+    add 1 to Alpha
+  end
+  wait 10 ticks
+  set style `display` of FileListing to `block`
+
+! Fill the browser with content from the server
+  put empty into CurrentPath
+
+! Fill the browser with content from the server
+  get CurrentPath from storage as `fm-path`
+
+! Build the list
+Browser:
+  put CurrentPath into storage as `fm-path`
+  put CurrentPath into Path
+  rest get Content from `_list/` cat Path cat `?v=` cat now
+  or begin
+    alert `Failed to list files.`
+    stop
+  end
+  put the json count of Content into FileCount
+  set the elements of File to FileCount
+  set the elements of FileName to FileCount
+  set the elements of Icon to FileCount
+
+! Add a row for each file
+  set the content of Scroller to empty
+  create FileRow in Scroller
+  set the style of FileRow to `padding-left:1em`
+  put CurrentPath into Path
+  if left 1 of Path is `/` put from 1 of Path into Path
+  set the content of FileRow to `Current folder: ` cat Path
+  set Even
+
+  if CurrentPath is not `/images`
+  begin
+    create FileRow in Scroller
+    set the style of FileRow to `width:90%;padding:0.5em 1em;text-align:left`
+    create PreviousIcon in FileRow
+    set the style of PreviousIcon to `float:left;margin-right:0.5em;width:20px`
+    set attribute `src` of PreviousIcon to `https://` cat hostname cat `/resources/icon/arrow-back.png`
+    set style `cursor` of PreviousIcon to `pointer`
+    create Previous in FileRow
+    set the content of Previous to `(back to previous folder)`
+    on click PreviousIcon go to GoPrevious
+    on click Previous go to GoPrevious
+  end
+
+  set the elements of FileName to FileCount
+  put 0 into N
+  while N is less than FileCount
+  begin
+    index File to N
+    index Icon to N
+    put element N of Content into File
+    put property `name` of File into Name
+    put property `type` of File into Type
+    create FileRow in Scroller
+    set the style of FileRow to `clear:both;padding:0.5em 1em;text-align:left`
+    if Even set style `background` of FileRow to `#eee`
+    create Icon in FileRow
+    set the style of Icon to `float:left;margin-right:0.5em;width:20px`
+    if Type is `dir` put `folder.png` into Source
+    else if Type is `img` put `image.png` into Source
+    else if Type is `txt` put `text.png` into Source
+    else if Type is `doc` put `document.png` into Source
+    else put `unknown.png` into Source
+    set attribute `src` of Icon to `https://` cat hostname cat `/resources/icon/` cat Source
+    set style `cursor` of Icon to `pointer`
+    index FileName to N
+    create FileName in FileRow
+    set the content of FileName to Name
+    on click Icon
+    begin
+  		index File to the index of Icon
+  		index FileName to the index of Icon
+    	go to SelectFile
+     end
+    on click FileName
+    begin
+  		index File to the index of FileName
+    	go to SelectFile
+     end
+    toggle Even
+    add 1 to N
+  end
+
+  on click DeleteButton
+  begin
+    if FileCount is 0
+    begin
+      rest post to `_delete/resources` cat CurrentPath
+      or begin
+        alert `Failed to delete a file.`
+        stop
+      end
+      put the position of the last `/` in CurrentPath into N
+      if N is less than 0 put the position of the last `/` in CurrentPath into N
+      put left N of CurrentPath into CurrentPath
+      go to Browser
+    end
+    else
+    begin
+      alert `Folder is not empty`
+    end
+  end
+
+  stop
+
+GoPrevious:
+    put the position of the last `/` in CurrentPath into N
+    put left N of CurrentPath into CurrentPath
+    go to Browser
+
+SelectFile:
+  put property `type` of File into Type
+  if Type is `dir`
+  begin
+    put CurrentPath cat `/` cat the content of FileName into CurrentPath
+    goto Browser
+  end
+  if Type is `img`
+  begin
+    set style `display` of Uploader to `none`
+    set style `display` of UploadButton to `none`
+    set style `display` of NewFolderButton to `none`
+
+    set style `display` of Scroller to `none`
+    set style `display` of Image to `block`
+    put CurrentPath cat `/` cat property `name` of File into Path
+    set attribute `src` of Image to `https://` cat hostname cat `/resources` cat Path
+    on click CloseButton go to CloseMedia
+    set style `display` of ShowURLButton to `inline-block`
+    on click ShowURLButton
+    begin
+      put prompt `URL of this image:` with `https://` cat hostname cat `/resources` cat Path into Path
+    end
+    on click DeleteButton
+    begin
+      rest post to `_delete/resources` cat CurrentPath cat `/` cat the content of FileName
+      or begin
+        alert `Failed to delete the image.`
+        stop
+      end
+      go to CloseMedia
+    end
+  end
+  stop
+
+CloseMedia:
+  set style `display` of Image to `none`
+  set style `display` of Scroller to `block`
+  set style `display` of Uploader to `inline-block`
+  set style `display` of UploadButton to `inline-block`
+  set style `display` of NewFolderButton to `inline-block`
+  set style `display` of ShowURLButton to `none`
+  on click CloseButton history back
+  go to Browser
+
+Upload:
+  if UploadFile is empty alert `Please choose a file to upload`
+  else
+  begin
+	put CurrentPath into Path
+    put `_upload` cat Path into Path
+    upload UploadFile to Path with UploadProgress and UploadStatus
+    goto Browser
+  end
+  stop

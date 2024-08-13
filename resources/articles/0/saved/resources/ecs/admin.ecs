@@ -1,0 +1,155 @@
+! Admin Menu
+
+  script Admin
+  
+  h1 Header
+  div Body
+  div Links
+  div LinkDiv
+  a Link
+  variable HostName
+  variable NClicks
+  variable Password
+  variable Valid
+  variable Mode
+  
+  debug step
+  
+  put `https://` cat the hostname into HostName
+  
+  create Body in body
+  create Header in Body
+  set the style of Header to `text-align:center`
+  set the content of Header to `Normanton Life admin page`
+  
+  create Links in Body
+  set the style of Links to `margin-top:1em;text-align:center`
+  
+  create LinkDiv in Links
+  create Link in LinkDiv
+  set the style of Link to `font-size: 200%; line-height: 200%`
+  set the content of Link to `Analytics`
+  on click Link location HostName cat `/analytics.html`
+  
+  create LinkDiv in Links
+  create Link in LinkDiv
+  set the style of Link to `font-size: 200%; line-height: 200%`
+  set the content of Link to `Script editor`
+  on click Link location HostName cat `/scripted.html`
+  
+  create LinkDiv in Links
+  create Link in LinkDiv
+  set the style of Link to `font-size: 200%; line-height: 200%`
+  set the content of Link to `HTML editor`
+  on click Link location HostName cat `/htmled.html`
+  
+  create LinkDiv in Links
+  create Link in LinkDiv
+  set the style of Link to `font-size: 200%; line-height: 200%`
+  set the content of Link to `Relocate this website`
+  on click Link go to Relocate
+  
+  create LinkDiv in Links
+  create Link in LinkDiv
+  set the style of Link to `font-size: 200%; line-height: 200%`
+  set the content of Link to `Developer notes`
+  on click Link location HostName cat `/notes.html`
+  
+  get Password from storage as `password`
+  rest get Valid from `/resources/php/rest.php/_verify/` cat Password
+    or alert `Unable to verify password - please try again.`
+  if Valid is `no` set style `display` of Links to `none`
+
+  put `user` into Mode
+  put 0 into NClicks
+  on key
+  begin
+    if the key is `a`
+    begin
+      add 1 to NClicks
+      if NClicks is 3 go to SetAdminMode
+    end
+    else
+    begin
+      if the key is `u` go to SetUserMode
+      if the key is `o` go to Logout
+      put 0 into NClicks
+    end
+  end
+
+SetAdminMode:
+  get Password from storage as `password`
+  if Password is empty
+    put prompt `Please type the admin password` with `` into Password
+  rest get Valid from `/resources/php/rest.php/_verify/` cat Password
+    or alert `Unable to verify password - please try again.`
+  if Valid is `yes`
+  begin
+    put Password into storage as `password`
+    put `admin` into storage as `mode`
+    put `admin` into Mode
+  end
+  put 0 into NClicks
+  set style `display` of Links to `block`
+  stop
+
+Logout:
+  put `` into storage as `password`
+SetUserMode:
+  put `` into storage as `mode`
+  put `user` into Mode
+  put 0 into NClicks
+  set style `display` of Links to `none`
+  stop
+
+Relocate:
+  div RBody
+  div Row
+  span Label
+  input Old
+  input New
+  button Process
+  variable Articles
+  variable Article
+  variable N
+  
+  set style `display` of Body to `none`
+  
+  create RBody in body
+  create Row in RBody
+  set the style of Row to `width:50%;margin:2em auto 0 auto;display:flex`
+  create Label in Row
+  set the style of Label to `width: 6em`
+  set the content of Label to `Old:`
+  create Old in Row
+  set the style of Old to `flex:1`
+  create Row in RBody
+  set the style of Row to `width:50%;margin:1em auto 0 auto;display:flex`
+  create Label in Row
+  set the style of Label to `width: 6em`
+  set the content of Label to `New:`
+  create New in Row
+  set the style of New to `flex:1`
+  create Row in RBody
+  set the style of Row to `width:50%;margin:1em auto 0 auto`
+  create Process in Row
+  set the style of Process to `width:100%`
+  set the content of Process to `Process`
+  on click Process
+  begin
+  	rest get Articles from `_/nl_articles/listAll/0/10000`
+    put 0 into N
+    while N is less than the json count of Articles
+    begin
+      rest get Article from `_/nl_articles/id/` cat element N of Articles
+      replace Old with New in Article
+      rest post Article to `_/nl_articles/update/` cat element N of Articles
+      add 1 to N
+    end
+
+    remove element RBody
+    set style `display` of Body to `block`
+  end
+  stop
+  
+  stop
