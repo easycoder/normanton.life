@@ -242,6 +242,16 @@
             if Author is empty put empty into Selector
         end
       end
+      else if Source is `Viewer'
+      begin
+        put property `action` of Message into Action
+        if Action is `slug`
+        begin
+        	put property `slug` of Message into Slug
+            gosub to ViewSlug
+        end
+        stop
+      end
       else if Source is `Editor'
       begin
         put property `action` of Message into Action
@@ -504,7 +514,7 @@ RedrawBlocks:
     set the style of TitleLink to `font-size:1.2em;font-weight:bold;margin-bottom:1em`
     create ReleaseButton in TitleGroup
     set the style of ReleaseButton to
-      `position:absolute;top:0.25em;right:35px;width:25px;display:none`
+      `position:absolute;top:0.25em;right:0;width:25px;display:none`
     set attribute `src` of ReleaseButton to `resources/icon/tick.png`
     set attribute `title` of ReleaseButton to `Release this article`
 !    create EditButton in TitleGroup
@@ -719,9 +729,9 @@ print `View ` cat Slug
         history set url property `url` of HistoryState
       end
       put `home` into Location
-      if ViewerMessage is `show` go to ViewSlug
-      if ViewerMessage is `edit` go to Editor
-      end
+      if ViewerMessage is `show` gosub to ViewSlug
+      else if ViewerMessage is `edit` go to Editor
+!      end
       if property `action` of ViewerMessage is `section`
       begin
         put property `name` of ViewerMessage into Section

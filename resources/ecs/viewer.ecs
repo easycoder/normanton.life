@@ -13,12 +13,11 @@
   div SectionDiv
   div AuthorDiv
   div TagsDiv
-  h2 TitleHeader
-  h5 SectionHeader
   img EditButton
   a SectionLink
   a AuthorLink
   a TagLink
+  a PageLink
   span Span
   variable Title
   variable Section
@@ -37,6 +36,7 @@
   variable Hyperlink
   variable Slug
   variable NewLink
+  variable LinkCount
   
 !  debug step
 
@@ -66,21 +66,12 @@ ShowArticle:
     end
   end
 
-  create SectionHeader in Container
-  set the style of SectionHeader to `color:#f08`
-  set the content of SectionHeader to property `section` of Record
-
-  put decode property `title` of Record into Title
-  create TitleHeader in Container
-  set the style of TitleHeader to `color:#428bca;margin-bottom:1em`
-
-  set the content of TitleHeader to Title
-
   create ArticleDiv in Container
   set style `margin-top` of ArticleDiv to `0.5em`
   put decode property `article` of Record into Article
-  set the content of ArticleDiv to Article
   gosub to InterceptHyperlinks
+  set the content of ArticleDiv to Article
+  gosub to Refresh
 
   create FooterDiv in Container
   set style of FooterDiv to
@@ -198,23 +189,13 @@ ShowArticle:
 !	This allows requested articles to load without reloading the page
 InterceptHyperlinks:
 	put Article into Content
+    put 0 into LinkCount
     put 0 into N
     while true
     begin
         ! Find a hyperlink element
     	put the position of `<a href="/` in Content into P
-        if P is -1
-        begin
-    		print Article
-            put 0 into N
-            while N is less than the elements of Slug
-            begin
-            	index Slug to N
-                print Slug
-                add 1 to N
-            end
-        	return
-        end
+        if P is -1 return
         
         ! Get the hyperlink
         put from P of Content into Content
@@ -224,9 +205,11 @@ InterceptHyperlinks:
         
         ! Get the slug (an array)
         index Slug to N
+        index PageLink to N
         add 1 to N
         add 1 to N giving M
         set the elements of Slug to M
+        set the elements of PageLink to M
         put from 10 of Hyperlink into Slug
         put the position of `/">` in Slug into Q
         put left Q of Slug into Slug
@@ -236,7 +219,27 @@ InterceptHyperlinks:
         put from P of Article into Content
         
         put `<a id="id-` cat Slug cat `"` cat from 2 of Hyperlink into NewLink
-        print NewLink
         replace Hyperlink with NewLink in Article
+        add 1 to LinkCount
+    end
+	return
+
+Refresh:
+    put 0 into N
+    while N is less than LinkCount
+    begin
+        index Slug to N
+        index PageLink to N
+        attach PageLink to `id-` cat Slug
+        on click PageLink
+        begin
+!        	alert `Click ` cat attribute `id` of PageLink
+            set Message to object
+            set property `source` of Message to `Viewer`
+            set property `action` of Message to `slug`
+            set property `slug` of Message to Slug
+            send Message to parent
+        end
+        add 1 to N
     end
 	return

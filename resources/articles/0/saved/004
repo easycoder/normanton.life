@@ -1,11 +1,1 @@
-{
-    "id": "4",
-    "published": 1722812400,
-    "slug": "test-record",
-    "section": "general",
-    "author": "tramontana",
-    "title": "Test article",
-    "tags": "none",
-    "synopsis": "<p>Test record<\/p>",
-    "article": "<p>This is a test record<\/p><p><img alt=~dq~~dq~ src=~dq~https:\/\/normanton.life\/resources\/articles\/new\/IMG-20190826-WA0000.jpg~dq~ style=~dq~height:216px; width:200px~dq~ \/><\/p>"
-}
+{"id":"4","published":1722812400,"slug":"test-record","section":"general","author":"tramontana","title":"Test article","tags":"none","synopsis":"<p>Test record<\/p>","article":"<p>This is a test record<\/p><p><img alt=~dq~~dq~ src=~dq~https:\/\/normanton.life\/resources\/images\/IMG-20190826-WA0000.jpg~dq~ style=~dq~width:20%~dq~ \/><\/p>"}
