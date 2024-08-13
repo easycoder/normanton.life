@@ -174,7 +174,7 @@
     end
     else if Message is `back`
     begin
-      print `Location: ` cat Location
+!      print `Location: ` cat Location
       if Location is `home`
       begin
       	put empty into Section
