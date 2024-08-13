@@ -713,7 +713,7 @@ Viewer:
       as ArticleViewer
   end
   gosub SetHomeToBack
-  gosub to DisableButtons
+  gosub to DisableSectionsButton
   put `` into HistoryState
   set property `script` of HistoryState to `NormantonLife`
   set property `url` of HistoryState to
@@ -723,7 +723,7 @@ Viewer:
   begin
   print `Restore from viewer`
   	if Selector is empty gosub SetHomeToHome
-    gosub to EnableButtons
+    gosub to EnableSectionsButton
 !    if CurrentPage is 0 gosub to DisableHomeButton
     if Location is not `home`
     begin 
@@ -815,7 +815,7 @@ Editor:
     	gosub to SetHomeToHome
         gosub to DisableHomeButton
     end
-  	gosub to EnableButtons
+  	gosub to EnableSectionsButton
     send `show` to Menu
     put Article into Record
     close ArticleEditor
@@ -833,7 +833,7 @@ Editor:
   end
 
   gosub to EnableHomeButton
-  gosub to DisableButtons
+  gosub to DisableSectionsButton
   send `hide` to Menu
   put `edit` into Location
   send to ArticleEditor
@@ -911,13 +911,6 @@ SetHomeToHome:
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Control item visibility
-EnableButtons:
-	gosub to EnableSectionsButton
-    go to EnableAuthorsButton
-
-DisableButtons:
-	gosub to DisableSectionsButton
-    go to DisableAuthorsButton
 
 EnableHomeButton:
    put `` into ButtonMessage
@@ -943,20 +936,6 @@ EnableSectionsButton:
 DisableSectionsButton:
    put `` into ButtonMessage
    set property `button` of ButtonMessage to `sections`
-   set property `action` of ButtonMessage to `disable`
-   send ButtonMessage to Menu
-   return
-
-EnableAuthorsButton:
-   put `` into ButtonMessage
-   set property `button` of ButtonMessage to `authors`
-   set property `action` of ButtonMessage to `enable`
-   send ButtonMessage to Menu
-   return
-
-DisableAuthorsButton:
-   put `` into ButtonMessage
-   set property `button` of ButtonMessage to `authors`
    set property `action` of ButtonMessage to `disable`
    send ButtonMessage to Menu
    return

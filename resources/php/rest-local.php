@@ -131,9 +131,10 @@
                         switch ($filter)
                         {
                             case 'section':
-                                $where = $row->admin ? "" : "WHERE pub=1";
-                                $where = $where ? "$where AND" : "WHERE";
-                                $where = "$where section='$name'";
+                                $where = "WHERE section='$name'";
+                                if (!$admin) {
+                                    $where .= " AND pub=1";
+                                }
                                 $result = $conn->query("SELECT * FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;
                             case 'author':

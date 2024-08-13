@@ -6,17 +6,14 @@
 
   div MenuDiv
   div SectionDiv
-!  div AuthorDiv
   div ReleaseButton
   div HomeButton
   div AboutButton
   div SectionsButton
-!  div AuthorsButton
   div UserButton
   div UserPanel
   div AddButton
   select SectionSelect
-!  select AuthorSelect
   img ReleaseIcon
   img UserIcon
   img AddIcon
@@ -29,15 +26,11 @@
   variable List
   variable Sections
   variable Section
-!  variable Authors
-!  variable Author
   variable Name
   variable Count
   variable Record
   variable SelectedSection
-!  variable SelectedAuthor
   variable SectionEnable
-  variable AuthorEnable
   variable Action
   variable Value
   variable N
@@ -46,7 +39,6 @@
 
   get UserName from storage as `user.name`
   set SectionEnable
-  set AuthorEnable
   
   create UserPanel in Header
 
@@ -97,18 +89,6 @@
   set the style of SectionSelect to Style
   set style `display` of SectionSelect to `none`
   put empty into SelectedSection
-
-!  create AuthorDiv in MenuDiv
-!  set the style of AuthorDiv to Style
-!  create AuthorsButton in AuthorDiv
-!  set the style of AuthorsButton to Style2
-!  set style `cursor` of AuthorsButton to `pointer`
-!  set the content of AuthorsButton to `Authors`
-!  on click AuthorsButton gosub to DoAuthors
-!  create AuthorSelect in AuthorDiv
-!  set the style of AuthorSelect to Style
-!  set style `display` of AuthorSelect to `none`
-!  put empty into SelectedAuthor
   
   create AddButton in MenuDiv
   if UserName is not empty
@@ -155,9 +135,6 @@
     	put empty into SelectedSection
         gosub to DoSections
   		gosub to ResetSections
-!        put empty into SelectedAuthor
-!        gosub to DoAuthors
-!        gosub to ResetAuthors
         set the content of HomeButton to `Home`
         gosub to EnableHome
     end
@@ -176,13 +153,11 @@
       begin
         if property `button` of Message is `home` gosub to EnableHome
         else if property `button` of Message is `sections` gosub to EnableSection
-!        else if property `button` of Message is `authors` gosub to EnableAuthor
       end
       else if Action is `disable`
       begin
         if property `button` of Message is `home` gosub to DisableHome
         else if property `button` of Message is `sections` gosub to DisableSection
-!        else if property `button` of Message is `authors` gosub to DisableAuthor
       end
       else if Action is `home`
       begin
@@ -227,36 +202,17 @@ DisableSection:
     clear SectionEnable
 	return
 
-!EnableAuthor:
-!    set style `cursor` of AuthorsButton to `pointer`
-!    set style `color` of AuthorsButton to `white`
-!    set AuthorEnable
-!	return
-
-!DisableAuthor:
-!    set style `cursor` of AuthorsButton to `none`
-!    set style `color` of AuthorsButton to `gray`
-!    clear AuthorEnable
-!	return
-
 ResetSections:
   	set style `display` of SectionsButton to `inline-block`
   	set style `display` of SectionSelect to `none`
     return
 
-!ResetAuthors:
-!  	set style `display` of AuthorsButton to `inline-block`
-!  	set style `display` of AuthorSelect to `none`
-!    return
-
 EnableFilters:
 	gosub to EnableSection
-!    gosub to EnableAuthor
     go to EnableHome
 
 DisableFilters:
 	gosub to DisableSection
-!    gosub to DisableAuthor
     goto DisableHome
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -306,7 +262,6 @@ DoAbout:
 ! Show the list of sections
 DoSections:
   if not SectionEnable stop
-!  gosub to ResetAuthors
   rest get Sections from `/resources/php/rest.php/_/sections/enum?v=` cat now
   put the json count of Sections into Count
   set the elements of Section to Count
@@ -333,49 +288,10 @@ DoSections:
     if SelectedSection is `all` put empty into SelectedSection
    	put `` into Message
    	set property `source` of Message to `Menu`
-   	set property `selector` of Message to `author`
+   	set property `selector` of Message to `section`
    	set property `section` of Message to SelectedSection
     gosub to ResetSections
 	gosub to EnableHome
    	send Message to parent
   end
   return
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Show the list of authors
-!DoAuthors:
-!  if not AuthorEnable stop
-!  gosub to ResetSections
-!  rest get Authors from `/resources/php/rest.php/_/authors/enum?v=` cat now
-!  put the json count of Authors into Count
-!  set the elements of Author to Count
-!  put `[]` into List
-!  json add `all` to List
-!  put 0 into N
-!  while N is less than Count
-!  begin
-!    index Author to N
-!    put element N of Authors into Author
-!    put Author into Name
-!    replace `%20` with ` ` in Name
-!   	json add Name to List
-!    add 1 to N
-!  end
-!  put SelectedAuthor into Value
-!  if Value is empty put `all` into Value
-!  set AuthorSelect from List as Value
-!  set style `display` of AuthorsButton to `none`
-!  set style `display` of AuthorSelect to `inline-block`
-!  on change AuthorSelect
-!  begin
-!   	put attribute `value` of AuthorSelect into SelectedAuthor
-!    if SelectedAuthor is `all` put empty into SelectedAuthor
-!   	put `` into Message
-!   	set property `source` of Message to `Menu`
-!   	set property `selector` of Message to `author`
-!   	set property `author` of Message to SelectedAuthor
-!    gosub to ResetAuthors
-!	gosub to EnableHome
-!   	send Message to parent
-!  end
-!  return
