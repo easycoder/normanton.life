@@ -232,6 +232,7 @@ Refresh:
         attach PageLink to `id-` cat Slug
         on click PageLink
         begin
+        	index Slug to the index of PageLink
 !        	alert `Click ` cat attribute `id` of PageLink
             set Message to object
             set property `source` of Message to `Viewer`
