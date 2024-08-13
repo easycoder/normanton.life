@@ -156,7 +156,7 @@
                                 $result = $conn->query("SELECT * FROM articles WHERE waiting=1");
                                 break;
                             case 'all':
-                                $where = $admin ? "" : "WHERE pub=1 OR author='$user'";
+                                $where = $admin ? "" : "WHERE section!='' AND (pub=1 OR author='$user')";
                                 // print("SELECT * FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
                                 $result = $conn->query("SELECT * FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
                                 break;

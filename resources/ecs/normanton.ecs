@@ -92,7 +92,7 @@
 !   	print `Args: ` cat Args
    	put property `arg` of Args into Slug
 !  	if Slug is empty put `` into Slug
-    print `Slug: ` cat Slug
+!    print `Slug: ` cat Slug
 
 ! 	Basic information & set up
 !  	put empty into storage as `visitor`
@@ -129,8 +129,7 @@
     	gosub to ViewSlug
     	gosub to DoFooter
   	end
-    
-    gosub to RedrawBlocks
+    else gosub to RedrawBlocks
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Handle clicks on the document
@@ -190,6 +189,12 @@
         history back
       	gosub to RedrawBlocks
       end
+    end
+    else if Message is `about`
+    begin
+      put `about` into Slug
+      gosub to ViewSlug
+      gosub to DoFooter
     end
     else if Message is `new`
     begin
@@ -287,7 +292,6 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Show the admin controls
 ShowAdminControls:
-!  gosub to RedrawBlocks
   set style `display` of ToolsButton to `inline-block`
   set attribute `title` of ToolsButton to `Admin tools`
   put 0 into N
@@ -406,7 +410,6 @@ RedrawBlocks:
   if Selector set property `filter` of TrackingMessage to Selector
   
   rest get Waiting from `/resources/php/rest.php/_/articles/list/waiting?v=` cat now or go to DataReadFail
-  print Waiting
   
   ! Get a list  of article IDs
   print `User: ` cat UserName
@@ -686,6 +689,7 @@ ViewSlug:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! View an article
 ViewArticle:
+print `ViewArticle`
   put `` into TrackingMessage
   set property `event` of TrackingMessage to `article`
 TA2:
@@ -695,7 +699,6 @@ TA2:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Show the selected article
 Viewer:
-print `View ` cat Slug
   put the scroll position into ScrollPosition
   scroll to 0
   put `` into ViewerMessage
@@ -718,6 +721,7 @@ print `View ` cat Slug
   history set state HistoryState
   on restore
   begin
+  print `Restore from viewer`
   	if Selector is empty gosub SetHomeToHome
     gosub to EnableButtons
 !    if CurrentPage is 0 gosub to DisableHomeButton

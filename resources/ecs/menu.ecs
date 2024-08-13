@@ -9,6 +9,7 @@
 !  div AuthorDiv
   div ReleaseButton
   div HomeButton
+  div AboutButton
   div SectionsButton
 !  div AuthorsButton
   div UserButton
@@ -29,7 +30,7 @@
   variable Sections
   variable Section
 !  variable Authors
-  variable Author
+!  variable Author
   variable Name
   variable Count
   variable Record
@@ -78,6 +79,12 @@
   gosub to DisableHome
   set the content of HomeButton to `Home`
   on click HomeButton go to DoHome
+  
+  create AboutButton in MenuDiv
+  set the style of AboutButton to Style
+  set style `cursor` of AboutButton to `pointer`
+  set the content of AboutButton to `About`
+  on click AboutButton go to DoAbout
 
   create SectionDiv in MenuDiv
   set the style of SectionDiv to Style
@@ -287,6 +294,12 @@ AddArticle:
 ! Here when the Home button is clicked
 DoHome:
 	send `back` to parent
+    stop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Here when the About button is clicked
+DoAbout:
+	send `about` to parent
     stop
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

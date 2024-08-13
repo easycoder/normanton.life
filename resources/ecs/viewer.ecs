@@ -19,7 +19,6 @@
   a TagLink
   a PageLink
   span Span
-  variable Title
   variable Section
   variable Author
   variable UserName
