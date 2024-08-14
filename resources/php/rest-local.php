@@ -140,7 +140,7 @@
                             case 'author':
                                 $where = "WHERE author='$name'";
                                 if (!$admin) {
-                                    $where .= " AND (author='$user' OR pub=1)";
+                                    $where .= " AND section!='' AND (author='$user' OR pub=1)";
                                 }
                                 // print("SELECT* FROM articles $where ORDER BY published DESC LIMIT $offset, $count\n");
                                 $result = $conn->query("SELECT * FROM articles $where ORDER BY published DESC LIMIT $offset, $count");
