@@ -32,6 +32,8 @@
   variable Tag
   variable Article
   variable Content
+  variable IFrame
+  variable PercentageWidth
   variable OriginalHeight
   variable Hyperlink
   variable Slug
@@ -189,20 +191,45 @@ ShowArticle:
 !	Intercept all local hyperlinks (of the form href="/[slug]/")
 !	This allows requested articles to load without reloading the page
 InterceptHyperlinks:
-    ! First adjust any video items
-	! Look for 'height="%<n>" and use <n> to supply that proportion of the width of ArticleDiv
-    put the position of `height="%` in Article into P
+    ! First look for a video item
+    put the position of `<iframe ` in Article into P
     if P is not less than 0
     begin
-	    put from P of Article into Content
-        put the position of ` ` in Content into Q
-        put left Q of Content into OriginalHeight
-        put from 9 of Content into Content
-        take 10 from Q
-        put left Q of Content into N
-        multiply N by the width of Parent
-        divide N by 100
-        replace OriginalHeight with `height="` cat N cat `px"` in Article
+    	! Extract the IFrame
+        put the position of `</iframe>` in Article into Q
+        add 9 to Q
+        put left Q of Article into IFrame
+        put from P of IFrame into IFrame
+ 
+        ! Look for `width="<w>%"`and extract the requested width
+        put the position of `width="` in IFrame into P
+        if P is not less than 0
+        begin
+        	add 7 to P
+            put from P of IFrame into Content
+            put the position of `>` in Content into Q
+            take 2 from Q
+            put left Q of Content into PercentageWidth
+        end
+
+        ! Look for `height="%<h>"` and use <h> to supply that proportion of the parent width
+        put the position of `height="%` in IFrame into P
+        if P is not less than 0
+        begin
+            put from P of IFrame into Content
+            put the position of ` ` in Content into Q
+            put left Q of Content into OriginalHeight
+            put from 9 of Content into Content
+            take 10 from Q
+            put left Q of Content into N
+            multiply N by the width of Parent
+            divide N by 100
+            multiply N by PercentageWidth
+            divide N by 100
+            put IFrame into Content
+            replace OriginalHeight with `height="` cat N cat `px"` in Content
+            replace IFrame with Content in Article
+        end
     end
     
     ! Now add IDs to the internal hyperlinks
