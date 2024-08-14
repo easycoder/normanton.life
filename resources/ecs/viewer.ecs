@@ -32,6 +32,7 @@
   variable Tag
   variable Article
   variable Content
+  variable OriginalHeight
   variable Hyperlink
   variable Slug
   variable NewLink
@@ -67,6 +68,7 @@ ShowArticle:
 
   create ArticleDiv in Container
   set style `margin-top` of ArticleDiv to `0.5em`
+  set style `width` of ArticleDiv to `100%`
   put decode property `article` of Record into Article
   gosub to InterceptHyperlinks
   set the content of ArticleDiv to Article
@@ -187,6 +189,23 @@ ShowArticle:
 !	Intercept all local hyperlinks (of the form href="/[slug]/")
 !	This allows requested articles to load without reloading the page
 InterceptHyperlinks:
+    ! First adjust any video items
+	! Look for 'height="%<n>" and use <n> to supply that proportion of the width of ArticleDiv
+    put the position of `height="%` in Article into P
+    if P is not less than 0
+    begin
+	    put from P of Article into Content
+        put the position of ` ` in Content into Q
+        put left Q of Content into OriginalHeight
+        put from 9 of Content into Content
+        take 10 from Q
+        put left Q of Content into N
+        multiply N by the width of Parent
+        divide N by 100
+        replace OriginalHeight with `height="` cat N cat `px"` in Article
+    end
+    
+    ! Now add IDs to the internal hyperlinks
 	put Article into Content
     put 0 into LinkCount
     put 0 into N
