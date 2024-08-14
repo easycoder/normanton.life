@@ -1,6 +1,6 @@
-! 	Normanton Life
+! 	Main program
 
-  	script NormantonLife
+  	script Main
 
   	div Block
     div TitleGroup
@@ -255,7 +255,6 @@
         	put property `slug` of Message into Slug
             gosub to ViewSlug
         end
-        stop
       end
       else if Source is `Editor'
       begin
@@ -412,7 +411,6 @@ RedrawBlocks:
   rest get Waiting from `/resources/php/rest.php/_/articles/list/waiting?v=` cat now or go to DataReadFail
   
   ! Get a list  of article IDs
-  print `User: ` cat UserName
   if Selector is `section`
   begin
     set property `section` of TrackingMessage to Section
@@ -484,7 +482,7 @@ RedrawBlocks:
     create SelectorDiv in Blocks
     set the style of SelectorDiv to `font-weight:bold;color:green;margin-bottom:0.5em`
     replace `%20` with ` ` in Author
-    set the content of SelectorDiv to `Articles in section ` cat Section
+    set the content of SelectorDiv to `Articles in '` cat Section cat `'`
   end
   if Selector is `author`
   begin
@@ -715,13 +713,12 @@ Viewer:
   gosub SetHomeToBack
   gosub to DisableSectionsButton
   put `` into HistoryState
-  set property `script` of HistoryState to `NormantonLife`
+  set property `script` of HistoryState to `Main`
   set property `url` of HistoryState to
     property `protocol` of Args cat property `domain` of Args
   history set state HistoryState
   on restore
   begin
-  print `Restore from viewer`
   	if Selector is empty gosub SetHomeToHome
     gosub to EnableSectionsButton
 !    if CurrentPage is 0 gosub to DisableHomeButton
@@ -736,7 +733,6 @@ Viewer:
       put `home` into Location
       if ViewerMessage is `show` gosub to ViewSlug
       else if ViewerMessage is `edit` go to Editor
-!      end
       if property `action` of ViewerMessage is `section`
       begin
         put property `name` of ViewerMessage into Section
@@ -794,6 +790,7 @@ EditSlug:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Edit an article
 Editor:
+print `Run the editor`
   put `` into Message
   if ArticleEditor is not running
   begin
@@ -838,10 +835,8 @@ Editor:
   put `edit` into Location
   send to ArticleEditor
   set Message to object
-  set property `action` of Message to `home`
-  set property `name` of Message to `Back`
+  gosub to SetHomeToBack
   set Editing
-  send Message to Menu
   set style `display` of ToolsButton to `none`
   set style `display` of NavigatorDiv to `none`
   gosub to HideBlocks
@@ -897,6 +892,7 @@ SetHomeToBack:
     set Message to object
     set property `action` of Message to `home`
     set property `name` of Message to `Back`
+  	set property `title` of Message to `Back to previous screen`
     send Message to Menu
 	return
 
@@ -906,6 +902,7 @@ SetHomeToHome:
     set Message to object
     set property `action` of Message to `home`
     set property `name` of Message to `Home`
+  	set property `title` of Message to `The Home screen`
     send Message to Menu
 	return
 

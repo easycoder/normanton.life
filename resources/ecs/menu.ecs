@@ -76,6 +76,7 @@
   set the style of AboutButton to Style
   set style `cursor` of AboutButton to `pointer`
   set the content of AboutButton to `About`
+  set attribute `title` of AboutButton to `About this website`
   on click AboutButton go to DoAbout
 
   create SectionDiv in MenuDiv
@@ -84,6 +85,7 @@
   set the style of SectionsButton to Style2
   set style `cursor` of SectionsButton to `pointer`
   set the content of SectionsButton to `Sections`
+  set attribute `title` of SectionsButton to `Choose a section`
   on click SectionsButton gosub to DoSections
   create SectionSelect in SectionDiv
   set the style of SectionSelect to Style
@@ -162,6 +164,7 @@
       else if Action is `home`
       begin
       	set the content of HomeButton to property `name` of Message
+        set attribute `title` of HomeButton to property `title` of Message
       end
     end
   end

@@ -61,6 +61,8 @@ ShowArticle:
     create EditButton in Container
     set the style of EditButton to `float:right;width:25px;margin-top:0.25em`
     set attribute `src` of EditButton to `https://` cat the hostname cat `/resources/icon/edit.png`
+    set attribute `title` of EditButton to `Edit this article`
+    set style `cursor` of EditButton to `pointer`
     on click EditButton
     begin
       put `edit` into Message
