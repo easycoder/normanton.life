@@ -266,6 +266,7 @@ InterceptHyperlinks:
         put from P of Article into Content
         
         put `<a id="id-` cat Slug cat `"` cat from 2 of Hyperlink into NewLink
+        ! print Hyperlink cat ` - ` cat NewLink
         replace Hyperlink with NewLink in Article
         add 1 to LinkCount
     end
@@ -281,7 +282,7 @@ Refresh:
         on click PageLink
         begin
         	index Slug to the index of PageLink
-!        	alert `Click ` cat attribute `id` of PageLink
+        	print `Click ` cat Slug
             set Message to object
             set property `source` of Message to `Viewer`
             set property `action` of Message to `slug`

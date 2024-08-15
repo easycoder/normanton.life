@@ -254,6 +254,7 @@
         begin
         	put property `slug` of Message into Slug
             gosub to ViewSlug
+            stop
         end
       end
       else if Source is `Editor'
