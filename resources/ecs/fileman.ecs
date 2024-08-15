@@ -292,8 +292,7 @@ Upload:
   if UploadFile is empty alert `Please choose a file to upload`
   else
   begin
-	put CurrentPath into Path
-    put `_upload` cat Path into Path
+    put `_upload` cat CurrentPath into Path
     upload UploadFile to Path with UploadProgress and UploadStatus
     goto Browser
   end

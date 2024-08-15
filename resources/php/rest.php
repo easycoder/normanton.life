@@ -170,7 +170,18 @@
                     $fileType = $_FILES['source']['type'];
                     $fileSize = $_FILES['source']['size'];
                     $fileError = $_FILES['source']['error'];
-                    if (!move_uploaded_file($tempName, "$path/$fileName")) {
+                    $fullPath = "$path/$fileName";
+                    $n = 2;
+                    while (file_exists($fullPath)) {
+                        $p = strrpos($fullPath, ".");
+                        if ($p > 0) {
+                            $fullPath = substr($fileName, 0, $p) . "-$n" . substr($fileName, $p);
+                        } else {
+                            $fullPath = "$path/$fileName-$n";
+                        }
+                        $n++;
+                    }
+                    if (!move_uploaded_file($tempName, $fullPath)) {
                         unlink($tempName);
                         http_response_code(400);
                         log_error("Failed to upload $tempName to $fileName.\ntempName: $tempName\nfileType: $fileType\nfileSize:$fileSize\nfileError: $fileError");
