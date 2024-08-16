@@ -25,7 +25,6 @@
   	a AuthorLink
   	h5 SelectorDiv
     label Label
-!  	img EditButton
     img ReleaseButton
   	img ToolsButton
   	img BannerImage
@@ -295,13 +294,6 @@ ShowAdminControls:
   set style `display` of ToolsButton to `inline-block`
   set attribute `title` of ToolsButton to `Admin tools`
   put 0 into N
-!  while N is less than DisplayCount
-!  begin
-!    index EditButton to N
-!    set style `display` of EditButton to `inline-block`
-!    set attribute `title` of EditButton to `Edit this article`
-!    add 1 to N
-!  end
   send to LeftPanel
   send to RightPanel
   stop
@@ -471,7 +463,6 @@ RedrawBlocks:
   set the elements of TitleLink to DisplayCount
   set the elements of SynopsisText to DisplayCount
   set the elements of SynopsisGroup to DisplayCount
-!  set the elements of EditButton to DisplayCount
   set the elements of ReleaseButton to DisplayCount
   set the elements of SectionLink to DisplayCount
   set the elements of AuthorLink to DisplayCount
@@ -508,7 +499,6 @@ RedrawBlocks:
     index TitleLink to Index
     index SynopsisGroup to Index
     index SynopsisText to Index
-!    index EditButton to Index
     index ReleaseButton to Index
     create Block in Blocks
     set the style of Block to `position:relative`
@@ -520,22 +510,10 @@ RedrawBlocks:
       `position:absolute;top:0.25em;right:0;width:25px;display:none`
     set attribute `src` of ReleaseButton to `resources/icon/tick.png`
     set attribute `title` of ReleaseButton to `Release this article`
-!    create EditButton in TitleGroup
-!    set the style of EditButton to
-!      `position:absolute;top:0.25em;right:0;width:25px;display:none`
-!    set attribute `src` of EditButton to `resources/icon/edit.png`
-!    set attribute `title` of EditButton to `Edit this article`
     create SynopsisGroup in Block
     create SynopsisText in SynopsisGroup
     
     on click ReleaseButton go to ReleaseArticle
-
-!    on click EditButton
-!    begin
-!      put the index of EditButton into Index
-!      put element Index of Articles into Article
-!      go to Editor
-!    end
     add 1 to Index
   end
 
@@ -566,7 +544,6 @@ ShowSynopses:
   begin
     index Block to Index
     index ReleaseButton to Index
-!    index EditButton to Index
     index TitleGroup to Index
     index TitleLink to Index
     index SynopsisGroup to Index
@@ -582,10 +559,8 @@ ShowSynopses:
 ! Show the synopsis of a selected article
 ShowSynopsis:
   put element Index of Articles into Article
-!  if property `author` of Article is UserName set style `display` of EditButton to `inline-block`
   if IsAdmin
   begin
-!  	set style `display` of EditButton to `inline-block`
   	put property `id` of Article into ID
   	put 0 into N
   	while N is less than the json count of Waiting

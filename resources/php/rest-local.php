@@ -193,6 +193,20 @@
                         mysqli_free_result($result);
                         print $response;
                         break;
+                    case 'lead':
+                        // Endpoint: {site root}/rest.php/_/articles/lead/{section}
+                        // Get the lead article for a given section
+                        $section = $request[0];
+                        $result = $conn->query("SELECT slug from articles WHERE section='$section' ORDER BY published ASC");
+                        if ($row = mysqli_fetch_object($result)) {
+                            $slug = $row->slug;
+                            print "$slug\n";
+                        } else {
+                            http_response_code(404);
+                            log_error("{\"message\":\"Unknown section '$section'.\"}");
+                        }
+                        mysqli_free_result($result);
+                        break;
                     default:
                         http_response_code(404);
                         log_error("{\"message\":\"REST: Unknown action '$action' in 'articles'.\"}");
